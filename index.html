@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Kinerva – Centro de Fisioterapia y Rehabilitación en CDMX. Evaluación gratuita. Especialistas en lesiones deportivas, columna, neurorrehabilitación y más. +500 pacientes recuperados.">
+  <meta name="keywords"
+    content="fisioterapia, rehabilitación, terapia física, Kinerva, fisioterapeuta, lesiones deportivas, CDMX, evaluación gratuita">
+  <title>Kinerva – Recupera tu Vida Sin Dolor | Fisioterapia CDMX</title>
+
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <!-- ========================
+     TOP BAR
+========================= -->
+  <div class="topbar">
+    <div class="container">
+      <div class="topbar-left">
+        <!-- <span><i class="fas fa-map-marker-alt"></i>Calle Salud 123, CDMX</span> -->
+        <span><i class="fas fa-phone"></i>(33) 3024-9555</span>
+        <span><i class="fas fa-phone"></i>(33) 3822-9540</span>
+        <!-- <span class="topbar-promo"><i class="fas fa-gift"></i>Primera evaluación en línea <strong>100% GRATIS</strong></span> -->
+      </div>
+      <div class="topbar-right">
+        <!-- <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a> -->
+        <a href="https://www.instagram.com/kinerva_ft?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" aria-label="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+        <!-- <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a> -->
+        <!-- <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a> -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================
+     NAVBAR
+========================= -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="#inicio" class="logo">
+        <img src="logos/KINERVANE.png" alt="Kinerva" class="logo-img">
+      </a>
+      <button class="burger" id="burger" aria-label="Menú"><i class="fas fa-bars"></i></button>
+      <div class="nav-links" id="navLinks">
+        <a href="#inicio" class="active">Inicio</a>
+        <a href="#servicios">Servicios</a>
+        <a href="#como">Cómo Funciona</a>
+        <a href="#equipo">Equipo</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contacto">Contacto</a>
+        <a href="#cita" class="nav-cta" onclick="openModal(event)">
+          <i class="fas fa-calendar-check" style="margin-right:5px"></i>Agenda tu Evaluación
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========================
+     HERO
+========================= -->
+  <section class="hero" id="inicio">
+
+    <!-- Slides de fondo -->
+    <div class="hero-slides" id="heroSlides">
+      <div class="hero-slide active"></div>
+      <div class="hero-slide"></div>
+      <div class="hero-slide"></div>
+    </div>
+    <div class="hero-grad"></div>
+
+    <!-- Flechas de navegación -->
+    <button class="hero-arr prev" onclick="heroPrev()" aria-label="Anterior"><i
+        class="fas fa-chevron-left"></i></button>
+    <button class="hero-arr next" onclick="heroNext()" aria-label="Siguiente"><i
+        class="fas fa-chevron-right"></i></button>
+
+    <!-- Puntos indicadores -->
+    <div class="hero-dots" id="heroDots">
+      <span class="on" onclick="heroGoTo(0)"></span>
+      <span onclick="heroGoTo(1)"></span>
+      <span onclick="heroGoTo(2)"></span>
+    </div>
+
+    <!-- Contenido de texto -->
+    <div class="container hero-body">
+      <div class="hero-copy" id="heroCopy">
+
+        <!-- Prueba social -->
+        <!-- <div class="hero-sp">
+          <span class="hero-stars">★★★★★</span>
+          <span>4.9 en Google &nbsp;·&nbsp; +500 pacientes recuperados</span>
+        </div> -->
+
+        <div class="hero-badge" id="heroBadge">Fisioterapia Deportiva</div>
+        <h1 id="heroH1">Recupera tu<br>Rendimiento<br>Deportivo</h1>
+        <p id="heroP">Especialistas en rehabilitación de lesiones deportivas. Vuelve a la acción más rápido y más fuerte
+          que antes.</p>
+
+        <!-- Urgencia -->
+        <!-- <p class="hero-urgency">
+          <i class="fas fa-fire-alt"></i>&nbsp;Cupos limitados &mdash; <strong>agenda hoy y recibe tu evaluación
+            gratis</strong>
+        </p> -->
+        <p class="hero-urgency">
+          <i class="fas fa-fire-alt"></i>&nbsp;Cupos limitados &mdash; <strong>agenda hoy
+            </strong>
+        </p>
+
+        <div class="hero-btns">
+          <a href="#cita" class="btn btn-pulse" onclick="openModal(event)">
+            <i class="fas fa-calendar-check"></i>&nbsp; Agenda tu Evaluación
+          </a>
+          <a href="https://wa.me/3330249555?text=Hola%2C%20quisiera%20agendar%20una%20cita%20en%20Kinerva"
+            class="btn btn-outline-wa" target="_blank" rel="noopener">
+            <i class="fab fa-whatsapp"></i>&nbsp; WhatsApp
+          </a>
+        </div>
+
+        <!-- Trust signals -->
+        <div class="hero-trust">
+          <span><i class="fas fa-shield-alt"></i> Sin compromiso</span>
+          <span><i class="fas fa-clock"></i> Respuesta en &lt;1 hora</span>
+          <span><i class="fas fa-certificate"></i> Cédula profesional verificable</span>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ========================
+     STATS BAR
+========================= -->
+  <section class="stats-bar" id="statsBar">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-num" data-target="500">0</span><span class="stat-suf">+</span>
+          <p>Pacientes Recuperados</p>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num" data-target="98">0</span><span class="stat-suf">%</span>
+          <p>Tasa de Satisfacción</p>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num" data-target="10">0</span><span class="stat-suf">+</span>
+          <p>Años de Experiencia</p>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num" data-target="6">0</span>
+          <p>Especialidades</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================
+     INFO BAR
+========================= -->
+  <div class="infobar">
+    <div class="container">
+
+      <!-- Contactos -->
+      <div class="ib">
+        <div class="lbl">Nuestros</div>
+        <h3>Contactos</h3>
+        <div class="ib-line"><i class="fas fa-map-marker-alt"></i> Calle Salud 123, Col. Centro Médico, CDMX</div>
+        <div class="ib-line"><i class="fas fa-phone"></i> (55) 1234-5678 &nbsp;/&nbsp; (55) 8765-4321</div>
+        <div class="ib-line"><i class="fas fa-envelope"></i> info@kinerva.mx</div>
+      </div>
+
+      <!-- Agendar cita rápida -->
+      <div class="ib ib-appt">
+        <div class="lbl">Primera cita</div>
+        <h3>100% Gratuita <span class="ib-free-badge">GRATIS</span></h3>
+        <form onsubmit="return quickAppt(event)">
+          <input type="text" placeholder="Nombre completo" required>
+          <input type="tel" placeholder="WhatsApp / Teléfono" required>
+          <select>
+            <option value="">¿Qué te molesta?</option>
+            <option>Dolor de espalda / columna</option>
+            <option>Lesión deportiva</option>
+            <option>Rodilla / cadera</option>
+            <option>Hombro / cuello</option>
+            <option>Rehabilitación postoperatoria</option>
+            <option>Otro</option>
+          </select>
+          <button type="submit" class="cta-appt">
+            <i class="fas fa-calendar-check"></i>&nbsp; Quiero mi Cita Gratis
+          </button>
+        </form>
+        <p class="ib-note"><i class="fas fa-lock"></i> Tus datos están seguros. Te llamamos en menos de 1 hora.</p>
+      </div>
+
+      <!-- Horarios -->
+      <div class="ib">
+        <div class="lbl">Horario de</div>
+        <h3>Atención</h3>
+        <div class="hours-grid">
+          <span class="hday">Lunes – Viernes</span><span class="htime">8:00 – 19:00</span>
+          <span class="hday">Sábado</span> <span class="htime">9:00 – 14:00</span>
+          <span class="hday">Domingo</span> <span class="htime">Cerrado</span>
+        </div>
+        <a href="https://wa.me/3330249555?text=Hola%2C%20quiero%20agendar%20una%20cita%20en%20Kinerva"
+          class="ib-wa-btn" target="_blank" rel="noopener">
+          <i class="fab fa-whatsapp"></i> Agendar por WhatsApp
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================
+     FEATURES
+========================= -->
+  <section class="features sec">
+    <div class="container">
+      <div class="feat-grid">
+
+        <div class="feat-card">
+          <div class="feat-ico">
+            <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="36" cy="36" r="36" fill="#E6F8F7" />
+              <path d="M36 22v28M22 36h28" stroke="#00BDB4" stroke-width="4" stroke-linecap="round" />
+              <circle cx="36" cy="36" r="22" stroke="#00BDB4" stroke-width="2" fill="none" />
+            </svg>
+          </div>
+          <h4>Mejor<br>Tratamiento</h4>
+          <p>Técnicas de vanguardia y equipamiento de última generación para una recuperación efectiva y duradera.</p>
+        </div>
+
+        <div class="feat-card">
+          <div class="feat-ico">
+            <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="36" cy="36" r="36" fill="#FEF0EE" />
+              <path d="M36 16 L44 28 L56 29.5 L46 40 L48 52 L36 46 L24 52 L26 40 L16 29.5 L28 28 Z" fill="#E74C3C"
+                fill-opacity=".85" stroke="#E74C3C" stroke-width="1.5" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <h4>Atención<br>de Urgencia</h4>
+          <p>Atención prioritaria para lesiones agudas. Contáctanos y te atendemos en el menor tiempo posible.</p>
+        </div>
+
+        <div class="feat-card">
+          <div class="feat-ico">
+            <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="36" cy="36" r="36" fill="#E6F8F7" />
+              <circle cx="36" cy="26" r="8" stroke="#00BDB4" stroke-width="2.5" fill="none" />
+              <path d="M18 54c0-9.94 8.06-14 18-14s18 4.06 18 14" stroke="#00BDB4" stroke-width="2.5"
+                stroke-linecap="round" fill="none" />
+            </svg>
+          </div>
+          <h4>Personal<br>Especializado</h4>
+          <p>Fisioterapeutas certificados con años de experiencia en diversas áreas de la rehabilitación física.</p>
+        </div>
+
+        <div class="feat-card">
+          <div class="feat-ico">
+            <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="36" cy="36" r="36" fill="#E6F8F7" />
+              <path d="M24 34l9 9 15-16" stroke="#00BDB4" stroke-width="3.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M20 22l16-8 16 8v16c0 9-8 15-16 18-8-3-16-9-16-18V22Z" stroke="#00BDB4" stroke-width="2.2"
+                fill="none" />
+            </svg>
+          </div>
+          <h4>Fisioterapeutas<br>Certificados</h4>
+          <p>Cédulas profesionales verificables, posgrados y certificaciones internacionales que garantizan calidad.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================
+     CÓMO FUNCIONA
+========================= -->
+  <section class="how-it-works sec" id="como">
+    <div class="container">
+      <div class="sec-head t-center">
+        <span class="kicker">Así de simple</span>
+        <h2>Empieza a Recuperarte en 3 Pasos</h2>
+        <div class="rule rule-center"></div>
+        <p>Sin trámites complicados, sin esperas largas. Comenzamos hoy mismo.</p>
+      </div>
+      <div class="steps-grid">
+
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <div class="step-ico"><i class="fas fa-calendar-check"></i></div>
+          <h4>Agenda tu Cita</h4>
+          <p>Llama, escríbenos por WhatsApp o llena el formulario. Confirmamos tu lugar en menos de 1 hora hábil.</p>
+        </div>
+
+        <div class="step-arrow"><i class="fas fa-arrow-right"></i></div>
+
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <div class="step-ico"><i class="fas fa-stethoscope"></i></div>
+          <h4>Evaluación Gratuita</h4>
+          <p>Tu primera sesión es una evaluación completa sin costo. Identificamos el origen del problema y diseñamos tu
+            plan personalizado.</p>
+          <span class="step-badge">GRATIS</span>
+        </div>
+
+        <div class="step-arrow"><i class="fas fa-arrow-right"></i></div>
+
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <div class="step-ico"><i class="fas fa-running"></i></div>
+          <h4>Recupera tu Vida</h4>
+          <p>Sigue tu plan personalizado y regresa a las actividades que amas, libre de dolor y con total confianza.</p>
+        </div>
+
+      </div>
+      <div class="t-center" style="margin-top:52px">
+        <a href="#cita" class="btn btn-teal btn-lg" onclick="openModal(event)">
+          <i class="fas fa-calendar-check"></i>&nbsp; Agendar mi Evaluación
+        </a>
+        <p class="form-privacy">
+          <i class="fas fa-lock"></i> Tus datos están protegidos. Sin spam, sin compromiso.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================
+     SERVICES
+========================= -->
+  <section class="services sec" id="servicios">
+    <div class="container">
+      <div class="sec-head t-center">
+        <span class="kicker">Lo que ofrecemos</span>
+        <h2>Nuestros Servicios</h2>
+        <div class="rule rule-center"></div>
+        <p>Tratamientos especializados para cada necesidad, con protocolos basados en evidencia científica.</p>
+      </div>
+      <div class="srv-grid">
+
+        <div class="srv-card srv-featured">
+          <div class="srv-popular-badge">MÁS SOLICITADO</div>
+          <div class="srv-ico"><i class="fas fa-running"></i></div>
+          <h4>Fisioterapia Deportiva</h4>
+          <p>Rehabilitación de lesiones deportivas, prevención y optimización del rendimiento atlético con técnicas
+            especializadas.</p>
+          <div class="srv-meta"><span><i class="fas fa-clock"></i>45–60 min</span><span><i class="fas fa-tag"></i>Desde
+              $500</span></div>
+          <a href="#cita" class="srv-cta" onclick="openModal(event)">Agendar ahora <i class="fas fa-arrow-right"></i></a>
+        </div>
+
+        <div class="srv-card">
+          <div class="srv-ico"><i class="fas fa-hand-holding-medical"></i></div>
+          <h4>Terapia Manual</h4>
+          <p>Técnicas de manipulación articular y movilización tisular para aliviar el dolor y restaurar la función
+            normal.</p>
+          <div class="srv-meta"><span><i class="fas fa-clock"></i>50 min</span><span><i class="fas fa-tag"></i>Desde
+              $600</span></div>
+          <a href="#cita" class="srv-cta" onclick="openModal(event)">Agendar ahora <i class="fas fa-arrow-right"></i></a>
+        </div>
+
+        <div class="srv-card">
+          <div class="srv-ico"><i class="fas fa-bolt"></i></div>
+          <h4>Electroterapia</h4>
+          <p>TENS, ultrasonido terapéutico y corrientes galvánicas para reducir el dolor y acelerar la recuperación
+            tisular.</p>
+          <div class="srv-meta"><span><i class="fas fa-clock"></i>30 min</span><span><i class="fas fa-tag"></i>Desde
+              $350</span></div>
+          <a href="#cita" class="srv-cta" onclick="openModal(event)">Agendar ahora <i class="fas fa-arrow-right"></i></a>
+        </div>
+
+        <div class="srv-card">
+          <div class="srv-ico"><i class="fas fa-spa"></i></div>
+          <h4>Masoterapia</h4>
+          <p>Masaje terapéutico para alivio muscular, reducción del estrés y mejora de la circulación sanguínea.</p>
+          <div class="srv-meta"><span><i class="fas fa-clock"></i>60 min</span><span><i class="fas fa-tag"></i>Desde
+              $450</span></div>
+          <a href="#cita" class="srv-cta" onclick="openModal(event)">Agendar ahora <i class="fas fa-arrow-right"></i></a>
+        </div>
+
+        <div class="srv-card">
+          <div class="srv-ico"><i class="fas fa-baby"></i></div>
+          <h4>Fisioterapia Pediátrica</h4>
+          <p>Atención especializada para niños con alteraciones del desarrollo motor, tono muscular y coordinación.</p>
+          <div class="srv-meta"><span><i class="fas fa-clock"></i>45 min</span><span><i class="fas fa-tag"></i>Desde
+              $550</span></div>
+          <a href="#cita" class="srv-cta" onclick="openModal(event)">Agendar ahora <i class="fas fa-arrow-right"></i></a>
+        </div>
+
+        <div class="srv-card">
+          <div class="srv-ico"><i class="fas fa-home"></i></div>
+          <h4>Fisioterapia a Domicilio</h4>
+          <p>Llevamos el tratamiento hasta tu hogar. Ideal para pacientes con movilidad reducida o postoperatorios.</p>
+          <div class="srv-meta"><span><i class="fas fa-clock"></i>60 min</span><span><i class="fas fa-tag"></i>Desde
+              $700</span></div>
+          <a href="#cita" class="srv-cta" onclick="openModal(event)">Agendar ahora <i class="fas fa-arrow-right"></i></a>
+        </div>
+
+      </div>
+      <div class="srv-footer t-center">
+        <div class="srv-incl">
+          <i class="fas fa-check-circle"></i> Evaluación inicial gratuita incluida en tu primer servicio
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================
+     DEPARTMENTS
+========================= -->
+  <section class="depts sec">
+    <div class="container">
+
+      <div class="dept-side">
+        <h3>Áreas de<br>Especialidad</h3>
+        <ul class="dept-list" id="deptList">
+          <li class="on" data-i="0"><a href="#">Centro de Rehabilitación <i class="fas fa-chevron-right"></i></a></li>
+          <li data-i="1"><a href="#">Clínica de Columna <i class="fas fa-chevron-right"></i></a></li>
+          <li data-i="2"><a href="#">Neurorrehabilitación <i class="fas fa-chevron-right"></i></a></li>
+          <li data-i="3"><a href="#">Medicina del Deporte <i class="fas fa-chevron-right"></i></a></li>
+          <li data-i="4"><a href="#">Fisioterapia Geriátrica <i class="fas fa-chevron-right"></i></a></li>
+          <li data-i="5"><a href="#">Piso Pélvico <i class="fas fa-chevron-right"></i></a></li>
+        </ul>
+      </div>
+
+      <div class="dept-main">
+        <div class="dept-copy">
+          <span class="kicker">Especialidad</span>
+          <h3 id="dTitle">Centro de Rehabilitación</h3>
+          <p id="dDesc">Nuestro centro integral de rehabilitación combina las más modernas técnicas terapéuticas con un
+            enfoque personalizado para cada paciente. Trabajamos con protocolos basados en evidencia científica para
+            garantizar los mejores resultados en el menor tiempo posible, siempre priorizando tu bienestar y calidad de
+            vida.</p>
+          <a href="#" class="btn btn-red" onclick="openModal(event)">Agendar Consulta</a>
+        </div>
+        <img id="dImg" class="dept-img" src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&q=80"
+          alt="Especialidad">
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================
+     CTA BAND – LEAD CAPTURE
+========================= -->
+  <div class="cta-band">
+    <div class="container">
+      <span class="kicker">¿Tienes dolor hoy?</span>
+      <h2>Agenda tu Evaluación</h2>
+      <p class="cta-sub">Dinos tu número y te llamamos en menos de 1 hora para confirmar tu lugar</p>
+      <form onsubmit="return handleCTALead(event)" class="cta-lead-form">
+        <input type="tel" placeholder="Tu número de WhatsApp o teléfono" required>
+        <button type="submit">Quiero mi Cita &nbsp;<i class="fas fa-arrow-right"></i></button>
+      </form>
+      <div class="cta-guarantees">
+        <span><i class="fas fa-check-circle"></i> Primera evaluación</span>
+        <span><i class="fas fa-check-circle"></i> Sin compromiso</span>
+        <span><i class="fas fa-check-circle"></i> Respuesta en &lt;1 hora</span>
+      </div>
+      <small><i class="fas fa-lock"></i> No compartimos tu número. Solo te contactamos para tu cita.</small>
+    </div>
+  </div>
+
+  <!-- ========================
+     GUARANTEE
+========================= -->
+  <section class="guarantee sec">
+    <div class="container">
+      <div class="guarantee-box">
+        <div class="g-ico">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <div class="g-copy">
+          <h3>Nuestra Garantía de Resultados</h3>
+          <p>Si no sientes mejoría después de tu primera sesión de evaluación, <strong>no te cobramos nada</strong>. Así de seguros estamos de nuestro trabajo y de nuestros fisioterapeutas. Tu recuperación no es opcional para nosotros — es nuestra misión.</p>
+        </div>
+        <a href="#cita" class="btn btn-red" onclick="openModal(event)">Empieza Sin Riesgo</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================
+     TEAM
+========================= -->
+  <section class="team sec" id="equipo">
+    <div class="container">
+      <div class="team-layout">
+
+        <div class="team-intro">
+          <div class="sec-head">
+            <span class="kicker">Conoce a</span>
+            <h2>Nuestro<br>Equipo</h2>
+            <div class="rule"></div>
+          </div>
+          <p>Profesionales certificados y apasionados por la salud, comprometidos con tu recuperación y bienestar.</p>
+          <a href="#contacto" class="btn btn-red">Conocer Más</a>
+        </div>
+
+        <div class="team-grid">
+
+          <div class="t-card">
+            <div class="t-photo">
+              <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=360&q=80"
+                alt="Dr. Carlos Mendoza">
+              <div class="t-overlay">
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+              </div>
+            </div>
+            <div class="t-info">
+              <h4>Dr. Carlos Mendoza</h4><span>Fisioterapia Deportiva</span>
+            </div>
+          </div>
+
+          <div class="t-card">
+            <div class="t-photo">
+              <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=360&q=80" alt="Dra. Ana Torres">
+              <div class="t-overlay">
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+              </div>
+            </div>
+            <div class="t-info">
+              <h4>Dra. Ana Torres</h4><span>Neurorrehabilitación</span>
+            </div>
+          </div>
+
+          <div class="t-card">
+            <div class="t-photo">
+              <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=360&q=80" alt="Dr. Luis Ramírez">
+              <div class="t-overlay">
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+              </div>
+            </div>
+            <div class="t-info">
+              <h4>Dr. Luis Ramírez</h4><span>Terapia Manual</span>
+            </div>
+          </div>
+
+          <div class="t-card">
+            <div class="t-photo">
+              <img src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=360&q=80" alt="Dra. Sofía Pérez">
+              <div class="t-overlay">
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+              </div>
+            </div>
+            <div class="t-info">
+              <h4>Dra. Sofía Pérez</h4><span>Fisioterapia Pediátrica</span>
+            </div>
+          </div>
+
+          <div class="t-card">
+            <div class="t-photo">
+              <img src="https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=360&q=80" alt="Dr. Marco Silva">
+              <div class="t-overlay">
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+              </div>
+            </div>
+            <div class="t-info">
+              <h4>Dr. Marco Silva</h4><span>Electroterapia</span>
+            </div>
+          </div>
+
+          <div class="t-card">
+            <div class="t-photo">
+              <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=360&q=80" alt="Dra. Isabel Cruz">
+              <div class="t-overlay">
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+              </div>
+            </div>
+            <div class="t-info">
+              <h4>Dra. Isabel Cruz</h4><span>Piso Pélvico</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================
+     TESTIMONIALS
+========================= -->
+  <section class="testi sec">
+    <div class="container">
+      <div class="sec-head t-center" style="--kicker-color: var(--teal)">
+        <span class="kicker">Resultados reales</span>
+        <h2 style="color:#fff">Lo Que Dicen Nuestros Pacientes</h2>
+        <div class="rule rule-center"></div>
+        <div class="testi-rating">
+          <span class="testi-stars">★★★★★</span>
+          <span class="testi-score">4.9 / 5</span>
+          <span class="testi-count">+120 reseñas en Google</span>
+        </div>
+      </div>
+      <div class="testi-grid">
+
+        <div class="t-quote">
+          <div class="stars">★★★★★</div>
+          <p>"Después de mi cirugía de rodilla pensé que no volvería a correr. El equipo de <strong>Kinerva</strong> me ayudó a recuperarme completamente en <strong>3 meses</strong>. ¡Ahora ya estoy en mi siguiente maratón!"</p>
+          <div class="t-author">
+            <div class="t-av">MG</div>
+            <div class="t-av-info">
+              <h5>Miguel González</h5><span>Maratonista amateur · Cirugía de rodilla</span>
+            </div>
+          </div>
+          <div class="t-result"><i class="fas fa-check-circle"></i> Recuperado en 3 meses</div>
+        </div>
+
+        <div class="t-quote">
+          <div class="stars">★★★★★</div>
+          <p>"Llevaba <strong>3 años</strong> con dolor de espalda crónico. Después de 8 sesiones de terapia manual en Kinerva, mi calidad de vida mejoró enormemente. Ojalá hubiera venido antes."</p>
+          <div class="t-author">
+            <div class="t-av">LM</div>
+            <div class="t-av-info">
+              <h5>Laura Martínez</h5><span>Ejecutiva · Dolor lumbar crónico</span>
+            </div>
+          </div>
+          <div class="t-result"><i class="fas fa-check-circle"></i> Libre de dolor en 8 sesiones</div>
+        </div>
+
+        <div class="t-quote">
+          <div class="stars">★★★★★</div>
+          <p>"Mi hijo tiene parálisis cerebral y los avances con la fisioterapia pediátrica de <strong>Kinerva</strong> han sido increíbles. El trato es muy humano y el seguimiento, totalmente personalizado."</p>
+          <div class="t-author">
+            <div class="t-av">PR</div>
+            <div class="t-av-info">
+              <h5>Patricia Rodríguez</h5><span>Madre de paciente · Fisioterapia pediátrica</span>
+            </div>
+          </div>
+          <div class="t-result"><i class="fas fa-check-circle"></i> Avances notables y continuos</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================
+     SEGUROS / TRUST LOGOS
+========================= -->
+  <div class="insurance-bar">
+    <div class="container">
+      <p class="ins-label">Trabajamos con las principales aseguradoras &amp; emitimos facturas deducibles de impuestos</p>
+      <div class="ins-logos">
+        <span class="ins-item"><i class="fas fa-file-invoice-dollar"></i> IMSS</span>
+        <span class="ins-item"><i class="fas fa-file-invoice-dollar"></i> GNP</span>
+        <span class="ins-item"><i class="fas fa-file-invoice-dollar"></i> MAPFRE</span>
+        <span class="ins-item"><i class="fas fa-file-invoice-dollar"></i> AXA</span>
+        <span class="ins-item"><i class="fas fa-file-invoice-dollar"></i> Metlife</span>
+        <span class="ins-item"><i class="fas fa-file-invoice-dollar"></i> BBVA Seguros</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================
+     BLOG
+========================= -->
+  <section class="blog sec" id="blog">
+    <div class="container">
+      <div class="sec-head t-center">
+        <span class="kicker">Aprende más</span>
+        <h2>Blog de Salud</h2>
+        <div class="rule rule-center"></div>
+        <p>Consejos, ejercicios y artículos de nuestros especialistas para cuidar tu salud.</p>
+      </div>
+      <div class="blog-grid">
+
+        <div class="b-card">
+          <div class="b-img">
+            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=480&q=80" alt="Dolor lumbar">
+            <span class="b-cat">Columna</span>
+          </div>
+          <div class="b-body">
+            <div class="b-meta"><i class="fas fa-calendar-alt"></i> 20 Abr 2025 &nbsp;|&nbsp; <i
+                class="fas fa-user"></i> Dr. C. Mendoza</div>
+            <h4>5 Ejercicios Efectivos para el Dolor Lumbar</h4>
+            <p>Aprende estos movimientos simples que puedes hacer en casa para aliviar el dolor de espalda baja y
+              fortalecer tu core...</p>
+            <a href="#" class="readmore">Leer más <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="b-card">
+          <div class="b-img">
+            <img src="https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=480&q=80"
+              alt="Lesiones deportivas">
+            <span class="b-cat">Deporte</span>
+          </div>
+          <div class="b-body">
+            <div class="b-meta"><i class="fas fa-calendar-alt"></i> 12 Abr 2025 &nbsp;|&nbsp; <i
+                class="fas fa-user"></i> Dra. A. Torres</div>
+            <h4>Cómo Prevenir las Lesiones Deportivas más Comunes</h4>
+            <p>El calentamiento adecuado, la técnica correcta y el descanso son clave. Te explicamos qué hacer antes y
+              después...</p>
+            <a href="#" class="readmore">Leer más <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="b-card">
+          <div class="b-img">
+            <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=480&q=80" alt="Postura en oficina">
+            <span class="b-cat">Ergonomía</span>
+          </div>
+          <div class="b-body">
+            <div class="b-meta"><i class="fas fa-calendar-alt"></i> 5 Abr 2025 &nbsp;|&nbsp; <i class="fas fa-user"></i>
+              Dr. L. Ramírez</div>
+            <h4>Ergonomía en la Oficina: Cuida tu Postura al Trabajar</h4>
+            <p>Pasar 8 horas frente a una pantalla tiene consecuencias. Descubre cómo configurar tu estación de trabajo
+              correctamente...</p>
+            <a href="#" class="readmore">Leer más <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================
+     FAQ
+========================= -->
+  <section class="faq sec" id="faq">
+    <div class="container">
+
+      <!-- Preguntas -->
+      <div>
+        <div class="sec-head">
+          <span class="kicker">Resolvemos tus</span>
+          <h2>Preguntas<br>Frecuentes</h2>
+          <div class="rule"></div>
+        </div>
+
+        <div class="faq-item open">
+          <div class="faq-q" onclick="toggleFaq(this)">¿Necesito una orden médica para agendar cita? <i
+              class="fas fa-chevron-down"></i></div>
+          <div class="faq-a">No es obligatorio. Puedes acudir directamente con nosotros. En la primera sesión realizamos
+            una evaluación completa gratuita y, si detectamos que necesitas valoración médica previa, te lo
+            indicaremos.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">¿Cuántas sesiones necesitaré? <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="faq-a">Depende del tipo y gravedad de tu condición. Un esguince leve puede resolverse en 4–6
+            sesiones, mientras que una rehabilitación postoperatoria puede requerir 3–6 meses. Te daremos una estimación
+            clara y honesta desde la primera evaluación.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">¿Aceptan seguros médicos? <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="faq-a">Sí, trabajamos con las principales aseguradoras: GNP, MAPFRE, AXA, Metlife y más. También
+            emitimos facturas deducibles de impuestos. Consulta disponibilidad llamando a nuestra recepción.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">¿Qué debo llevar a mi primera cita? <i
+              class="fas fa-chevron-down"></i></div>
+          <div class="faq-a">Trae ropa cómoda y deportiva, estudios previos si los tienes (radiografías, resonancias) y
+            el resultado de alguna valoración médica si la tienes. ¡Solo eso!</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">¿Hacen servicio a domicilio? <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="faq-a">Sí, contamos con fisioterapia a domicilio en un radio de 15 km desde nuestra clínica. Ideal
+            para postoperatorios, adultos mayores o pacientes con movilidad reducida.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">¿Cuánto cuesta la primera evaluación? <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="faq-a"><strong>La primera evaluación es completamente gratuita.</strong> Sin costo, sin compromiso. Queremos que conozcas a nuestro equipo y te sientas seguro antes de comprometerte con un plan de tratamiento.</div>
+        </div>
+      </div>
+
+      <!-- Aside -->
+      <div class="faq-aside">
+        <div class="cred-box">
+          <h3>¿Tienes más preguntas?</h3>
+          <p>Nuestro equipo está disponible para resolver todas tus dudas antes de tu primera cita. No esperes más para
+            iniciar tu recuperación.</p>
+          <a href="https://wa.me/5512345678?text=Hola%2C%20quisiera%20información%20sobre%20Kinerva"
+            class="btn btn-teal" style="display:block; text-align:center; margin-bottom:10px;">
+            <i class="fab fa-whatsapp" style="margin-right:8px;"></i>Escribir por WhatsApp
+          </a>
+          <a href="tel:5512345678" class="btn btn-red" style="display:block; text-align:center;">
+            <i class="fas fa-phone" style="margin-right:8px;"></i>Llamar Ahora
+          </a>
+        </div>
+        <div class="cert-box">
+          <h4><i class="fas fa-certificate"></i> Garantía de Calidad</h4>
+          <p><i class="fas fa-check-circle"></i>Todos nuestros fisioterapeutas tienen cédula profesional verificable en
+            el portal de la SEP.</p>
+          <p><i class="fas fa-check-circle"></i>Miembros activos de la Asociación Mexicana de Fisioterapia (AMEXFIS).
+          </p>
+          <p><i class="fas fa-check-circle"></i>Primera evaluación 100% gratuita y sin compromiso.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================
+     CONTACT
+========================= -->
+  <section class="contact sec" id="contacto">
+    <div class="container">
+      <div class="contact-grid">
+
+        <div class="contact-copy">
+          <div class="sec-head">
+            <span class="kicker">Estamos aquí</span>
+            <h2>Contáctanos</h2>
+            <div class="rule"></div>
+          </div>
+          <p>Estamos listos para atenderte y resolver todas tus dudas. Agenda tu cita o visítanos directamente en
+            nuestra clínica.</p>
+          <div class="c-detail">
+            <div class="c-ico"><i class="fas fa-map-marker-alt"></i></div>
+            <div class="c-txt">
+              <h5>Dirección</h5>
+              <p>Calle Salud 123, Col. Centro Médico<br>Ciudad de México, CP 06600</p>
+            </div>
+          </div>
+          <div class="c-detail">
+            <div class="c-ico"><i class="fas fa-phone"></i></div>
+            <div class="c-txt">
+              <h5>Teléfonos</h5>
+              <p>(55) 1234-5678<br>(55) 8765-4321</p>
+            </div>
+          </div>
+          <div class="c-detail">
+            <div class="c-ico"><i class="fas fa-envelope"></i></div>
+            <div class="c-txt">
+              <h5>Correo Electrónico</h5>
+              <p>info@kinerva.mx<br>citas@kinerva.mx</p>
+            </div>
+          </div>
+          <div class="c-detail">
+            <div class="c-ico"><i class="fas fa-clock"></i></div>
+            <div class="c-txt">
+              <h5>Horario</h5>
+              <p>Lun–Vie: 8:00–19:00<br>Sáb: 9:00–14:00</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="c-form">
+          <h3>Solicita tu Consulta Gratuita</h3>
+          <p style="color:#777;font-size:13px;margin-bottom:22px">Llena el formulario y te contactamos en menos de 1 hora hábil.</p>
+          <form onsubmit="return handleContact(event)">
+            <div class="f-row">
+              <div class="f-group"><label>Nombre *</label><input type="text" placeholder="Tu nombre" required></div>
+              <div class="f-group"><label>WhatsApp / Teléfono *</label><input type="tel" placeholder="(55) 0000-0000" required>
+              </div>
+            </div>
+            <div class="f-group"><label>Correo Electrónico</label><input type="email" placeholder="tu@correo.com"></div>
+            <div class="f-group">
+              <label>¿Qué te molesta?</label>
+              <select>
+                <option value="">Seleccionar...</option>
+                <option>Evaluación Inicial (Gratuita)</option>
+                <option>Dolor de espalda / columna</option>
+                <option>Lesión deportiva</option>
+                <option>Rodilla / cadera</option>
+                <option>Hombro / cuello</option>
+                <option>Rehabilitación postoperatoria</option>
+                <option>Otro</option>
+              </select>
+            </div>
+            <div class="f-group"><label>Mensaje</label><textarea
+                placeholder="Cuéntanos sobre tu condición o consulta..."></textarea></div>
+            <button type="submit" class="btn btn-teal" style="width:100%">Quiero mi Evaluación Gratuita &nbsp;<i
+                class="fas fa-arrow-right"></i></button>
+          </form>
+          <p class="form-privacy" style="margin-top:12px"><i class="fas fa-lock"></i> Tus datos están protegidos. No spam, nunca.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- MAP PLACEHOLDER -->
+  <div class="map-ph">
+    <i class="fas fa-map-marked-alt"></i>
+    <span>Aquí va el iframe de Google Maps con tu dirección</span>
+  </div>
+
+  <!-- ========================
+     FOOTER
+========================= -->
+  <footer class="footer">
+    <div class="footer-main">
+      <div class="container">
+        <div class="footer-grid">
+
+          <div class="f-brand">
+            <a href="#inicio" class="logo" style="margin-bottom:0">
+              <img src="logos/Logotipo%20KINERVA%20NE.png" alt="Kinerva" class="logo-img">
+            </a>
+            <p>Centro especializado en fisioterapia y rehabilitación en CDMX. Comprometidos con tu recuperación y
+              calidad de vida desde 2015. Primera evaluación gratuita.</p>
+            <div class="socials">
+              <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+              <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+              <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+              <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+              <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+          </div>
+
+          <div>
+            <h4>Servicios</h4>
+            <ul>
+              <li><a href="#servicios">Fisioterapia Deportiva</a></li>
+              <li><a href="#servicios">Terapia Manual</a></li>
+              <li><a href="#servicios">Electroterapia</a></li>
+              <li><a href="#servicios">Masoterapia</a></li>
+              <li><a href="#servicios">Fisioterapia Pediátrica</a></li>
+              <li><a href="#servicios">A Domicilio</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4>Navegación</h4>
+            <ul>
+              <li><a href="#inicio">Inicio</a></li>
+              <li><a href="#servicios">Servicios</a></li>
+              <li><a href="#como">Cómo Funciona</a></li>
+              <li><a href="#equipo">Equipo</a></li>
+              <li><a href="#faq">FAQ</a></li>
+              <li><a href="#contacto">Contacto</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4>Contacto</h4>
+            <div class="f-contact-li"><i class="fas fa-map-marker-alt"></i><span>Calle Salud 123, Col. Centro Médico,
+                CDMX</span></div>
+            <div class="f-contact-li"><i class="fas fa-phone"></i><span>(55) 1234-5678</span></div>
+            <div class="f-contact-li"><i class="fas fa-envelope"></i><span>info@kinerva.mx</span></div>
+            <div class="f-contact-li"><i class="fas fa-clock"></i><span>Lun–Vie: 8:00–19:00<br>Sáb: 9:00–14:00</span>
+            </div>
+            <a href="https://wa.me/5512345678?text=Hola%2C%20quiero%20agendar%20en%20Kinerva"
+              class="f-wa-btn" target="_blank" rel="noopener">
+              <i class="fab fa-whatsapp"></i> WhatsApp Directo
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="footer-bot">
+      <div class="container">
+        <span>© 2025 Kinerva. Todos los derechos reservados.</span>
+        <span>Fisioterapia Profesional · Ciudad de México</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- WhatsApp FAB -->
+  <a href="https://wa.me/5512345678?text=Hola%2C%20me%20gustar%C3%ADa%20agendar%20una%20cita%20en%20Kinerva"
+    class="wa-fab" target="_blank" rel="noopener" aria-label="WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+    <span class="wa-fab-label">¡Escríbenos!</span>
+  </a>
+
+  <!-- Mobile Sticky Bar -->
+  <div class="sticky-bar" id="stickyBar">
+    <a href="tel:5512345678" class="sticky-btn sticky-call">
+      <i class="fas fa-phone"></i>
+      <span>Llamar</span>
+    </a>
+    <a href="#cita" class="sticky-btn sticky-appt" onclick="openModal(event)">
+      <i class="fas fa-calendar-check"></i>
+      <span>Cita Gratis</span>
+    </a>
+    <a href="https://wa.me/5512345678?text=Hola%2C%20quiero%20agendar%20en%20Kinerva"
+      class="sticky-btn sticky-wa" target="_blank" rel="noopener">
+      <i class="fab fa-whatsapp"></i>
+      <span>WhatsApp</span>
+    </a>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ========================
+     MODAL – AGENDAR CITA
+========================= -->
+  <div class="modal-wrap" id="modalWrap" onclick="closeModalOverlay(event)">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+      <div class="modal-head">
+        <h3 id="mTitle"><i class="fas fa-calendar-check" style="margin-right:8px"></i>Agenda tu Cita Gratuita</h3>
+        <button class="modal-x" onclick="closeModal()" aria-label="Cerrar">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color:#666;font-size:13px;margin-bottom:14px">Primera evaluación <strong>100% gratis</strong> · Sin compromiso · Te confirmamos en menos de 1 hora</p>
+        <form id="apptForm" onsubmit="return handleAppointment(event)" style="display:flex;flex-direction:column;gap:12px">
+
+          <!-- Duración -->
+          <div class="booking-duration">
+            <span class="booking-duration-label">Duración:</span>
+            <div class="duration-btns">
+              <button type="button" class="dur-btn active" onclick="setDuration(1,this)"><i class="fas fa-clock"></i> 1 Hora</button>
+              <button type="button" class="dur-btn" onclick="setDuration(2,this)"><i class="fas fa-clock"></i> 2 Horas</button>
+            </div>
+          </div>
+
+          <!-- Calendario + Horarios -->
+          <div class="booking-picker">
+            <div class="cal-wrap">
+              <div class="cal-nav">
+                <button type="button" onclick="calNav(-1)" aria-label="Mes anterior">&#8249;</button>
+                <span id="calTitle"></span>
+                <button type="button" onclick="calNav(1)" aria-label="Mes siguiente">&#8250;</button>
+              </div>
+              <div class="cal-grid" id="calGrid"></div>
+            </div>
+            <div class="slots-wrap">
+              <p class="slots-hint" id="slotsHint">&#8592; Selecciona una fecha</p>
+              <div class="slots-grid" id="slotsGrid"></div>
+            </div>
+          </div>
+          <input type="hidden" id="selDate" name="date">
+          <input type="hidden" id="selTime" name="time">
+
+          <!-- Datos personales -->
+          <div class="f-row">
+            <div class="f-group" style="margin:0"><label>Nombre *</label><input type="text" name="pname" placeholder="Nombre completo" required></div>
+            <div class="f-group" style="margin:0"><label>WhatsApp / Tel *</label><input type="tel" name="phone" placeholder="(33) 0000-0000" required></div>
+          </div>
+          <div class="f-group" style="margin:0"><label>Correo (opcional)</label><input type="email" name="email" placeholder="tu@correo.com"></div>
+          <div class="f-group" style="margin:0">
+            <label>¿Qué te molesta?</label>
+            <select name="service">
+              <option value="">Evaluación Inicial (Gratuita)</option>
+              <option>Dolor de espalda / columna</option>
+              <option>Lesión deportiva</option>
+              <option>Rodilla / cadera</option>
+              <option>Hombro / cuello</option>
+              <option>Rehabilitación postoperatoria</option>
+              <option>Otro</option>
+            </select>
+          </div>
+          <div id="bookingError" style="display:none;color:#c0392b;font-size:12px;padding:8px 10px;background:#fef0ef;border-radius:4px;border-left:3px solid #e74c3c;"></div>
+          <button type="submit" class="btn btn-teal" style="width:100%;margin-top:4px;font-size:14px;padding:14px">
+            <i class="fas fa-check"></i>&nbsp; Confirmar mi Cita Gratuita
+          </button>
+          <p style="text-align:center;font-size:11.5px;color:#aaa">
+            <i class="fas fa-lock"></i> Tus datos están protegidos. Sin spam.
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================
+     JAVASCRIPT
+========================= -->
+  <script>
+    /* ---- Hero carousel ---- */
+    const heroData = [
+      {
+        img: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1400&q=80",
+        badge: "Fisioterapia Deportiva",
+        h1: "Recupera tu<br>Rendimiento<br>Deportivo",
+        p: "Especialistas en rehabilitación de lesiones deportivas. Vuelve a la acción más rápido y más fuerte que antes."
+      },
+      {
+        img: "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=1400&q=80",
+        badge: "Fisioterapia Geriátrica",
+        h1: "Movilidad y<br>Bienestar en<br>Cada Etapa",
+        p: "Tratamiento especializado para adultos mayores. Recupera tu independencia y disfruta una vida activa y plena."
+      },
+      {
+        img: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=1400&q=80",
+        badge: "Fisioterapia Pediátrica",
+        h1: "Cuidamos el<br>Desarrollo de<br>tus Pequeños",
+        p: "Atención especializada para niños con alteraciones del desarrollo motor, tono muscular y coordinación."
+      }
+    ];
+
+    let heroCurrent = 0;
+    let heroTimer;
+
+    (function initCarousel() {
+      const slides = document.querySelectorAll('.hero-slide');
+      heroData.forEach((d, i) => {
+        slides[i].style.backgroundImage = `url('${d.img}')`;
+      });
+      startHeroAuto();
+    })();
+
+    function heroGoTo(n) {
+      const slides = document.querySelectorAll('.hero-slide');
+      const dots = document.querySelectorAll('#heroDots span');
+      const copy = document.getElementById('heroCopy');
+
+      slides[heroCurrent].classList.remove('active');
+      dots[heroCurrent].classList.remove('on');
+
+      heroCurrent = (n + heroData.length) % heroData.length;
+
+      slides[heroCurrent].classList.add('active');
+      dots[heroCurrent].classList.add('on');
+
+      copy.classList.add('fade');
+      setTimeout(() => {
+        const d = heroData[heroCurrent];
+        document.getElementById('heroBadge').textContent = d.badge;
+        document.getElementById('heroH1').innerHTML = d.h1;
+        document.getElementById('heroP').textContent = d.p;
+        copy.classList.remove('fade');
+      }, 300);
+    }
+
+    function heroNext() { clearInterval(heroTimer); heroGoTo(heroCurrent + 1); startHeroAuto(); }
+    function heroPrev() { clearInterval(heroTimer); heroGoTo(heroCurrent - 1); startHeroAuto(); }
+    function startHeroAuto() { heroTimer = setInterval(() => heroGoTo(heroCurrent + 1), 5500); }
+
+    /* ---- Stats counter animation ---- */
+    function animateCounter(el) {
+      const target = +el.dataset.target;
+      const duration = 1800;
+      const step = target / (duration / 16);
+      let current = 0;
+      const timer = setInterval(() => {
+        current += step;
+        if (current >= target) {
+          current = target;
+          clearInterval(timer);
+        }
+        el.textContent = Math.floor(current);
+      }, 16);
+    }
+
+    const statsObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          document.querySelectorAll('.stat-num').forEach(animateCounter);
+          statsObserver.disconnect();
+        }
+      });
+    }, { threshold: 0.4 });
+
+    const statsSection = document.getElementById('statsBar');
+    if (statsSection) statsObserver.observe(statsSection);
+
+    /* ---- Department tabs ---- */
+    const depts = [
+      {
+        t: "Centro de Rehabilitación",
+        d: "Nuestro centro integral de rehabilitación combina las más modernas técnicas terapéuticas con un enfoque personalizado para cada paciente. Trabajamos con protocolos basados en evidencia científica para garantizar los mejores resultados en el menor tiempo posible.",
+        img: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=400&q=80"
+      },
+      {
+        t: "Clínica de Columna",
+        d: "Especialistas en patologías de columna vertebral: hernias de disco, estenosis, escoliosis y dolor lumbar crónico. Abordaje multidisciplinar con fisioterapia, ejercicio terapéutico y educación activa del paciente.",
+        img: "https://images.unsplash.com/photo-1559757175-5700dde675bc?w=400&q=80"
+      },
+      {
+        t: "Neurorrehabilitación",
+        d: "Tratamiento para pacientes con ACV, esclerosis múltiple, Parkinson y lesiones medulares. Técnicas como Bobath, PNF y estimulación propioceptiva para maximizar la recuperación neurológica.",
+        img: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&q=80"
+      },
+      {
+        t: "Medicina del Deporte",
+        d: "Atención integral al deportista: desde la prevención de lesiones hasta la rehabilitación y el retorno deportivo. Trabajamos con atletas amateur y de alto rendimiento con protocolos específicos por disciplina.",
+        img: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80"
+      },
+      {
+        t: "Fisioterapia Geriátrica",
+        d: "Cuidado especializado para adultos mayores con enfoque en la prevención de caídas, mantenimiento funcional y tratamiento de artrosis, osteoporosis y deterioro muscular propio del envejecimiento.",
+        img: "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=400&q=80"
+      },
+      {
+        t: "Piso Pélvico",
+        d: "Especialidad para el tratamiento de incontinencia urinaria, prolapsos, disfunciones sexuales y rehabilitación postparto. Atención en un ambiente de total privacidad, respeto y calidez.",
+        img: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400&q=80"
+      }
+    ];
+
+    document.querySelectorAll('#deptList li').forEach(li => {
+      li.addEventListener('click', e => {
+        e.preventDefault();
+        document.querySelectorAll('#deptList li').forEach(x => x.classList.remove('on'));
+        li.classList.add('on');
+        const d = depts[+li.dataset.i];
+        document.getElementById('dTitle').textContent = d.t;
+        document.getElementById('dDesc').textContent = d.d;
+        document.getElementById('dImg').src = d.img;
+      });
+    });
+
+    /* ---- Mobile nav ---- */
+    document.getElementById('burger').addEventListener('click', () => {
+      document.getElementById('navLinks').classList.toggle('open');
+    });
+
+    /* ---- FAQ ---- */
+    function toggleFaq(el) { el.parentElement.classList.toggle('open'); }
+
+    /* ---- Booking System (MySQL backend) ---- */
+    const BookingSystem = {
+      monthCache: {},   // clave "YYYY-MM" → [{date,hour,duration}]
+      selectedDate: null,
+      selectedHour: null,
+      duration: 1,
+      calYear: null,
+      calMonth: null,
+
+      fmtDate(y, m, d) {
+        return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      },
+
+      fmtHour(h) {
+        if (h < 12) return `${h}:00 AM`;
+        if (h === 12) return '12:00 PM';
+        return `${h - 12}:00 PM`;
+      },
+
+      cacheKey(year, month) {
+        // month es 0-indexed
+        return `${year}-${String(month + 1).padStart(2, '0')}`;
+      },
+
+      async loadMonth(year, month) {
+        const key = this.cacheKey(year, month);
+        if (this.monthCache[key] !== undefined) return;
+        try {
+          const res = await fetch(`api/get_slots.php?year=${year}&month=${month + 1}`);
+          const data = await res.json();
+          this.monthCache[key] = data.slots || [];
+        } catch {
+          this.monthCache[key] = [];
+        }
+      },
+
+      slotsForDate(dateStr) {
+        // dateStr "YYYY-MM-DD" — el mes en la clave es 1-indexed igual que en la cadena
+        const key = dateStr.slice(0, 7);   // "YYYY-MM"
+        return this.monthCache[key] || [];
+      },
+
+      getStartHours(dateStr) {
+        const [y, m, d] = dateStr.split('-').map(Number);
+        const dow = new Date(y, m - 1, d).getDay();
+        if (dow === 0) return [];
+        const maxEnd = dow === 6 ? 14 : 18;
+        const hours = [];
+        for (let h = 8; h + this.duration <= maxEnd; h++) hours.push(h);
+        return hours;
+      },
+
+      isHourOccupied(dateStr, h) {
+        return this.slotsForDate(dateStr)
+          .some(a => a.date === dateStr && h >= a.hour && h < a.hour + a.duration);
+      },
+
+      isSlotFree(dateStr, startH) {
+        for (let h = startH; h < startH + this.duration; h++) {
+          if (this.isHourOccupied(dateStr, h)) return false;
+        }
+        return true;
+      },
+
+      isDateFull(dateStr) {
+        const hours = this.getStartHours(dateStr);
+        return hours.length > 0 && hours.every(h => !this.isSlotFree(dateStr, h));
+      },
+
+      setLoading(on) {
+        const grid = document.getElementById('calGrid');
+        if (grid) { grid.style.opacity = on ? '0.4' : '1'; grid.style.pointerEvents = on ? 'none' : ''; }
+        const nav = document.querySelectorAll('.cal-nav button');
+        nav.forEach(b => b.disabled = on);
+      },
+
+      renderCalendar() {
+        const grid = document.getElementById('calGrid');
+        if (!grid) return;
+        const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+          'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        document.getElementById('calTitle').textContent = `${months[this.calMonth]} ${this.calYear}`;
+
+        const hdrs = ['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
+        let html = hdrs.map(h => `<div class="cal-hdr">${h}</div>`).join('');
+
+        const firstDow = (new Date(this.calYear, this.calMonth, 1).getDay() + 6) % 7;
+        const totalDays = new Date(this.calYear, this.calMonth + 1, 0).getDate();
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+
+        for (let i = 0; i < firstDow; i++) html += '<div class="cal-cell empty"></div>';
+
+        for (let d = 1; d <= totalDays; d++) {
+          const date = new Date(this.calYear, this.calMonth, d);
+          const ds = this.fmtDate(this.calYear, this.calMonth, d);
+          const isPast = date < today;
+          const isSun = date.getDay() === 0;
+          const isToday = date.getTime() === today.getTime();
+          const isSel = ds === this.selectedDate;
+          const isFull = !isPast && !isSun && this.isDateFull(ds);
+
+          let cls = 'cal-cell';
+          if (isSel) cls += ' cal-selected';
+          else if (isPast || isSun) cls += ' cal-disabled';
+          else if (isFull) cls += ' cal-full';
+          else cls += ' cal-available';
+          if (isToday && !isSel) cls += ' cal-today';
+
+          const click = (!isPast && !isSun && !isFull) ? `onclick="BookingSystem.selectDate('${ds}')"` : '';
+          html += `<div class="${cls}" ${click}>${d}</div>`;
+        }
+        grid.innerHTML = html;
+      },
+
+      async calNav(dir) {
+        this.calMonth += dir;
+        if (this.calMonth > 11) { this.calMonth = 0; this.calYear++; }
+        if (this.calMonth < 0)  { this.calMonth = 11; this.calYear--; }
+        const now = new Date();
+        if (this.calYear < now.getFullYear() ||
+          (this.calYear === now.getFullYear() && this.calMonth < now.getMonth())) {
+          this.calYear = now.getFullYear(); this.calMonth = now.getMonth();
+        }
+        this.setLoading(true);
+        await this.loadMonth(this.calYear, this.calMonth);
+        this.setLoading(false);
+        this.renderCalendar();
+      },
+
+      selectDate(ds) {
+        this.selectedDate = ds;
+        this.selectedHour = null;
+        document.getElementById('selDate').value = ds;
+        document.getElementById('selTime').value = '';
+        this.renderCalendar();
+        this.renderSlots();
+      },
+
+      renderSlots() {
+        const grid = document.getElementById('slotsGrid');
+        const hint = document.getElementById('slotsHint');
+        if (!grid) return;
+        if (!this.selectedDate) { hint.textContent = '← Selecciona una fecha'; grid.innerHTML = ''; return; }
+        const [y, m, d] = this.selectedDate.split('-').map(Number);
+        const dow = new Date(y, m - 1, d).getDay();
+        const hours = this.getStartHours(this.selectedDate);
+        if (hours.length === 0) { hint.textContent = 'Domingo — cerrado'; grid.innerHTML = ''; return; }
+        hint.textContent = dow === 6 ? 'Sábado: 8 AM – 2 PM' : 'Lun–Vie: 8 AM – 6 PM';
+        let html = '';
+        hours.forEach(h => {
+          const free = this.isSlotFree(this.selectedDate, h);
+          const sel  = h === this.selectedHour;
+          const label = `${this.fmtHour(h)} – ${this.fmtHour(h + this.duration)}`;
+          const cls   = 'slot-btn ' + (free ? (sel ? 'slot-selected' : 'slot-free') : 'slot-booked');
+          const click = free ? `onclick="BookingSystem.selectSlot(${h})"` : '';
+          html += `<button type="button" class="${cls}" ${click} ${!free ? 'disabled' : ''}>${label}</button>`;
+        });
+        grid.innerHTML = html;
+      },
+
+      selectSlot(h) {
+        this.selectedHour = h;
+        document.getElementById('selTime').value = this.fmtHour(h);
+        document.getElementById('bookingError').style.display = 'none';
+        this.renderSlots();
+      },
+
+      async book(name, phone, email, service) {
+        const res = await fetch('api/book.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            date: this.selectedDate, hour: this.selectedHour, duration: this.duration,
+            name, phone, email, service
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          // Invalida la caché del mes para recargar en la próxima apertura
+          delete this.monthCache[this.selectedDate.slice(0, 7)];
+        }
+        return data;
+      },
+
+      reset() {
+        this.selectedDate = null;
+        this.selectedHour = null;
+        this.duration = 1;
+        const now = new Date();
+        this.calYear  = now.getFullYear();
+        this.calMonth = now.getMonth();
+      },
+
+      async init() {
+        this.reset();
+        document.getElementById('calGrid').innerHTML =
+          '<div style="grid-column:1/-1;text-align:center;padding:18px;color:#aaa;font-size:12px">' +
+          '<i class="fas fa-circle-notch fa-spin"></i> Cargando...</div>';
+        await this.loadMonth(this.calYear, this.calMonth);
+        this.renderCalendar();
+        const hint = document.getElementById('slotsHint');
+        const grid = document.getElementById('slotsGrid');
+        if (hint) hint.textContent = '← Selecciona una fecha';
+        if (grid) grid.innerHTML = '';
+        document.querySelectorAll('.dur-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
+      }
+    };
+
+    function setDuration(dur, btn) {
+      BookingSystem.duration = dur;
+      document.querySelectorAll('.dur-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      BookingSystem.selectedHour = null;
+      document.getElementById('selTime').value = '';
+      if (BookingSystem.selectedDate) BookingSystem.renderSlots();
+      BookingSystem.renderCalendar();
+    }
+
+    function calNav(dir) { BookingSystem.calNav(dir); }
+
+    /* ---- Modal ---- */
+    function openModal(e) {
+      if (e) e.preventDefault();
+      document.getElementById('modalWrap').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      BookingSystem.init();
+      document.getElementById('bookingError').style.display = 'none';
+    }
+    function closeModal() {
+      document.getElementById('modalWrap').classList.remove('open');
+      document.body.style.overflow = '';
+      const f = document.getElementById('apptForm');
+      if (f) f.reset();
+      BookingSystem.reset();
+    }
+    function closeModalOverlay(e) { if (e.target === document.getElementById('modalWrap')) closeModal(); }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    /* ---- Toast ---- */
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3800);
+    }
+
+    /* ---- Form handlers ---- */
+    async function handleAppointment(e) {
+      e.preventDefault();
+      const err = document.getElementById('bookingError');
+      if (!BookingSystem.selectedDate) {
+        err.textContent = 'Por favor selecciona una fecha en el calendario.';
+        err.style.display = 'block';
+        return;
+      }
+      if (BookingSystem.selectedHour === null) {
+        err.textContent = 'Por favor selecciona un horario disponible.';
+        err.style.display = 'block';
+        return;
+      }
+      err.style.display = 'none';
+      const f = e.target;
+      const dateStr = BookingSystem.selectedDate;
+      const hour    = BookingSystem.selectedHour;
+      const btn = f.querySelector('button[type="submit"]');
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>&nbsp; Confirmando...';
+      btn.disabled = true;
+      try {
+        const result = await BookingSystem.book(
+          f.pname.value, f.phone.value, f.email.value, f.service.value
+        );
+        if (result.success) {
+          const d = new Date(dateStr + 'T12:00:00');
+          const dateFmt = d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+          showToast(`¡Cita agendada! ${dateFmt} a las ${BookingSystem.fmtHour(hour)}.`);
+          closeModal();
+        } else {
+          err.textContent = result.message || 'Error al agendar. Intenta de nuevo.';
+          err.style.display = 'block';
+          // Recargar slots para reflejar el estado real del servidor
+          delete BookingSystem.monthCache[dateStr.slice(0, 7)];
+          BookingSystem.setLoading(true);
+          await BookingSystem.loadMonth(BookingSystem.calYear, BookingSystem.calMonth);
+          BookingSystem.setLoading(false);
+          BookingSystem.renderCalendar();
+          BookingSystem.selectedHour = null;
+          BookingSystem.renderSlots();
+        }
+      } catch (ex) {
+        // Intentar extraer el mensaje real del servidor si la respuesta no era JSON
+        err.textContent = (ex && ex.serverMessage)
+          ? ex.serverMessage
+          : 'Error de conexión. Verifica que el servidor PHP esté activo y que la tabla esté creada (setup.sql).';
+        err.style.display = 'block';
+        console.error('Booking error:', ex);
+      } finally {
+        btn.innerHTML = orig;
+        btn.disabled = false;
+      }
+    }
+    function handleContact(e) {
+      e.preventDefault();
+      showToast('¡Mensaje recibido! Te contactamos en menos de 1 hora hábil.');
+      e.target.reset();
+      return false;
+    }
+    function handleCTALead(e) {
+      e.preventDefault();
+      showToast('¡Recibido! Te llamamos en menos de 1 hora para tu cita.');
+      e.target.reset();
+      return false;
+    }
+    function quickAppt(e) {
+      e.preventDefault();
+      showToast('¡Solicitud recibida! Te confirmamos tu lugar muy pronto.');
+      e.target.reset();
+      return false;
+    }
+
+    /* ---- Sticky bar on scroll ---- */
+    const stickyBar = document.getElementById('stickyBar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 400) {
+        stickyBar.classList.add('visible');
+      } else {
+        stickyBar.classList.remove('visible');
+      }
+    }, { passive: true });
+
+    /* ---- Active nav on scroll ---- */
+    const navSections = document.querySelectorAll('section[id]');
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY + 90;
+      navSections.forEach(s => {
+        if (y >= s.offsetTop && y < s.offsetTop + s.offsetHeight) {
+          document.querySelectorAll('.nav-links a').forEach(a => {
+            a.classList.toggle('active', a.getAttribute('href') === '#' + s.id);
+          });
+        }
+      });
+    }, { passive: true });
+  </script>
+
+</body>
+
+</html>
