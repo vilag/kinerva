@@ -1,3 +1,16 @@
+# PHP — Vercel no ejecuta PHP, excluir para no exponer código fuente
 config.php
-setup.sql
 api/*.php
+admin/
+
+# Docker — no relevante en Vercel
+docker/
+docker-compose.yml
+
+# SQL — sólo para setup manual en Hostinger
+setup.sql
+setup_admin.sql
+
+# Entorno local
+.env
+.env.example

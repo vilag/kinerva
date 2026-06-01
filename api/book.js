@@ -44,6 +44,15 @@ module.exports = async function handler(req, res) {
       [date, h, dur, name, phone, email || null, service || null]
     );
 
+    // Crear o actualizar registro de paciente
+    await conn.execute(
+      `INSERT INTO patients (name, phone, email) VALUES (?, ?, ?)
+       ON DUPLICATE KEY UPDATE
+         name  = IF(VALUES(name) != '', VALUES(name), name),
+         email = COALESCE(VALUES(email), email)`,
+      [name, phone, email || null]
+    );
+
     res.json({ success: true, message: 'Cita registrada correctamente' });
 
   } catch (err) {

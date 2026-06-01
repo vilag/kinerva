@@ -1,0 +1,91 @@
+:root {
+    --ak-navy:   #1E2D3D;
+    --ak-teal:   #00BDB4;
+    --ak-side:   240px;
+}
+
+* { box-sizing: border-box; }
+body { background: #f4f6f9; font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; }
+
+/* ── Sidebar ────────────────────────────────── */
+.ak-sidebar {
+    position: fixed; top: 0; left: 0;
+    width: var(--ak-side); height: 100vh;
+    background: var(--ak-navy); color: #fff;
+    display: flex; flex-direction: column;
+    z-index: 200; overflow-y: auto;
+}
+.ak-brand {
+    display: flex; align-items: center; gap: 10px;
+    padding: 20px; border-bottom: 1px solid rgba(255,255,255,.1);
+    color: #fff; text-decoration: none; font-weight: 800; font-size: 17px;
+}
+.ak-brand i { color: var(--ak-teal); font-size: 22px; }
+.ak-nav { flex: 1; padding: 8px 0; }
+.ak-nav a {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 20px; color: rgba(255,255,255,.65);
+    text-decoration: none; font-size: 14px; transition: all .18s;
+    border-left: 3px solid transparent;
+}
+.ak-nav a:hover      { background: rgba(255,255,255,.07); color: #fff; border-left-color: rgba(255,255,255,.3); }
+.ak-nav a.active     { background: rgba(0,189,180,.15);  color: #fff; border-left-color: var(--ak-teal); }
+.ak-nav a i          { width: 18px; text-align: center; }
+.ak-nav-sep          { padding: 10px 20px 4px; font-size: 10px; text-transform: uppercase; color: rgba(255,255,255,.3); letter-spacing: 1px; }
+.ak-user-foot        { padding: 14px 20px; border-top: 1px solid rgba(255,255,255,.1); font-size: 13px; color: rgba(255,255,255,.5); display: flex; align-items: center; gap: 8px; }
+.ak-user-foot a      { color: rgba(255,255,255,.5); text-decoration: none; margin-left: auto; font-size: 16px; }
+.ak-user-foot a:hover{ color: #fff; }
+
+/* ── Layout ─────────────────────────────────── */
+.ak-main     { margin-left: var(--ak-side); min-height: 100vh; }
+.ak-topbar   { background: #fff; padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e9ecef; position: sticky; top: 0; z-index: 100; }
+.ak-topbar-title { font-weight: 700; font-size: 16px; color: var(--ak-navy); }
+.ak-topbar-meta  { font-size: 13px; color: #bbb; }
+.ak-body     { padding: 24px; }
+
+/* ── Stat cards ─────────────────────────────── */
+.ak-stat      { background: #fff; border-radius: 10px; padding: 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+.ak-stat-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff; flex-shrink: 0; }
+.i-teal   { background: var(--ak-teal); }
+.i-navy   { background: var(--ak-navy); }
+.i-green  { background: #27ae60; }
+.i-orange { background: #e67e22; }
+.ak-stat-val { font-size: 28px; font-weight: 800; color: var(--ak-navy); line-height: 1; }
+.ak-stat-lbl { font-size: 12px; color: #999; margin-top: 3px; }
+
+/* ── Cards ───────────────────────────────────── */
+.ak-card      { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); overflow: hidden; }
+.ak-card-head { padding: 14px 20px; border-bottom: 1px solid #f2f2f2; display: flex; justify-content: space-between; align-items: center; }
+.ak-card-head h6 { margin: 0; font-weight: 700; font-size: 14px; color: var(--ak-navy); }
+.ak-card-body { padding: 20px; }
+
+/* ── Table ───────────────────────────────────── */
+.ak-tbl       { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ak-tbl th    { background: #f8f9fa; color: #777; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; padding: 10px 14px; border-bottom: 2px solid #eee; text-align: left; white-space: nowrap; }
+.ak-tbl td    { padding: 11px 14px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; }
+.ak-tbl tr:last-child td { border-bottom: none; }
+.ak-tbl tr:hover td      { background: #fbfcfd; }
+
+/* ── Status badges ───────────────────────────── */
+.bs { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; white-space: nowrap; }
+.bs-pendiente  { background: #fff8e1; color: #e65100; }
+.bs-confirmada { background: #e3f2fd; color: #1565c0; }
+.bs-completada { background: #e8f5e9; color: #2e7d32; }
+.bs-cancelada  { background: #fce4ec; color: #c62828; }
+
+/* ── Misc ────────────────────────────────────── */
+.btn-ak       { background: var(--ak-teal); color: #fff; border: none; }
+.btn-ak:hover { background: #009A93; color: #fff; }
+.note-item    { background: #f8f9fa; border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; }
+.note-meta    { font-size: 11px; color: #aaa; margin-top: 6px; }
+
+/* ── Login ───────────────────────────────────── */
+.ak-login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--ak-navy) 0%, #2c4a63 100%); }
+.ak-login-box  { background: #fff; border-radius: 14px; padding: 40px; width: 100%; max-width: 380px; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+.ak-login-logo { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 800; color: var(--ak-navy); margin-bottom: 4px; }
+.ak-login-logo i { color: var(--ak-teal); font-size: 26px; }
+
+@media (max-width: 768px) {
+    .ak-sidebar { width: 100%; height: auto; position: relative; }
+    .ak-main    { margin-left: 0; }
+}

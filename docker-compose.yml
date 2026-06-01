@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  app:
+    build: ./docker/php
+    container_name: kinerva_app
+    ports:
+      - "8888:80"
+    volumes:
+      - .:/var/www/html
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    container_name: kinerva_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpass}
+      MYSQL_DATABASE: ${DB_NAME:-kinerva}
+      MYSQL_USER: ${DB_USER:-kinerva}
+      MYSQL_PASSWORD: ${DB_PASS:-kinervapass}
+    ports:
+      - "3307:3306"   # 3307 para no colisionar con MySQL local
+    volumes:
+      - kinerva_db:/var/lib/mysql
+      - ./setup.sql:/docker-entrypoint-initdb.d/01-tables.sql
+      - ./setup_admin.sql:/docker-entrypoint-initdb.d/02-admin.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root",
+             "-p${MYSQL_ROOT_PASSWORD:-rootpass}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+volumes:
+  kinerva_db:
+    driver: local
