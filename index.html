@@ -1246,7 +1246,7 @@
         const key = this.cacheKey(year, month);
         if (this.monthCache[key] !== undefined) return;
         try {
-          const res = await fetch(`api/get_slots.php?year=${year}&month=${month + 1}`);
+          const res = await fetch(`api/get_slots?year=${year}&month=${month + 1}`);
           const data = await res.json();
           this.monthCache[key] = data.slots || [];
         } catch {
@@ -1386,7 +1386,7 @@
       },
 
       async book(name, phone, email, service) {
-        const res = await fetch('api/book.php', {
+        const res = await fetch('api/book', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
