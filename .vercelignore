@@ -1,16 +1,17 @@
-# PHP — Vercel no ejecuta PHP, excluir para no exponer código fuente
+# PHP legacy — eliminado, excluir por si quedaron archivos locales
 config.php
+admin/*.php
+admin/includes/
 api/*.php
-admin/
 
-# Docker — no relevante en Vercel
+# Docker
 docker/
 docker-compose.yml
 
-# SQL — sólo para setup manual en Hostinger
+# SQL
 setup.sql
 setup_admin.sql
 
-# Entorno local
+# Local
 .env
-.env.example
+node_modules/

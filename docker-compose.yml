@@ -2,12 +2,15 @@ version: '3.8'
 
 services:
   app:
-    build: ./docker/php
+    image: node:20-alpine
     container_name: kinerva_app
+    working_dir: /app
+    command: sh -c "npm install && node server.js"
     ports:
-      - "8888:80"
+      - "8888:3000"
     volumes:
-      - .:/var/www/html
+      - .:/app
+      - /app/node_modules
     env_file:
       - .env
     depends_on:
