@@ -113,6 +113,32 @@ body { background: #f4f6f9; font-family: 'Segoe UI', system-ui, sans-serif; marg
 #expTabs .nav-link.active { color: var(--ak-navy); border-bottom-color: #fff; }
 #expTabs .nav-link:hover:not(.active) { background: #f4f6f9; color: var(--ak-navy); }
 
+/* ── Antecedentes relevantes ─────────────────────── */
+.ant-section { border-left: 4px solid var(--ak-teal); padding-left: 16px; }
+.ant-section-header {
+  font-size: 13px; font-weight: 800; letter-spacing: .5px;
+  color: var(--ak-navy); text-transform: uppercase;
+  display: flex; align-items: center;
+}
+.ant-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 8px;
+}
+.ant-toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 14px; border: 1px solid #e0e0e0; border-radius: 20px;
+  background: #f8f9fa; font-size: 13px; cursor: pointer;
+  transition: all .18s; color: #555; gap: 8px; width: 100%;
+}
+.ant-toggle:hover { border-color: #bbb; background: #f0f0f0; }
+.ant-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #ccc; flex-shrink: 0; transition: background .18s;
+}
+.ant-toggle.active { font-weight: 700; color: var(--ak-navy); border-color: #27ae60; background: #f0faf4; }
+.ant-toggle.active .ant-dot { background: #27ae60; }
+
 @media (max-width: 768px) {
     .ak-sidebar { width: 100%; height: auto; position: relative; }
     .ak-main    { margin-left: 0; }

@@ -702,13 +702,37 @@ const Views = {
   },
   /* ── Expediente Clínico ────────────────────────────── */
   async expediente(el) {
-    const [resPro, resPac] = await Promise.all([
+    const [resPro, resPac, resAnam] = await Promise.all([
       App.get('/expediente', { section: 'profesional' }),
       App.get('/expediente', { section: 'paciente' }),
+      App.get('/expediente', { section: 'anamnesis' }),
     ]);
     if (!resPro) { el.innerHTML = '<div class="alert alert-danger m-3">Error cargando datos</div>'; return; }
-    const pro = resPro.data || {};
-    const pac = resPac?.data || {};
+    const pro  = resPro.data || {};
+    const pac  = resPac?.data || {};
+    const anam = resAnam?.data || {};
+
+    const antsList = [
+      ['diabetes',      'Diabetes'],
+      ['hipertension',  'Hipertensión'],
+      ['cardiopatia',   'Cardiopatía'],
+      ['reumatica',     'Reumática'],
+      ['osteoporosis',  'Osteoporosis'],
+      ['neurologica',   'Neurológica'],
+      ['respiratoria',  'Respiratoria'],
+      ['cirugia_rec',   'Cirugía reciente'],
+      ['fractura_prev', 'Fractura previa'],
+      ['protesis',      'Prótesis / implantes'],
+      ['dolor_cronico', 'Dolor crónico'],
+      ['embarazo',      'Embarazo'],
+      ['alergias_ant',  'Alergias'],
+      ['ninguno',       'Ninguno referido'],
+    ];
+    const antActivos = anam.antecedentes || [];
+    const antsHtml   = antsList.map(([k, l]) => {
+      const on = antActivos.includes(k);
+      return `<button type="button" class="ant-toggle${on ? ' active' : ''}" data-key="${k}">${l} <span class="ant-dot"></span></button>`;
+    }).join('');
 
     el.innerHTML = `
     <div class="ak-card">
@@ -727,6 +751,12 @@ const Views = {
           <button class="nav-link" data-bs-toggle="tab"
                   data-bs-target="#tab-pac" type="button" role="tab">
             <i class="fas fa-id-card me-1"></i>PACIENTE
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" data-bs-toggle="tab"
+                  data-bs-target="#tab-anam" type="button" role="tab">
+            <i class="fas fa-clipboard-list me-1"></i>ANAMNESIS
           </button>
         </li>
       </ul>
@@ -962,6 +992,128 @@ const Views = {
           </form>
         </div>
 
+        <!-- ── ANAMNESIS ──────────────────────────── -->
+        <div class="tab-pane fade p-4" id="tab-anam" role="tabpanel">
+          <form id="anamForm">
+            <div class="exp-section-header mb-4">
+              <i class="fas fa-clipboard-list me-2" style="color:var(--ak-teal)"></i>
+              Anamnesis fisioterapéutica
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Motivo de consulta</label>
+                <textarea name="motivo_consulta" class="form-control" rows="4"
+                          placeholder="Descripción detallada del motivo…">${esc(anam.motivo_consulta||'')}</textarea>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Historia del padecimiento actual</label>
+                <textarea name="historia_padecimiento" class="form-control" rows="4"
+                          placeholder="Evolución temporal del padecimiento…">${esc(anam.historia_padecimiento||'')}</textarea>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-6 col-sm-3">
+                <label class="exp-label">Fecha de inicio</label>
+                <input type="date" name="fecha_inicio" class="form-control"
+                       value="${esc(anam.fecha_inicio||'')}">
+              </div>
+              <div class="col-6 col-sm-3">
+                <label class="exp-label">Mecanismo de lesión</label>
+                <select name="mecanismo_lesion" class="form-select">
+                  ${['','Laboral','Deportivo','Accidental','Doméstico','Congénito','Traumático','Otro'].map(o =>
+                    `<option value="${o}"${anam.mecanismo_lesion===o?' selected':''}>${o||'— Seleccionar —'}</option>`).join('')}
+                </select>
+              </div>
+              <div class="col-6 col-sm-3">
+                <label class="exp-label">Evolución</label>
+                <select name="evolucion" class="form-select">
+                  ${['','Aguda','Subaguda','Crónica','Recurrente'].map(o =>
+                    `<option value="${o}"${anam.evolucion===o?' selected':''}>${o||'— Seleccionar —'}</option>`).join('')}
+                </select>
+              </div>
+              <div class="col-6 col-sm-3">
+                <label class="exp-label">Tiempo de evolución</label>
+                <input type="text" name="tiempo_evolucion" class="form-control"
+                       value="${esc(anam.tiempo_evolucion||'')}" placeholder="Ej. 3 Meses">
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Factores que agravan</label>
+                <input type="text" name="factores_agravan" class="form-control"
+                       value="${esc(anam.factores_agravan||'')}"
+                       placeholder="Actividades o situaciones que empeoran">
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Factores que alivian</label>
+                <input type="text" name="factores_alivian" class="form-control"
+                       value="${esc(anam.factores_alivian||'')}"
+                       placeholder="Actividades o situaciones que mejoran">
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Tratamientos previos</label>
+                <textarea name="tratamientos_previos" class="form-control" rows="4"
+                          placeholder="Tratamientos anteriores recibidos…">${esc(anam.tratamientos_previos||'')}</textarea>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Medicamentos actuales</label>
+                <textarea name="medicamentos_actuales" class="form-control" rows="4"
+                          placeholder="Medicamentos que toma actualmente…">${esc(anam.medicamentos_actuales||'')}</textarea>
+              </div>
+            </div>
+
+            <div class="row mb-4">
+              <div class="col-12 col-sm-4">
+                <label class="exp-label">Cirugías previas</label>
+                <input type="text" name="cirugias_previas" class="form-control"
+                       value="${esc(anam.cirugias_previas||'')}" placeholder="Ninguna / descripción">
+              </div>
+              <div class="col-12 col-sm-4">
+                <label class="exp-label">Fracturas / luxaciones previas</label>
+                <input type="text" name="fracturas_previas" class="form-control"
+                       value="${esc(anam.fracturas_previas||'')}" placeholder="Ninguna / descripción">
+              </div>
+              <div class="col-12 col-sm-4">
+                <label class="exp-label">Alergias</label>
+                <input type="text" name="alergias_info" class="form-control"
+                       value="${esc(anam.alergias_info||'')}" placeholder="Ninguna conocida / descripción">
+              </div>
+            </div>
+
+            <!-- ANTECEDENTES RELEVANTES -->
+            <div class="ant-section mb-4">
+              <div class="ant-section-header mb-3">
+                <i class="fas fa-history me-2"></i>ANTECEDENTES RELEVANTES
+              </div>
+              <div class="ant-grid">
+                ${antsHtml}
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="exp-label">Observaciones clínicas adicionales</label>
+              <textarea name="observaciones_clinicas" class="form-control" rows="4"
+                        placeholder="Observaciones relevantes del profesional…">${esc(anam.observaciones_clinicas||'')}</textarea>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+              <button type="submit" class="btn btn-ak px-4">
+                <i class="fas fa-save me-1"></i>Guardar sección
+              </button>
+              <span id="anamSaveOk" class="text-success fw-semibold"
+                    style="display:none;font-size:13px">
+                <i class="fas fa-check-circle me-1"></i>Guardado correctamente
+              </span>
+            </div>
+          </form>
+        </div>
+
       </div>
     </div>`;
 
@@ -1054,6 +1206,46 @@ const Views = {
       btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
       if (res?.success) {
         const ok = el.querySelector('#pacSaveOk');
+        ok.style.display = '';
+        setTimeout(() => ok.style.display = 'none', 3000);
+      }
+    });
+
+    /* ── ANAMNESIS handlers ────────────────────────────── */
+    el.querySelectorAll('.ant-toggle').forEach(btn =>
+      btn.addEventListener('click', () => btn.classList.toggle('active'))
+    );
+
+    el.querySelector('#anamForm')?.addEventListener('submit', async e => {
+      e.preventDefault();
+      const fd  = new FormData(e.target);
+      const antecedentes = [...el.querySelectorAll('.ant-toggle.active')]
+        .map(b => b.dataset.key);
+      const data = {
+        motivo_consulta:       fd.get('motivo_consulta'),
+        historia_padecimiento: fd.get('historia_padecimiento'),
+        fecha_inicio:          fd.get('fecha_inicio'),
+        mecanismo_lesion:      fd.get('mecanismo_lesion'),
+        evolucion:             fd.get('evolucion'),
+        tiempo_evolucion:      fd.get('tiempo_evolucion'),
+        factores_agravan:      fd.get('factores_agravan'),
+        factores_alivian:      fd.get('factores_alivian'),
+        tratamientos_previos:  fd.get('tratamientos_previos'),
+        medicamentos_actuales: fd.get('medicamentos_actuales'),
+        cirugias_previas:      fd.get('cirugias_previas'),
+        fracturas_previas:     fd.get('fracturas_previas'),
+        alergias_info:         fd.get('alergias_info'),
+        observaciones_clinicas:fd.get('observaciones_clinicas'),
+        antecedentes,
+      };
+      const btn = e.target.querySelector('button[type=submit]');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
+      const res = await App.put('/expediente', { section: 'anamnesis', data });
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
+      if (res?.success) {
+        const ok = el.querySelector('#anamSaveOk');
         ok.style.display = '';
         setTimeout(() => ok.style.display = 'none', 3000);
       }
