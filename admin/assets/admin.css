@@ -85,6 +85,34 @@ body { background: #f4f6f9; font-family: 'Segoe UI', system-ui, sans-serif; marg
 .ak-login-logo { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 800; color: var(--ak-navy); margin-bottom: 4px; }
 .ak-login-logo i { color: var(--ak-teal); font-size: 26px; }
 
+/* ── Expediente Clínico ──────────────────────────────── */
+.exp-section-header {
+  display: flex; align-items: center;
+  font-size: 15px; font-weight: 700; color: var(--ak-navy);
+  padding-bottom: 12px; border-bottom: 2px solid var(--ak-teal);
+}
+.exp-label {
+  display: block; font-size: 12px; font-weight: 600;
+  color: #555; margin-bottom: 5px;
+}
+.exp-logo-wrap {
+  width: 160px; height: 160px;
+  border: 2px dashed #ddd; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; background: #fafafa;
+}
+.exp-logo-wrap img { width: 100%; height: 100%; object-fit: contain; padding: 8px; }
+.exp-logo-placeholder {
+  display: flex; flex-direction: column; align-items: center;
+  color: #ccc; font-size: 12px; text-align: center; gap: 4px;
+}
+#expTabs .nav-link {
+  font-size: 12px; font-weight: 700; letter-spacing: .4px;
+  color: #888; border-radius: 6px 6px 0 0; padding: 9px 18px;
+}
+#expTabs .nav-link.active { color: var(--ak-navy); border-bottom-color: #fff; }
+#expTabs .nav-link:hover:not(.active) { background: #f4f6f9; color: var(--ak-navy); }
+
 @media (max-width: 768px) {
     .ak-sidebar { width: 100%; height: auto; position: relative; }
     .ak-main    { margin-left: 0; }

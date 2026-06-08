@@ -11,6 +11,7 @@ docker-compose.yml
 # SQL
 setup.sql
 setup_admin.sql
+setup_expediente.sql
 
 # Local
 .env

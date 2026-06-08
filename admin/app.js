@@ -138,6 +138,10 @@ const App = {
         Views.patientDetail(content, param);
         break;
       }
+      case 'expediente':
+        title.textContent = 'Expediente Clínico';
+        Views.expediente(content);
+        break;
       default:
         title.textContent = 'Dashboard';
         Views.dashboard(content);
@@ -696,6 +700,163 @@ const Views = {
       }
     });
   },
+  /* ── Expediente Clínico ────────────────────────────── */
+  async expediente(el) {
+    const result = await App.get('/expediente', { section: 'profesional' });
+    if (!result) { el.innerHTML = '<div class="alert alert-danger m-3">Error cargando datos</div>'; return; }
+    const pro = result.data || {};
+
+    el.innerHTML = `
+    <div class="ak-card">
+      <div class="ak-card-head">
+        <h6><i class="fas fa-file-medical-alt me-2" style="color:var(--ak-teal)"></i>Expediente Clínico</h6>
+      </div>
+
+      <ul class="nav nav-tabs px-4 pt-3" id="expTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" data-bs-toggle="tab"
+                  data-bs-target="#tab-pro" type="button" role="tab">
+            <i class="fas fa-user-md me-1"></i>PROFESIONAL
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content" id="expTabContent">
+
+        <!-- ── PROFESIONAL ──────────────────────── -->
+        <div class="tab-pane fade show active p-4" id="tab-pro" role="tabpanel">
+          <form id="proForm">
+            <div class="row">
+              <div class="col-12 col-md-8">
+                <div class="exp-section-header mb-4">
+                  <i class="fas fa-id-badge me-2" style="color:var(--ak-teal)"></i>
+                  Datos del fisioterapeuta
+                </div>
+
+                <div class="mb-3">
+                  <label class="exp-label">Nombre del fisioterapeuta</label>
+                  <input type="text" name="nombre" class="form-control"
+                         value="${esc(pro.nombre||'')}"
+                         placeholder="Nombre completo del profesional">
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-12 col-sm-6">
+                    <label class="exp-label">Especialidad / área de atención</label>
+                    <input type="text" name="especialidad" class="form-control"
+                           value="${esc(pro.especialidad||'')}"
+                           placeholder="Ej. Fisioterapia ortopédica">
+                  </div>
+                  <div class="col-12 col-sm-6">
+                    <label class="exp-label">Cédula / licencia / registro profesional</label>
+                    <input type="text" name="cedula" class="form-control"
+                           value="${esc(pro.cedula||'')}"
+                           placeholder="Ced. Prof. 0000000">
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="exp-label">Clínica / centro de rehabilitación</label>
+                  <input type="text" name="clinica" class="form-control"
+                         value="${esc(pro.clinica||'')}"
+                         placeholder="Nombre de la clínica u hospital">
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-12 col-sm-6">
+                    <label class="exp-label">Dirección</label>
+                    <input type="text" name="direccion" class="form-control"
+                           value="${esc(pro.direccion||'')}"
+                           placeholder="Calle, número, colonia, ciudad">
+                  </div>
+                  <div class="col-12 col-sm-6">
+                    <label class="exp-label">Teléfono</label>
+                    <input type="tel" name="telefono" class="form-control"
+                           value="${esc(pro.telefono||'')}"
+                           placeholder="33 0000 0000">
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <label class="exp-label">Correo electrónico</label>
+                  <input type="email" name="email" class="form-control"
+                         value="${esc(pro.email||'')}"
+                         placeholder="contacto@clinica.mx">
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
+                  <button type="submit" class="btn btn-ak px-4">
+                    <i class="fas fa-save me-1"></i>Guardar sección
+                  </button>
+                  <span id="proSaveOk" class="text-success fw-semibold"
+                        style="display:none;font-size:13px">
+                    <i class="fas fa-check-circle me-1"></i>Guardado correctamente
+                  </span>
+                </div>
+              </div>
+
+              <!-- Logo -->
+              <div class="col-12 col-md-4 d-flex flex-column align-items-center pt-3 pt-md-4 ps-md-4">
+                <div class="exp-logo-wrap" id="logoWrap">
+                  ${pro.logo
+                    ? `<img src="${esc(pro.logo)}" alt="Logo de la clínica">`
+                    : `<div class="exp-logo-placeholder">
+                        <i class="fas fa-image fa-3x mb-2"></i>
+                        <span>Logo de la clínica</span>
+                      </div>`}
+                </div>
+                <label class="btn btn-sm btn-outline-secondary mt-2" for="logoInput"
+                       style="cursor:pointer">
+                  <i class="fas fa-upload me-1"></i>Cambiar logo
+                </label>
+                <input type="file" id="logoInput" accept="image/*" class="d-none">
+              </div>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>`;
+
+    el.querySelector('#logoInput')?.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        el.querySelector('#logoWrap').innerHTML =
+          `<img src="${ev.target.result}" alt="Logo de la clínica">`;
+        el.querySelector('#proForm').dataset.logo = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    el.querySelector('#proForm')?.addEventListener('submit', async e => {
+      e.preventDefault();
+      const fd   = new FormData(e.target);
+      const data = {
+        nombre:       fd.get('nombre'),
+        especialidad: fd.get('especialidad'),
+        cedula:       fd.get('cedula'),
+        clinica:      fd.get('clinica'),
+        direccion:    fd.get('direccion'),
+        telefono:     fd.get('telefono'),
+        email:        fd.get('email'),
+        logo:         e.target.dataset.logo || pro.logo || '',
+      };
+      const btn = e.target.querySelector('button[type=submit]');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
+      const res = await App.put('/expediente', { section: 'profesional', data });
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
+      if (res?.success) {
+        const ok = el.querySelector('#proSaveOk');
+        ok.style.display = '';
+        setTimeout(() => ok.style.display = 'none', 3000);
+      }
+    });
+  },
+
 };
 
 /* ══════════════════════════════════════════════════════════ Boot */
