@@ -9,9 +9,28 @@ module.exports = async function (req, res) {
   const conn = await getConnection();
   try {
 
-    /* GET /api/admin/expediente?section=profesional */
+    /* GET /api/admin/expediente?section=... */
     if (req.method === 'GET') {
       const section = req.query?.section || 'profesional';
+
+      /* Folio auto-incremental */
+      if (section === 'folio_next') {
+        const [rows] = await conn.query(
+          'SELECT data FROM expediente_config WHERE section = ? LIMIT 1',
+          ['folio_counter']
+        );
+        const current = rows[0] ? JSON.parse(rows[0].data).counter : 0;
+        const next    = current + 1;
+        const folio   = `FISIO-${String(next).padStart(4, '0')}`;
+        await conn.query(
+          `INSERT INTO expediente_config (section, data) VALUES (?, ?)
+           ON DUPLICATE KEY UPDATE data = ?, updated_at = NOW()`,
+          ['folio_counter', JSON.stringify({ counter: next }),
+                            JSON.stringify({ counter: next })]
+        );
+        return res.json({ success: true, folio });
+      }
+
       const [rows] = await conn.query(
         'SELECT data FROM expediente_config WHERE section = ? LIMIT 1',
         [section]

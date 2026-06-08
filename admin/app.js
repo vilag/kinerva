@@ -702,9 +702,13 @@ const Views = {
   },
   /* ── Expediente Clínico ────────────────────────────── */
   async expediente(el) {
-    const result = await App.get('/expediente', { section: 'profesional' });
-    if (!result) { el.innerHTML = '<div class="alert alert-danger m-3">Error cargando datos</div>'; return; }
-    const pro = result.data || {};
+    const [resPro, resPac] = await Promise.all([
+      App.get('/expediente', { section: 'profesional' }),
+      App.get('/expediente', { section: 'paciente' }),
+    ]);
+    if (!resPro) { el.innerHTML = '<div class="alert alert-danger m-3">Error cargando datos</div>'; return; }
+    const pro = resPro.data || {};
+    const pac = resPac?.data || {};
 
     el.innerHTML = `
     <div class="ak-card">
@@ -717,6 +721,12 @@ const Views = {
           <button class="nav-link active" data-bs-toggle="tab"
                   data-bs-target="#tab-pro" type="button" role="tab">
             <i class="fas fa-user-md me-1"></i>PROFESIONAL
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" data-bs-toggle="tab"
+                  data-bs-target="#tab-pac" type="button" role="tab">
+            <i class="fas fa-id-card me-1"></i>PACIENTE
           </button>
         </li>
       </ul>
@@ -815,6 +825,143 @@ const Views = {
           </form>
         </div>
 
+        <!-- ── PACIENTE ──────────────────────────── -->
+        <div class="tab-pane fade p-4" id="tab-pac" role="tabpanel">
+          <form id="pacForm">
+            <div class="exp-section-header mb-4">
+              <i class="fas fa-id-card me-2" style="color:var(--ak-teal)"></i>
+              Identificación del paciente
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-12 col-sm-7">
+                <label class="exp-label">Nombre completo del paciente</label>
+                <input type="text" name="nombre_paciente" class="form-control"
+                       value="${esc(pac.nombre_paciente||'')}"
+                       placeholder="Apellidos y nombre(s)">
+              </div>
+              <div class="col-12 col-sm-5">
+                <label class="exp-label">Folio clínico / expediente</label>
+                <div class="input-group">
+                  <input type="text" name="folio" id="folioInput" class="form-control"
+                         value="${esc(pac.folio||'')}" placeholder="FISIO-0001">
+                  <button class="btn btn-outline-secondary" type="button" id="genFolioBtn"
+                          title="Generar folio automático">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-6 col-sm-3">
+                <label class="exp-label">Edad</label>
+                <input type="text" id="edadField" class="form-control"
+                       value="${esc(pac.edad||'')}" readonly
+                       style="background:#f8f9fa" placeholder="— años">
+              </div>
+              <div class="col-6 col-sm-3">
+                <label class="exp-label">Fecha de nacimiento</label>
+                <input type="date" name="fecha_nac" id="fechaNacField" class="form-control"
+                       value="${esc(pac.fecha_nac||'')}">
+              </div>
+              <div class="col-6 col-sm-3">
+                <label class="exp-label">Sexo</label>
+                <select name="sexo" class="form-select">
+                  ${['Masculino','Femenino','Otro'].map(o =>
+                    `<option${pac.sexo===o?' selected':''}>${o}</option>`).join('')}
+                </select>
+              </div>
+              <div class="col-6 col-sm-3">
+                <label class="exp-label">Lateralidad</label>
+                <select name="lateralidad" class="form-select">
+                  ${['Diestro','Zurdo','Ambidiestro'].map(o =>
+                    `<option${pac.lateralidad===o?' selected':''}>${o}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-12 col-sm-4">
+                <label class="exp-label">Teléfono</label>
+                <input type="tel" name="telefono_pac" class="form-control"
+                       value="${esc(pac.telefono_pac||'')}" placeholder="33 0000 0000">
+              </div>
+              <div class="col-12 col-sm-4">
+                <label class="exp-label">Ocupación</label>
+                <input type="text" name="ocupacion" class="form-control"
+                       value="${esc(pac.ocupacion||'')}" placeholder="Profesión u oficio">
+              </div>
+              <div class="col-12 col-sm-4">
+                <label class="exp-label">Fecha de valoración</label>
+                <input type="date" name="fecha_valoracion" class="form-control"
+                       value="${esc(pac.fecha_valoracion||'')}">
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-12 col-sm-4">
+                <label class="exp-label">Responsable / familiar acompañante</label>
+                <input type="text" name="responsable" class="form-control"
+                       value="${esc(pac.responsable||'')}" placeholder="Nombre completo">
+              </div>
+              <div class="col-12 col-sm-4">
+                <label class="exp-label">Parentesco</label>
+                <input type="text" name="parentesco" class="form-control"
+                       value="${esc(pac.parentesco||'')}" placeholder="Ej. Esposa, Hijo…">
+              </div>
+              <div class="col-12 col-sm-4">
+                <label class="exp-label">Teléfono del responsable</label>
+                <input type="tel" name="tel_responsable" class="form-control"
+                       value="${esc(pac.tel_responsable||'')}" placeholder="33 0000 0000">
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Motivo principal de consulta (resumen)</label>
+                <input type="text" name="motivo_consulta" class="form-control"
+                       value="${esc(pac.motivo_consulta||'')}"
+                       placeholder="Descripción breve del motivo">
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Diagnóstico médico referido</label>
+                <input type="text" name="diagnostico_referido" class="form-control"
+                       value="${esc(pac.diagnostico_referido||'')}"
+                       placeholder="Diagnóstico del médico remitente">
+              </div>
+            </div>
+
+            <div class="row mb-4">
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Médico tratante / referencia</label>
+                <input type="text" name="medico_tratante" class="form-control"
+                       value="${esc(pac.medico_tratante||'')}"
+                       placeholder="Nombre y especialidad">
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">
+                  <i class="fas fa-exclamation-triangle text-danger me-1"></i>
+                  Banderas rojas / contraindicaciones
+                </label>
+                <input type="text" name="banderas_rojas" class="form-control exp-banderas"
+                       value="${esc(pac.banderas_rojas||'')}"
+                       placeholder="Síntomas de alarma o contraindicaciones">
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+              <button type="submit" class="btn btn-ak px-4">
+                <i class="fas fa-save me-1"></i>Guardar sección
+              </button>
+              <span id="pacSaveOk" class="text-success fw-semibold"
+                    style="display:none;font-size:13px">
+                <i class="fas fa-check-circle me-1"></i>Guardado correctamente
+              </span>
+            </div>
+          </form>
+        </div>
+
       </div>
     </div>`;
 
@@ -851,6 +998,62 @@ const Views = {
       btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
       if (res?.success) {
         const ok = el.querySelector('#proSaveOk');
+        ok.style.display = '';
+        setTimeout(() => ok.style.display = 'none', 3000);
+      }
+    });
+
+    /* ── PACIENTE handlers ─────────────────────────────── */
+    el.querySelector('#fechaNacField')?.addEventListener('change', e => {
+      const val = e.target.value;
+      if (!val) { el.querySelector('#edadField').value = ''; return; }
+      const birth = new Date(val);
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      const m = today.getMonth() - birth.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+      el.querySelector('#edadField').value = `${age} años`;
+    });
+
+    el.querySelector('#genFolioBtn')?.addEventListener('click', async () => {
+      const btn = el.querySelector('#genFolioBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+      const res = await App.get('/expediente', { section: 'folio_next' });
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-plus"></i>';
+      if (res?.folio) el.querySelector('#folioInput').value = res.folio;
+    });
+
+    el.querySelector('#pacForm')?.addEventListener('submit', async e => {
+      e.preventDefault();
+      const fd   = new FormData(e.target);
+      const data = {
+        nombre_paciente:     fd.get('nombre_paciente'),
+        folio:               fd.get('folio'),
+        edad:                el.querySelector('#edadField').value,
+        fecha_nac:           fd.get('fecha_nac'),
+        sexo:                fd.get('sexo'),
+        lateralidad:         fd.get('lateralidad'),
+        telefono_pac:        fd.get('telefono_pac'),
+        ocupacion:           fd.get('ocupacion'),
+        fecha_valoracion:    fd.get('fecha_valoracion'),
+        responsable:         fd.get('responsable'),
+        parentesco:          fd.get('parentesco'),
+        tel_responsable:     fd.get('tel_responsable'),
+        motivo_consulta:     fd.get('motivo_consulta'),
+        diagnostico_referido:fd.get('diagnostico_referido'),
+        medico_tratante:     fd.get('medico_tratante'),
+        banderas_rojas:      fd.get('banderas_rojas'),
+      };
+      const btn = e.target.querySelector('button[type=submit]');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
+      const res = await App.put('/expediente', { section: 'paciente', data });
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
+      if (res?.success) {
+        const ok = el.querySelector('#pacSaveOk');
         ok.style.display = '';
         setTimeout(() => ok.style.display = 'none', 3000);
       }
