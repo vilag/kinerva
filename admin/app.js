@@ -702,15 +702,17 @@ const Views = {
   },
   /* ── Expediente Clínico ────────────────────────────── */
   async expediente(el) {
-    const [resPro, resPac, resAnam] = await Promise.all([
+    const [resPro, resPac, resAnam, resEstilo] = await Promise.all([
       App.get('/expediente', { section: 'profesional' }),
       App.get('/expediente', { section: 'paciente' }),
       App.get('/expediente', { section: 'anamnesis' }),
+      App.get('/expediente', { section: 'estilo' }),
     ]);
     if (!resPro) { el.innerHTML = '<div class="alert alert-danger m-3">Error cargando datos</div>'; return; }
-    const pro  = resPro.data || {};
-    const pac  = resPac?.data || {};
-    const anam = resAnam?.data || {};
+    const pro    = resPro.data || {};
+    const pac    = resPac?.data || {};
+    const anam   = resAnam?.data || {};
+    const estilo = resEstilo?.data || {};
 
     const antsList = [
       ['diabetes',      'Diabetes'],
@@ -757,6 +759,12 @@ const Views = {
           <button class="nav-link" data-bs-toggle="tab"
                   data-bs-target="#tab-anam" type="button" role="tab">
             <i class="fas fa-clipboard-list me-1"></i>ANAMNESIS
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" data-bs-toggle="tab"
+                  data-bs-target="#tab-estilo" type="button" role="tab">
+            <i class="fas fa-running me-1"></i>ESTILO
           </button>
         </li>
       </ul>
@@ -1114,6 +1122,110 @@ const Views = {
           </form>
         </div>
 
+        <!-- ── ESTILO DE VIDA ─────────────────────── -->
+        <div class="tab-pane fade p-4" id="tab-estilo" role="tabpanel">
+          <form id="estiloForm">
+            <div class="exp-section-header mb-4">
+              <i class="fas fa-heartbeat me-2" style="color:var(--ak-teal)"></i>
+              Estilo de vida y contexto funcional
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-12 col-sm-4">
+                <label class="exp-label">Nivel de actividad física</label>
+                <select name="nivel_actividad" class="form-select">
+                  ${['','Sedentario','Levemente activo','Moderadamente activo','Activo','Muy activo'].map(o =>
+                    `<option value="${o}"${estilo.nivel_actividad===o?' selected':''}>${o||'— Seleccionar —'}</option>`).join('')}
+                </select>
+              </div>
+              <div class="col-12 col-sm-4">
+                <label class="exp-label">Actividad laboral</label>
+                <input type="text" name="actividad_laboral" class="form-control"
+                       value="${esc(estilo.actividad_laboral||'')}"
+                       placeholder="Descripción del trabajo">
+              </div>
+              <div class="col-12 col-sm-4">
+                <label class="exp-label">Exigencia física laboral</label>
+                <select name="exigencia_laboral" class="form-select">
+                  ${['','Baja','Moderada','Alta','Muy alta'].map(o =>
+                    `<option value="${o}"${estilo.exigencia_laboral===o?' selected':''}>${o||'— Seleccionar —'}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-6 col-sm-3">
+                <label class="exp-label">Horas de sueño promedio</label>
+                <input type="number" name="horas_sueno" class="form-control"
+                       min="0" max="24" step="0.5"
+                       value="${esc(estilo.horas_sueno||'')}" placeholder="Ej. 7">
+              </div>
+              <div class="col-6 col-sm-3">
+                <label class="exp-label">Tabaquismo</label>
+                <select name="tabaquismo" class="form-select">
+                  ${['','Negado','Ocasional','Moderado','Intenso','Ex fumador'].map(o =>
+                    `<option value="${o}"${estilo.tabaquismo===o?' selected':''}>${o||'— Seleccionar —'}</option>`).join('')}
+                </select>
+              </div>
+              <div class="col-6 col-sm-3">
+                <label class="exp-label">Alcohol</label>
+                <select name="alcohol" class="form-select">
+                  ${['','Negado','Ocasional','Moderado','Frecuente'].map(o =>
+                    `<option value="${o}"${estilo.alcohol===o?' selected':''}>${o||'— Seleccionar —'}</option>`).join('')}
+                </select>
+              </div>
+              <div class="col-6 col-sm-3">
+                <label class="exp-label">Deporte practicado</label>
+                <input type="text" name="deporte" class="form-control"
+                       value="${esc(estilo.deporte||'')}" placeholder="Ninguno / descripción">
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-12 col-sm-6">
+                <div class="estres-wrap">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="exp-label mb-0" style="font-weight:800;text-transform:uppercase;letter-spacing:.5px">
+                      Nivel de estrés
+                    </span>
+                    <span class="estres-badge" id="estresBadge">${estilo.nivel_estres ?? 5}</span>
+                  </div>
+                  <input type="range" name="nivel_estres" id="estresSlider"
+                         class="form-range estres-slider" min="0" max="10" step="1"
+                         value="${estilo.nivel_estres ?? 5}">
+                  <div class="d-flex justify-content-between" style="font-size:10px;color:#aaa;margin-top:2px">
+                    <span>0</span><span>5</span><span>10</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Limitaciones en actividades de la vida diaria (AVD)</label>
+                <input type="text" name="limitaciones_avd" class="form-control"
+                       value="${esc(estilo.limitaciones_avd||'')}"
+                       placeholder="Dificultades en actividades cotidianas"
+                       style="margin-top:4px">
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="exp-label">Objetivo principal del paciente</label>
+              <input type="text" name="objetivo_paciente" class="form-control"
+                     value="${esc(estilo.objetivo_paciente||'')}"
+                     placeholder="Meta funcional del paciente para este tratamiento">
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+              <button type="submit" class="btn btn-ak px-4">
+                <i class="fas fa-save me-1"></i>Guardar sección
+              </button>
+              <span id="estiloSaveOk" class="text-success fw-semibold"
+                    style="display:none;font-size:13px">
+                <i class="fas fa-check-circle me-1"></i>Guardado correctamente
+              </span>
+            </div>
+          </form>
+        </div>
+
       </div>
     </div>`;
 
@@ -1246,6 +1358,39 @@ const Views = {
       btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
       if (res?.success) {
         const ok = el.querySelector('#anamSaveOk');
+        ok.style.display = '';
+        setTimeout(() => ok.style.display = 'none', 3000);
+      }
+    });
+
+    /* ── ESTILO handlers ───────────────────────────────── */
+    el.querySelector('#estresSlider')?.addEventListener('input', e => {
+      el.querySelector('#estresBadge').textContent = e.target.value;
+    });
+
+    el.querySelector('#estiloForm')?.addEventListener('submit', async e => {
+      e.preventDefault();
+      const fd   = new FormData(e.target);
+      const data = {
+        nivel_actividad:   fd.get('nivel_actividad'),
+        actividad_laboral: fd.get('actividad_laboral'),
+        exigencia_laboral: fd.get('exigencia_laboral'),
+        horas_sueno:       fd.get('horas_sueno'),
+        tabaquismo:        fd.get('tabaquismo'),
+        alcohol:           fd.get('alcohol'),
+        deporte:           fd.get('deporte'),
+        nivel_estres:      parseInt(fd.get('nivel_estres'), 10),
+        limitaciones_avd:  fd.get('limitaciones_avd'),
+        objetivo_paciente: fd.get('objetivo_paciente'),
+      };
+      const btn = e.target.querySelector('button[type=submit]');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
+      const res = await App.put('/expediente', { section: 'estilo', data });
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
+      if (res?.success) {
+        const ok = el.querySelector('#estiloSaveOk');
         ok.style.display = '';
         setTimeout(() => ok.style.display = 'none', 3000);
       }

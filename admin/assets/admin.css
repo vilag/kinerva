@@ -139,6 +139,19 @@ body { background: #f4f6f9; font-family: 'Segoe UI', system-ui, sans-serif; marg
 .ant-toggle.active { font-weight: 700; color: var(--ak-navy); border-color: #27ae60; background: #f0faf4; }
 .ant-toggle.active .ant-dot { background: #27ae60; }
 
+/* ── Slider de estrés ────────────────────────────── */
+.estres-wrap {
+  background: #f8f9fa; border-radius: 10px;
+  padding: 14px 16px; border: 1px solid #eee;
+}
+.estres-badge {
+  background: var(--ak-navy); color: #fff;
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 13px; flex-shrink: 0;
+}
+.estres-slider { accent-color: var(--ak-navy); cursor: pointer; }
+
 @media (max-width: 768px) {
     .ak-sidebar { width: 100%; height: auto; position: relative; }
     .ak-main    { margin-left: 0; }
