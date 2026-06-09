@@ -702,17 +702,26 @@ const Views = {
   },
   /* ── Expediente Clínico ────────────────────────────── */
   async expediente(el) {
-    const [resPro, resPac, resAnam, resEstilo] = await Promise.all([
+    const [resPro, resPac, resAnam, resEstilo, resDolor, resVit, resExplo, resEscalas] = await Promise.all([
       App.get('/expediente', { section: 'profesional' }),
       App.get('/expediente', { section: 'paciente' }),
       App.get('/expediente', { section: 'anamnesis' }),
       App.get('/expediente', { section: 'estilo' }),
+      App.get('/expediente', { section: 'dolor' }),
+      App.get('/expediente', { section: 'vitales' }),
+      App.get('/expediente', { section: 'exploracion' }),
+      App.get('/expediente', { section: 'escalas' }),
     ]);
     if (!resPro) { el.innerHTML = '<div class="alert alert-danger m-3">Error cargando datos</div>'; return; }
-    const pro    = resPro.data || {};
-    const pac    = resPac?.data || {};
-    const anam   = resAnam?.data || {};
-    const estilo = resEstilo?.data || {};
+    const pro     = resPro.data || {};
+    const pac     = resPac?.data    || {};
+    const anam    = resAnam?.data   || {};
+    const estilo  = resEstilo?.data || {};
+    const dolor   = resDolor?.data  || {};
+    const vitales = resVit?.data    || {};
+    const explo   = resExplo?.data  || {};
+    const escalas = resEscalas?.data || {};
+
 
     const antsList = [
       ['diabetes',      'Diabetes'],
@@ -735,6 +744,157 @@ const Views = {
       const on = antActivos.includes(k);
       return `<button type="button" class="ant-toggle${on ? ' active' : ''}" data-key="${k}">${l} <span class="ant-dot"></span></button>`;
     }).join('');
+
+    // ── Dolor helpers ──────────────────────────────────
+    const evaClassify = n => {
+      n = parseInt(n, 10);
+      if (n <= 3) return ['LEVE',     '#27ae60'];
+      if (n <= 6) return ['MODERADO', '#f39c12'];
+      if (n <= 9) return ['INTENSO',  '#e74c3c'];
+      return            ['SEVERO',    '#c0392b'];
+    };
+    const tipoDolorList = [
+      ['pd_punzante','Punzante'],  ['pd_ardiente','Ardiente'],
+      ['pd_electrico','Eléctrico'],['pd_sordo','Sordo / pesado'],
+      ['pd_opresivo','Opresivo'],  ['pd_quemante','Quemante'],
+      ['pd_hormigueo','Hormigueo'],['pd_calambre','Calambre'],
+    ];
+    const ritmoList = [
+      ['rd_mecanico','Mecánico'],['rd_inflamatorio','Inflamatorio'],
+      ['rd_neuropatico','Neuropático'],['rd_mixto','Mixto'],
+    ];
+    const comportList = [
+      ['cd_reposo','Dolor en reposo'],  ['cd_movimiento','Dolor al movimiento'],
+      ['cd_nocturno','Dolor nocturno'], ['cd_continuo','Dolor continuo'],
+      ['cd_intermitente','Dolor intermitente'],['cd_progresivo','Dolor progresivo'],
+    ];
+    const mkToggles = (list, activos, grp) => list.map(([k, l]) =>
+      `<button type="button" class="ant-toggle${activos.includes(k)?' active':''}" data-group="${grp}" data-key="${k}">${l} <span class="ant-dot"></span></button>`
+    ).join('');
+    const tipoDolorHtml = mkToggles(tipoDolorList, dolor.tipo_dolor     || [], 'tipo');
+    const ritmoHtml     = mkToggles(ritmoList,     dolor.ritmo_dolor    || [], 'ritmo');
+    const comportHtml   = mkToggles(comportList,   dolor.comportamiento || [], 'comport');
+
+    const evaA = dolor.eva_actual ?? 5;
+    const evaM = dolor.eva_maximo ?? 6;
+    const evaN = dolor.eva_minimo ?? 3;
+    const evaP = Math.round((+evaA + +evaM + +evaN) / 3);
+
+    const mkEvaSlider = (id, label, val) => `
+      <div class="col-12 col-sm-4">
+        <div class="eva-slider-wrap">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="eva-label">${label}</span>
+            <span class="estres-badge" id="badge_${id}">${val}</span>
+            <span class="eva-denom">/10</span>
+          </div>
+          <input type="range" name="${id}" id="slider_${id}"
+                 class="form-range estres-slider" min="0" max="10" step="1" value="${val}">
+        </div>
+      </div>`;
+
+    // ── Vitales helpers ────────────────────────────────
+    const imcCompute = (p, t) => {
+      p = parseFloat(p); t = parseFloat(t);
+      if (!p || !t) return { val: '—', cls: '', clr: '#aaa' };
+      const tm = t > 3 ? t / 100 : t;
+      const imc = p / (tm * tm);
+      const v = imc.toFixed(1);
+      if (imc < 18.5) return { val: v, cls: 'BAJO PESO',   clr: '#3498db' };
+      if (imc < 25)   return { val: v, cls: 'NORMAL',       clr: '#27ae60' };
+      if (imc < 30)   return { val: v, cls: 'SOBREPESO',    clr: '#f39c12' };
+      if (imc < 35)   return { val: v, cls: 'OBESIDAD I',   clr: '#e67e22' };
+      if (imc < 40)   return { val: v, cls: 'OBESIDAD II',  clr: '#e74c3c' };
+      return            { val: v, cls: 'OBESIDAD III', clr: '#c0392b' };
+    };
+    const imcInit = imcCompute(vitales.peso, vitales.talla);
+
+    // ── Exploración helpers ─────────────────────────────
+    const posturaList = [
+      ['pt_cabeza',        'Cabeza adelantada'],
+      ['pt_hombros',       'Hombros protraídos'],
+      ['pt_hipercifosis',  'Hipercifosis'],
+      ['pt_hiperlordosis', 'Hiperlordosis'],
+      ['pt_escoliosis',    'Escoliosis'],
+      ['pt_asim_pelv',     'Asimetría pélvica'],
+      ['pt_rod_valga',     'Rodilla valga'],
+      ['pt_rod_vara',      'Rodilla vara'],
+      ['pt_pie_plano',     'Pie plano'],
+      ['pt_pie_cavo',      'Pie cavo'],
+      ['pt_sin_alt',       'Sin alteraciones'],
+    ];
+    const posturaHtml = mkToggles(posturaList, explo.postura || [], 'postura');
+    const balEst      = explo.balance_estatico ?? 5;
+    const balDin      = explo.balance_dinamico ?? 5;
+
+    const mkEvaCard = (id, label, val, dark) => {
+      const [cls, clr] = evaClassify(val);
+      return `
+      <div class="col-6 col-sm-3">
+        <div class="eva-card${dark ? ' eva-card-dark' : ''}">
+          <div class="eva-card-label">${label}</div>
+          <div class="eva-card-val" id="cardval_${id}">${val}/10</div>
+          <span class="eva-cls-tag" id="cardcls_${id}" style="color:${clr}">${cls}</span>
+        </div>
+      </div>`;
+    };
+
+    // ── Escalas helpers ─────────────────────────────────
+    const ifgClassify = n => {
+      n = parseInt(n, 10);
+      if (n <= 25) return ['FUNCIONALIDAD GRAVE',    '#c0392b'];
+      if (n <= 50) return ['FUNCIONALIDAD MODERADA', '#f39c12'];
+      if (n <= 75) return ['FUNCIONALIDAD LEVE',     '#e67e22'];
+      return             ['FUNCIONALIDAD BUENA',     '#27ae60'];
+    };
+    const indepClassify = n => {
+      n = parseInt(n, 10);
+      if (n <= 3) return ['DEPENDENCIA TOTAL',   '#c0392b'];
+      if (n <= 6) return ['ASISTENCIA PARCIAL',  '#f39c12'];
+      if (n <= 8) return ['ASISTENCIA MÍNIMA',   '#e67e22'];
+      return             ['INDEPENDIENTE',        '#27ae60'];
+    };
+    const tolerClassify = n => {
+      n = parseInt(n, 10);
+      if (n <= 3) return ['TOLERANCIA BAJA',     '#c0392b'];
+      if (n <= 6) return ['TOLERANCIA MODERADA', '#f39c12'];
+      if (n <= 8) return ['TOLERANCIA ALTA',     '#e67e22'];
+      return             ['TOLERANCIA MÁXIMA',   '#27ae60'];
+    };
+    const movilClassify = n => {
+      n = parseInt(n, 10);
+      if (n <= 3) return ['MOVILIDAD GRAVE',    '#c0392b'];
+      if (n <= 6) return ['MOVILIDAD LIMITADA', '#f39c12'];
+      if (n <= 8) return ['MOVILIDAD MODERADA', '#e67e22'];
+      return             ['MOVILIDAD FUNCIONAL','#27ae60'];
+    };
+    const escIfg   = escalas.ifg   ?? 50;
+    const escIndep = escalas.indep ?? 5;
+    const escTol   = escalas.tol   ?? 5;
+    const escMovil = escalas.movil ?? 5;
+    const [evaTotCls, evaTotClr] = evaClassify(evaP);
+    const [ifgCls,   ifgClr]    = ifgClassify(escIfg);
+    const [indepCls, indepClr]  = indepClassify(escIndep);
+    const [tolCls,   tolClr]    = tolerClassify(escTol);
+    const [movilCls, movilClr]  = movilClassify(escMovil);
+    const mkScaleCard = (id, icon, title, val, max, classifyFn) => {
+      const [cls, clr] = classifyFn(val);
+      return `
+        <div class="col-12 col-md-6">
+          <div class="scale-card">
+            <div class="scale-card-header">
+              <span class="scale-card-icon"><i class="fas fa-${icon}"></i></span>
+              <div class="flex-fill"><div class="scale-card-title">${title}</div></div>
+              <span class="scale-card-badge" id="scbadge_${id}">${val}/${max}</span>
+            </div>
+            <div class="scale-cls-badge mt-2" id="sccls_${id}" style="color:${clr}">${cls}</div>
+            <div class="scale-slider-wrap mt-3">
+              <input type="range" name="${id}" id="slider_${id}"
+                     class="form-range estres-slider" min="0" max="${max}" step="1" value="${val}">
+            </div>
+          </div>
+        </div>`;
+    };
 
     el.innerHTML = `
     <div class="ak-card">
@@ -765,6 +925,30 @@ const Views = {
           <button class="nav-link" data-bs-toggle="tab"
                   data-bs-target="#tab-estilo" type="button" role="tab">
             <i class="fas fa-running me-1"></i>ESTILO
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" data-bs-toggle="tab"
+                  data-bs-target="#tab-dolor" type="button" role="tab">
+            <i class="fas fa-bolt me-1"></i>DOLOR
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" data-bs-toggle="tab"
+                  data-bs-target="#tab-vitales" type="button" role="tab">
+            <i class="fas fa-heartbeat me-1"></i>VITALES
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" data-bs-toggle="tab"
+                  data-bs-target="#tab-explo" type="button" role="tab">
+            <i class="fas fa-stethoscope me-1"></i>EXPLORACIÓN
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" data-bs-toggle="tab"
+                  data-bs-target="#tab-escalas" type="button" role="tab">
+            <i class="fas fa-chart-bar me-1"></i>ESCALAS
           </button>
         </li>
       </ul>
@@ -1226,6 +1410,296 @@ const Views = {
           </form>
         </div>
 
+        <!-- ── DOLOR ─────────────────────────────── -->
+        <div class="tab-pane fade p-4" id="tab-dolor" role="tabpanel">
+          <form id="dolorForm">
+            <div class="exp-section-header mb-4">
+              <i class="fas fa-bolt me-2" style="color:var(--ak-teal)"></i>
+              Evaluación del dolor
+            </div>
+
+            <div class="row mb-4">
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Localización del dolor</label>
+                <input type="text" name="localizacion_dolor" class="form-control"
+                       value="${esc(dolor.localizacion_dolor||'')}"
+                       placeholder="Área anatómica principal afectada">
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Irradiación</label>
+                <input type="text" name="irradiacion" class="form-control"
+                       value="${esc(dolor.irradiacion||'')}"
+                       placeholder="Zonas hacia donde irradia el dolor">
+              </div>
+            </div>
+
+            <div class="ant-section mb-4">
+              <div class="ant-section-header mb-3">
+                <i class="fas fa-bolt me-2"></i>TIPO DE DOLOR
+              </div>
+              <div class="ant-grid">${tipoDolorHtml}</div>
+            </div>
+
+            <div class="ant-section mb-4">
+              <div class="ant-section-header mb-3">
+                <i class="fas fa-wave-square me-2"></i>RITMO DEL DOLOR
+              </div>
+              <div class="ant-grid">${ritmoHtml}</div>
+            </div>
+
+            <div class="ant-section mb-4">
+              <div class="ant-section-header mb-3">
+                <i class="fas fa-chart-line me-2"></i>ESCALA VISUAL ANALÓGICA (EVA)
+              </div>
+              <div class="row mb-3">
+                ${mkEvaSlider('eva_actual', 'EVA ACTUAL', evaA)}
+                ${mkEvaSlider('eva_maximo', 'EVA MÁXIMO', evaM)}
+                ${mkEvaSlider('eva_minimo', 'EVA MÍNIMO', evaN)}
+              </div>
+              <div class="row g-2">
+                ${mkEvaCard('eva_actual', 'EVA ACTUAL', evaA, false)}
+                ${mkEvaCard('eva_maximo', 'EVA MÁXIMO', evaM, false)}
+                ${mkEvaCard('eva_minimo', 'EVA MÍNIMO', evaN, false)}
+                ${mkEvaCard('promedio',   'PROMEDIO',   evaP, true)}
+              </div>
+            </div>
+
+            <div class="ant-section mb-4">
+              <div class="ant-section-header mb-3">
+                <i class="fas fa-clock me-2"></i>COMPORTAMIENTO DEL DOLOR
+              </div>
+              <div class="ant-grid">${comportHtml}</div>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+              <button type="submit" class="btn btn-ak px-4">
+                <i class="fas fa-save me-1"></i>Guardar sección
+              </button>
+              <span id="dolorSaveOk" class="text-success fw-semibold"
+                    style="display:none;font-size:13px">
+                <i class="fas fa-check-circle me-1"></i>Guardado correctamente
+              </span>
+            </div>
+          </form>
+        </div>
+
+        <!-- ── VITALES ───────────────────────────── -->
+        <div class="tab-pane fade p-4" id="tab-vitales" role="tabpanel">
+          <form id="vitalesForm">
+            <div class="exp-section-header mb-4">
+              <i class="fas fa-heartbeat me-2" style="color:var(--ak-teal)"></i>
+              Signos vitales y somatometría
+            </div>
+
+            <div class="vitales-grid mb-3">
+              <div>
+                <label class="exp-label">Peso (kg)</label>
+                <input type="number" name="peso" id="vitPeso" class="form-control"
+                       min="0" max="300" step="0.1"
+                       value="${esc(vitales.peso||'')}" placeholder="82">
+              </div>
+              <div>
+                <label class="exp-label">Talla (cm o m)</label>
+                <input type="number" name="talla" id="vitTalla" class="form-control"
+                       min="0" max="300" step="0.1"
+                       value="${esc(vitales.talla||'')}" placeholder="176">
+              </div>
+              <div>
+                <label class="exp-label">TA (mmHg)</label>
+                <input type="text" name="ta" class="form-control"
+                       value="${esc(vitales.ta||'')}" placeholder="120/80">
+              </div>
+              <div class="imc-card" id="imcCard">
+                <div class="imc-label">IMC</div>
+                <div class="imc-val" id="imcVal">${imcInit.val}</div>
+                <div class="imc-cls" id="imcCls" style="color:${imcInit.clr}">${imcInit.cls}</div>
+              </div>
+            </div>
+
+            <div class="vitales-grid mb-4">
+              <div>
+                <label class="exp-label">Temperatura (°C)</label>
+                <input type="number" name="temperatura" class="form-control"
+                       min="30" max="45" step="0.1"
+                       value="${esc(vitales.temperatura||'')}" placeholder="36.5">
+              </div>
+              <div>
+                <label class="exp-label">FC (lpm)</label>
+                <input type="number" name="fc" class="form-control"
+                       min="0" max="250" step="1"
+                       value="${esc(vitales.fc||'')}" placeholder="70">
+              </div>
+              <div>
+                <label class="exp-label">FR (rpm)</label>
+                <input type="number" name="fr" class="form-control"
+                       min="0" max="60" step="1"
+                       value="${esc(vitales.fr||'')}" placeholder="16">
+              </div>
+              <div>
+                <label class="exp-label">SatO₂ (%)</label>
+                <input type="number" name="sato2" class="form-control"
+                       min="0" max="100" step="1"
+                       value="${esc(vitales.sato2||'')}" placeholder="98">
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+              <button type="submit" class="btn btn-ak px-4">
+                <i class="fas fa-save me-1"></i>Guardar sección
+              </button>
+              <span id="vitSaveOk" class="text-success fw-semibold"
+                    style="display:none;font-size:13px">
+                <i class="fas fa-check-circle me-1"></i>Guardado correctamente
+              </span>
+            </div>
+          </form>
+        </div>
+
+        <!-- ── EXPLORACIÓN ───────────────────────── -->
+        <div class="tab-pane fade p-4" id="tab-explo" role="tabpanel">
+          <form id="exploForm">
+            <div class="exp-section-header mb-4">
+              <i class="fas fa-stethoscope me-2" style="color:var(--ak-teal)"></i>
+              Exploración física y funcional
+            </div>
+
+            <!-- POSTURA Y ALINEACIÓN -->
+            <div class="ant-section mb-4">
+              <div class="ant-section-header mb-3">
+                <i class="fas fa-male me-2"></i>POSTURA Y ALINEACIÓN
+              </div>
+              <div class="ant-grid mb-3">${posturaHtml}</div>
+              <div>
+                <label class="exp-label">Observaciones posturales</label>
+                <textarea name="obs_posturales" class="form-control" rows="3"
+                          placeholder="Descripción de alteraciones posturales observadas…">${esc(explo.obs_posturales||'')}</textarea>
+              </div>
+            </div>
+
+            <!-- MARCHA Y MOVILIDAD -->
+            <div class="ant-section mb-4">
+              <div class="ant-section-header mb-3">
+                <i class="fas fa-walking me-2"></i>MARCHA Y MOVILIDAD
+              </div>
+              <div class="row mb-3">
+                <div class="col-12 col-sm-4">
+                  <label class="exp-label">Patrón de marcha</label>
+                  <select name="patron_marcha" class="form-select">
+                    ${['','Normal','Antálgica','Espástica','Atáxica','Claudicante','Steppage','Otro'].map(o =>
+                      `<option value="${o}"${explo.patron_marcha===o?' selected':''}>${o||'— Seleccionar —'}</option>`).join('')}
+                  </select>
+                </div>
+                <div class="col-12 col-sm-4">
+                  <label class="exp-label">Ayuda técnica</label>
+                  <select name="ayuda_tecnica" class="form-select">
+                    ${['','Ninguna','Bastón','Muletas axilares','Muletas canadienses','Andadera','Silla de ruedas','Otro'].map(o =>
+                      `<option value="${o}"${explo.ayuda_tecnica===o?' selected':''}>${o||'— Seleccionar —'}</option>`).join('')}
+                  </select>
+                </div>
+                <div class="col-12 col-sm-4">
+                  <label class="exp-label">Transferencias</label>
+                  <select name="transferencias" class="form-select">
+                    ${['','Independiente','Supervisión','Asistencia parcial','Asistencia total','Dependiente'].map(o =>
+                      `<option value="${o}"${explo.transferencias===o?' selected':''}>${o||'— Seleccionar —'}</option>`).join('')}
+                  </select>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12 col-sm-6">
+                  <label class="exp-label">Tolerancia a la marcha</label>
+                  <input type="text" name="tolerancia_marcha" class="form-control"
+                         value="${esc(explo.tolerancia_marcha||'')}"
+                         placeholder="Ej. 20 minutos de caminata continua">
+                </div>
+                <div class="col-12 col-sm-6">
+                  <label class="exp-label">Observaciones de marcha</label>
+                  <input type="text" name="obs_marcha" class="form-control"
+                         value="${esc(explo.obs_marcha||'')}"
+                         placeholder="Descripción del patrón observado">
+                </div>
+              </div>
+            </div>
+
+            <!-- BALANCE Y COORDINACIÓN -->
+            <div class="ant-section mb-4">
+              <div class="ant-section-header mb-3">
+                <i class="fas fa-balance-scale me-2"></i>BALANCE Y COORDINACIÓN
+              </div>
+              <div class="row">
+                ${mkEvaSlider('bal_estatico', 'EQUILIBRIO ESTÁTICO', balEst)}
+                ${mkEvaSlider('bal_dinamico', 'EQUILIBRIO DINÁMICO', balDin)}
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+              <button type="submit" class="btn btn-ak px-4">
+                <i class="fas fa-save me-1"></i>Guardar sección
+              </button>
+              <span id="exploSaveOk" class="text-success fw-semibold"
+                    style="display:none;font-size:13px">
+                <i class="fas fa-check-circle me-1"></i>Guardado correctamente
+              </span>
+            </div>
+          </form>
+        </div>
+
+        <!-- ── ESCALAS ──────────────────────── -->
+        <div class="tab-pane fade p-4" id="tab-escalas" role="tabpanel">
+          <form id="escalasForm">
+            <div class="exp-section-header mb-4">
+              <i class="fas fa-chart-bar me-2" style="color:var(--ak-teal)"></i>
+              Escalas funcionales
+            </div>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <div class="scale-card">
+                  <div class="scale-card-header">
+                    <span class="scale-card-icon"><i class="fas fa-thermometer-half"></i></span>
+                    <div class="flex-fill">
+                      <div class="scale-card-title">EVA TOTAL</div>
+                      <div class="scale-card-sub">Promedio de escala de dolor</div>
+                    </div>
+                    <span class="scale-card-badge">${evaP}/10</span>
+                  </div>
+                  <div class="scale-cls-badge mt-2" style="color:${evaTotClr}">${evaTotCls}</div>
+                  <div class="scale-slider-wrap mt-3">
+                    <input type="range" class="form-range" min="0" max="10" value="${evaP}" disabled>
+                  </div>
+                </div>
+              </div>
+              ${mkScaleCard('ifg',   'chart-line',        'ÍNDICE FUNCIONAL GLOBAL', escIfg,   100, ifgClassify)}
+              ${mkScaleCard('indep', 'user-check',        'INDEPENDENCIA FUNCIONAL', escIndep, 10,  indepClassify)}
+              ${mkScaleCard('tol',   'running',           'TOLERANCIA AL ESFUERZO',  escTol,   10,  tolerClassify)}
+              ${mkScaleCard('movil', 'expand-arrows-alt', 'MOVILIDAD FUNCIONAL',     escMovil, 10,  movilClassify)}
+              <div class="col-12 col-md-6">
+                <div class="scale-card">
+                  <div class="scale-card-header">
+                    <span class="scale-card-icon"><i class="fas fa-exclamation-triangle"></i></span>
+                    <div class="flex-fill">
+                      <div class="scale-card-title">SEVERIDAD DE LIMITACIÓN</div>
+                    </div>
+                  </div>
+                  <div class="mt-3">
+                    <select name="severidad_limitacion" class="form-select">
+                      ${['','Leve','Moderada','Severa','Muy severa','Completa'].map(o =>
+                        `<option value="${o}"${escalas.severidad_limitacion===o?' selected':''}>${o||'Seleccione'}</option>`).join('')}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-3 mt-4">
+              <button type="submit" class="btn btn-ak px-4">
+                <i class="fas fa-save me-1"></i>Guardar sección
+              </button>
+              <span id="escalasSaveOk" class="text-success fw-semibold"
+                    style="display:none;font-size:13px">
+                <i class="fas fa-check-circle me-1"></i>Guardado correctamente
+              </span>
+            </div>
+          </form>
+        </div>
+
       </div>
     </div>`;
 
@@ -1391,6 +1865,170 @@ const Views = {
       btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
       if (res?.success) {
         const ok = el.querySelector('#estiloSaveOk');
+        ok.style.display = '';
+        setTimeout(() => ok.style.display = 'none', 3000);
+      }
+    });
+
+    /* ── DOLOR handlers ────────────────────────────────── */
+    el.querySelectorAll('#tab-dolor .ant-toggle').forEach(btn =>
+      btn.addEventListener('click', () => btn.classList.toggle('active'))
+    );
+
+    const updateEva = () => {
+      const vals = ['eva_actual','eva_maximo','eva_minimo'].map(k => {
+        const v = parseInt(el.querySelector(`#slider_${k}`)?.value || '0', 10);
+        el.querySelector(`#badge_${k}`).textContent = v;
+        el.querySelector(`#cardval_${k}`).textContent = `${v}/10`;
+        const [cls, clr] = evaClassify(v);
+        const tag = el.querySelector(`#cardcls_${k}`);
+        tag.textContent = cls; tag.style.color = clr;
+        return v;
+      });
+      const prom = Math.round(vals.reduce((a, b) => a + b, 0) / 3);
+      el.querySelector('#cardval_promedio').textContent = `${prom}/10`;
+      const [pcls, pclr] = evaClassify(prom);
+      const pt = el.querySelector('#cardcls_promedio');
+      pt.textContent = pcls; pt.style.color = pclr;
+    };
+    ['eva_actual','eva_maximo','eva_minimo'].forEach(k =>
+      el.querySelector(`#slider_${k}`)?.addEventListener('input', updateEva)
+    );
+
+    el.querySelector('#dolorForm')?.addEventListener('submit', async e => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const data = {
+        localizacion_dolor: fd.get('localizacion_dolor'),
+        irradiacion:        fd.get('irradiacion'),
+        eva_actual:         parseInt(fd.get('eva_actual'), 10),
+        eva_maximo:         parseInt(fd.get('eva_maximo'), 10),
+        eva_minimo:         parseInt(fd.get('eva_minimo'), 10),
+        tipo_dolor:     [...el.querySelectorAll('#tab-dolor [data-group="tipo"].active')].map(b => b.dataset.key),
+        ritmo_dolor:    [...el.querySelectorAll('#tab-dolor [data-group="ritmo"].active')].map(b => b.dataset.key),
+        comportamiento: [...el.querySelectorAll('#tab-dolor [data-group="comport"].active')].map(b => b.dataset.key),
+      };
+      const btn = e.target.querySelector('button[type=submit]');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
+      const res = await App.put('/expediente', { section: 'dolor', data });
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
+      if (res?.success) {
+        const ok = el.querySelector('#dolorSaveOk');
+        ok.style.display = '';
+        setTimeout(() => ok.style.display = 'none', 3000);
+      }
+    });
+
+    /* ── VITALES handlers ──────────────────────────────── */
+    const updateIMC = () => {
+      const p = el.querySelector('#vitPeso')?.value;
+      const t = el.querySelector('#vitTalla')?.value;
+      const r = imcCompute(p, t);
+      el.querySelector('#imcVal').textContent  = r.val;
+      el.querySelector('#imcCls').textContent  = r.cls;
+      el.querySelector('#imcCls').style.color  = r.clr;
+    };
+    el.querySelector('#vitPeso')?.addEventListener('input', updateIMC);
+    el.querySelector('#vitTalla')?.addEventListener('input', updateIMC);
+
+    el.querySelector('#vitalesForm')?.addEventListener('submit', async e => {
+      e.preventDefault();
+      const fd  = new FormData(e.target);
+      const imc = imcCompute(fd.get('peso'), fd.get('talla'));
+      const data = {
+        peso:        fd.get('peso'),
+        talla:       fd.get('talla'),
+        ta:          fd.get('ta'),
+        temperatura: fd.get('temperatura'),
+        fc:          fd.get('fc'),
+        fr:          fd.get('fr'),
+        sato2:       fd.get('sato2'),
+        imc_val:     imc.val,
+        imc_cls:     imc.cls,
+      };
+      const btn = e.target.querySelector('button[type=submit]');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
+      const res = await App.put('/expediente', { section: 'vitales', data });
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
+      if (res?.success) {
+        const ok = el.querySelector('#vitSaveOk');
+        ok.style.display = '';
+        setTimeout(() => ok.style.display = 'none', 3000);
+      }
+    });
+
+    /* ── EXPLORACIÓN handlers ──────────────────────────── */
+    el.querySelectorAll('#tab-explo .ant-toggle').forEach(btn =>
+      btn.addEventListener('click', () => btn.classList.toggle('active'))
+    );
+    ['bal_estatico','bal_dinamico'].forEach(k =>
+      el.querySelector(`#slider_${k}`)?.addEventListener('input', e =>
+        el.querySelector(`#badge_${k}`).textContent = e.target.value
+      )
+    );
+
+    el.querySelector('#exploForm')?.addEventListener('submit', async e => {
+      e.preventDefault();
+      const fd   = new FormData(e.target);
+      const data = {
+        postura:           [...el.querySelectorAll('#tab-explo .ant-toggle.active')].map(b => b.dataset.key),
+        obs_posturales:    fd.get('obs_posturales'),
+        patron_marcha:     fd.get('patron_marcha'),
+        ayuda_tecnica:     fd.get('ayuda_tecnica'),
+        transferencias:    fd.get('transferencias'),
+        tolerancia_marcha: fd.get('tolerancia_marcha'),
+        obs_marcha:        fd.get('obs_marcha'),
+        balance_estatico:  parseInt(fd.get('bal_estatico'), 10),
+        balance_dinamico:  parseInt(fd.get('bal_dinamico'), 10),
+      };
+      const btn = e.target.querySelector('button[type=submit]');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
+      const res = await App.put('/expediente', { section: 'exploracion', data });
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
+      if (res?.success) {
+        const ok = el.querySelector('#exploSaveOk');
+        ok.style.display = '';
+        setTimeout(() => ok.style.display = 'none', 3000);
+      }
+    });
+
+    /* ── ESCALAS handlers ─────────────────────────────── */
+    const escalasClassifiers = { ifg: ifgClassify, indep: indepClassify, tol: tolerClassify, movil: movilClassify };
+    const escalasMax = { ifg: 100, indep: 10, tol: 10, movil: 10 };
+    Object.keys(escalasClassifiers).forEach(k => {
+      el.querySelector(`#slider_${k}`)?.addEventListener('input', e => {
+        const v = parseInt(e.target.value, 10);
+        el.querySelector(`#scbadge_${k}`).textContent = `${v}/${escalasMax[k]}`;
+        const [cls, clr] = escalasClassifiers[k](v);
+        const tag = el.querySelector(`#sccls_${k}`);
+        tag.textContent = cls; tag.style.color = clr;
+      });
+    });
+
+    el.querySelector('#escalasForm')?.addEventListener('submit', async e => {
+      e.preventDefault();
+      const fd   = new FormData(e.target);
+      const data = {
+        ifg:                  parseInt(fd.get('ifg'),   10),
+        indep:                parseInt(fd.get('indep'), 10),
+        tol:                  parseInt(fd.get('tol'),   10),
+        movil:                parseInt(fd.get('movil'), 10),
+        severidad_limitacion: fd.get('severidad_limitacion'),
+      };
+      const btn = e.target.querySelector('button[type=submit]');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
+      const res = await App.put('/expediente', { section: 'escalas', data });
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
+      if (res?.success) {
+        const ok = el.querySelector('#escalasSaveOk');
         ok.style.display = '';
         setTimeout(() => ok.style.display = 'none', 3000);
       }

@@ -152,6 +152,64 @@ body { background: #f4f6f9; font-family: 'Segoe UI', system-ui, sans-serif; marg
 }
 .estres-slider { accent-color: var(--ak-navy); cursor: pointer; }
 
+/* ── EVA ─────────────────────────────────────── */
+.eva-slider-wrap { background: #f8f9fa; border-radius: 10px; padding: 12px 14px; border: 1px solid #eee; }
+.eva-label  { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px; color: var(--ak-navy); }
+.eva-denom  { font-size: 12px; color: #888; font-weight: 600; }
+.eva-card   { background: #f8f9fa; border-radius: 10px; padding: 14px; border: 1px solid #eee; }
+.eva-card-dark { background: var(--ak-navy); border-color: var(--ak-navy); }
+.eva-card-dark .eva-card-label { color: #aaa; }
+.eva-card-dark .eva-card-val   { color: #fff; }
+.eva-card-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #888; margin-bottom: 4px; }
+.eva-card-val   { font-size: 26px; font-weight: 800; color: var(--ak-navy); line-height: 1; margin-bottom: 4px; }
+.eva-cls-tag    { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; }
+
+/* ── Vitales / IMC ───────────────────────────── */
+.vitales-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  align-items: end;
+}
+@media (max-width: 640px) { .vitales-grid { grid-template-columns: repeat(2, 1fr); } }
+.imc-card {
+  background: #e8f0fe; border-radius: 10px; padding: 14px;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; text-align: center; min-height: 72px;
+}
+.imc-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #888; margin-bottom: 2px; }
+.imc-val   { font-size: 28px; font-weight: 800; color: var(--ak-navy); line-height: 1.1; }
+.imc-cls   { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
+
+/* ── Escalas funcionales ─────────────────────── */
+.scale-card {
+  background: #f8f9fa; border-radius: 12px;
+  padding: 16px 18px; border: 1px solid #eee; height: 100%;
+}
+.scale-card-header {
+  display: flex; align-items: center; gap: 12px;
+}
+.scale-card-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: var(--ak-teal); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; flex-shrink: 0;
+}
+.scale-card-title {
+  font-size: 12px; font-weight: 800; letter-spacing: .4px;
+  color: var(--ak-navy); text-transform: uppercase;
+}
+.scale-card-sub  { font-size: 10px; color: #999; margin-top: 1px; }
+.scale-card-badge {
+  background: var(--ak-navy); color: #fff;
+  padding: 4px 10px; border-radius: 20px;
+  font-size: 13px; font-weight: 800; flex-shrink: 0; white-space: nowrap;
+}
+.scale-cls-badge {
+  font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px;
+}
+.scale-slider-wrap { padding-top: 4px; }
+
 @media (max-width: 768px) {
     .ak-sidebar { width: 100%; height: auto; position: relative; }
     .ak-main    { margin-left: 0; }
