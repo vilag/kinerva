@@ -38,6 +38,15 @@ function spin() {
   return '<div class="text-center py-5"><i class="fas fa-circle-notch fa-spin fa-2x text-muted"></i></div>';
 }
 
+function showToastGlobal(msg, type = 'info') {
+  const t = document.createElement('div');
+  t.className = `alert alert-${type} position-fixed shadow`;
+  t.style.cssText = 'bottom:24px;right:24px;z-index:9999;min-width:280px;font-size:13px;font-weight:600;animation:fadeIn .2s';
+  t.innerHTML = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3800);
+}
+
 /* ══════════════════════════════════════════════════════════ App */
 
 const App = {
@@ -734,24 +743,29 @@ const Views = {
         (e.motivo_consulta || '').toLowerCase().includes(q2)
       );
       const rows = filtered.length === 0
-        ? `<tr><td colspan="5" class="text-center text-muted py-5">
+        ? `<tr><td colspan="6" class="text-center text-muted py-5">
              <i class="fas fa-search fa-2x mb-2 d-block"></i>
-             ${q2 ? 'Sin resultados para &ldquo;' + esc(q) + '&rdquo;' : 'No hay expedientes guardados'}
+             ${q2 ? 'Sin resultados para &ldquo;' + esc(q) + '&rdquo;' : 'No hay expedientes guardados. Crea el primero con "Nuevo expediente".'}
            </td></tr>`
         : filtered.map(e => {
             const isBorrador = e.folio === 'borrador';
             const folioTag = isBorrador
-              ? `<span class="exp-folio-tag exp-folio-draft">Borrador</span>`
+              ? `<span class="exp-folio-tag exp-folio-draft"><i class="fas fa-pencil-alt me-1" style="font-size:9px"></i>Borrador</span>`
               : `<span class="exp-folio-tag">${esc(e.folio)}</span>`;
             const nombre = esc(e.nombre_paciente) || '<span class="text-muted fst-italic">Sin nombre</span>';
             const fecha  = e.fecha_valoracion ? fmtDate(e.fecha_valoracion) : '<span class="text-muted">—</span>';
             const mod    = e.updated_at ? fmtDate(String(e.updated_at)) : '—';
             return `<tr class="exp-list-row" data-folio="${esc(e.folio)}">
               <td>${folioTag}</td>
-              <td>${nombre}</td>
+              <td><b style="font-weight:600">${nombre}</b></td>
               <td class="text-muted small">${esc(e.motivo_consulta||'—')}</td>
               <td>${fecha}</td>
               <td class="text-muted small">${mod}</td>
+              <td style="text-align:center">
+                <button class="exp-del-btn" data-folio="${esc(e.folio)}" title="Eliminar expediente">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </td>
             </tr>`;
           }).join('');
       const tbody = el.querySelector('#expTableBody');
@@ -786,7 +800,8 @@ const Views = {
                 <th>Paciente</th>
                 <th>Motivo de consulta</th>
                 <th>Fecha valoración</th>
-                <th>Última modificación</th>
+                <th>Modificado</th>
+                <th style="width:50px"></th>
               </tr>
             </thead>
             <tbody id="expTableBody"></tbody>
@@ -798,9 +813,31 @@ const Views = {
 
     el.querySelector('#expSearch')?.addEventListener('input', e => renderTable(e.target.value));
 
-    el.addEventListener('click', e => {
+    el.addEventListener('click', async e => {
+      const delBtn = e.target.closest('.exp-del-btn');
+      if (delBtn) {
+        e.stopPropagation();
+        const folio = delBtn.dataset.folio;
+        const entry = list.find(x => x.folio === folio);
+        const nombre = entry?.nombre_paciente ? `"${entry.nombre_paciente}"` : `folio ${folio}`;
+        if (!confirm(`¿Eliminar el expediente ${nombre}?\n\nSe guardará un registro de auditoría antes de eliminar. Esta acción no se puede deshacer.`)) return;
+        delBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+        delBtn.disabled = true;
+        const r = await App.api('DELETE', '/expedientes', null, { folio });
+        if (r?.success) {
+          const idx = list.findIndex(x => x.folio === folio);
+          if (idx !== -1) list.splice(idx, 1);
+          renderTable(el.querySelector('#expSearch')?.value || '');
+          showToastGlobal(`Expediente ${folio} eliminado. Registro de auditoría guardado.`, 'success');
+        } else {
+          delBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+          delBtn.disabled = false;
+          showToastGlobal(r?.error || 'Error al eliminar', 'danger');
+        }
+        return;
+      }
       const row = e.target.closest('.exp-list-row');
-      if (row) App.go('expediente/' + row.dataset.folio);
+      if (row && !e.target.closest('button')) App.go('expediente/' + row.dataset.folio);
     });
 
     el.querySelector('#btnNuevoExp')?.addEventListener('click', async () => {
@@ -817,7 +854,7 @@ const Views = {
   async expediente(el, folio) {
     App.currentFolio = folio || 'borrador';
     const [resPro, resPac, resAnam, resEstilo, resDolor, resVit, resExplo, resEscalas, resDiag, resPlan, resFotos, resConsent] = await Promise.all([
-      App.get('/expediente', { section: 'profesional', folio: App.currentFolio }),
+      App.get('/expediente', { section: 'profesional', folio: '_global' }),
       App.get('/expediente', { section: 'paciente',    folio: App.currentFolio }),
       App.get('/expediente', { section: 'anamnesis',   folio: App.currentFolio }),
       App.get('/expediente', { section: 'estilo',      folio: App.currentFolio }),
@@ -1073,11 +1110,18 @@ const Views = {
     el.innerHTML = `
     <div class="ak-card">
       <div class="ak-card-head" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-        <h6 style="margin:0"><i class="fas fa-file-medical-alt me-2" style="color:var(--ak-teal)"></i>Expediente Clínico</h6>
+        <div>
+          <h6 style="margin:0 0 2px">
+            <i class="fas fa-file-medical-alt me-2" style="color:var(--ak-teal)"></i>Expediente Clínico
+          </h6>
+          ${pac.nombre_paciente && App.currentFolio !== 'borrador'
+            ? `<div style="font-size:12px;color:#666;font-weight:400;padding-left:2px"><i class="fas fa-user me-1" style="font-size:10px"></i>${esc(pac.nombre_paciente)}</div>`
+            : ''}
+        </div>
         <div style="display:flex;align-items:center;gap:8px">
           ${App.currentFolio !== 'borrador'
             ? `<span class="exp-folio-tag">${esc(App.currentFolio)}</span>`
-            : `<span class="exp-folio-tag exp-folio-draft">Borrador</span>`}
+            : `<span class="exp-folio-tag exp-folio-draft"><i class="fas fa-pencil-alt me-1" style="font-size:9px"></i>Borrador</span>`}
           <a href="#expedientes" class="btn btn-sm btn-outline-secondary" style="font-size:11px;padding:3px 10px">
             <i class="fas fa-list me-1"></i>Ver todos
           </a>
@@ -2176,17 +2220,18 @@ const Views = {
         <button type="button" class="exp-action-btn exp-action-navy" id="btnPdfReporte">
           <span class="exp-action-icon"><i class="fas fa-file-medical-alt"></i></span>
           <div>
-            <div class="exp-action-title">Generar reporte clínico</div>
-            <div class="exp-action-sub">Exportar expediente completo en PDF</div>
+            <div class="exp-action-title">Reporte clínico</div>
+            <div class="exp-action-sub">Generar PDF del expediente completo</div>
           </div>
         </button>
         <button type="button" class="exp-action-btn exp-action-navy" id="btnPdfPlan">
           <span class="exp-action-icon"><i class="fas fa-clipboard-list"></i></span>
           <div>
-            <div class="exp-action-title">Hoja de plan terapéutico</div>
+            <div class="exp-action-title">Plan terapéutico</div>
             <div class="exp-action-sub">Generar PDF del plan de tratamiento</div>
           </div>
         </button>
+        ${App.currentFolio === 'borrador' ? `
         <button type="button" class="exp-action-btn exp-action-amber" id="btnLimpiarPro">
           <span class="exp-action-icon"><i class="fas fa-user-edit"></i></span>
           <div>
@@ -2194,13 +2239,14 @@ const Views = {
             <div class="exp-action-sub">Restablecer información del fisioterapeuta</div>
           </div>
         </button>
-        <button type="button" class="exp-action-btn exp-action-danger" id="btnNuevoRegistro">
+        <button type="button" class="exp-action-btn exp-action-teal" id="btnNuevoRegistro">
           <span class="exp-action-icon"><i class="fas fa-plus-circle"></i></span>
           <div>
-            <div class="exp-action-title">Nuevo registro</div>
-            <div class="exp-action-sub">Iniciar expediente para nuevo paciente</div>
+            <div class="exp-action-title">Nuevo expediente</div>
+            <div class="exp-action-sub">Generar folio para nuevo paciente</div>
           </div>
         </button>
+        ` : ''}
       </div>
     </div>`;
 
@@ -2232,7 +2278,7 @@ const Views = {
       const btn = e.target.querySelector('button[type=submit]');
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
-      const res = await App.put('/expediente', { section: 'profesional', data, folio: App.currentFolio });
+      const res = await App.put('/expediente', { section: 'profesional', data, folio: '_global' });
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
       if (res?.success) {
@@ -2243,16 +2289,18 @@ const Views = {
     });
 
     /* ── PACIENTE handlers ─────────────────────────────── */
-    el.querySelector('#fechaNacField')?.addEventListener('change', e => {
-      const val = e.target.value;
-      if (!val) { el.querySelector('#edadField').value = ''; return; }
-      const birth = new Date(val);
+    const calcEdad = () => {
+      const val = el.querySelector('#fechaNacField')?.value;
+      if (!val) { const f = el.querySelector('#edadField'); if (f) f.value = ''; return; }
+      const [y, m, d] = val.split('-').map(Number);
       const today = new Date();
-      let age = today.getFullYear() - birth.getFullYear();
-      const m = today.getMonth() - birth.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-      el.querySelector('#edadField').value = `${age} años`;
-    });
+      let age = today.getFullYear() - y;
+      if (today.getMonth() + 1 < m || (today.getMonth() + 1 === m && today.getDate() < d)) age--;
+      const f = el.querySelector('#edadField');
+      if (f) f.value = `${age} años`;
+    };
+    el.querySelector('#fechaNacField')?.addEventListener('change', calcEdad);
+    el.querySelector('#fechaNacField')?.addEventListener('input',  calcEdad);
 
     el.querySelector('#genFolioBtn')?.addEventListener('click', async () => {
       const btn = el.querySelector('#genFolioBtn');
@@ -2747,18 +2795,196 @@ const Views = {
       setTimeout(() => t.remove(), 3500);
     };
 
-    el.querySelector('#btnPdfReporte')?.addEventListener('click', () =>
-      showToast('<i class="fas fa-info-circle me-2"></i>Generación de PDF en desarrollo.', 'info')
-    );
-    el.querySelector('#btnPdfPlan')?.addEventListener('click', () =>
-      showToast('<i class="fas fa-info-circle me-2"></i>Generación de PDF en desarrollo.', 'info')
-    );
+    const pdfStyles = `
+      *{box-sizing:border-box}body{font-family:'Segoe UI',Arial,sans-serif;font-size:11.5px;color:#222;margin:0;padding:20px 24px}
+      .doc-header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2.5px solid #1E2D3D;padding-bottom:12px;margin-bottom:14px}
+      .doc-title{font-size:18px;font-weight:800;color:#1E2D3D}.doc-sub{font-size:11px;color:#666;margin-top:2px}
+      .folio-tag{background:#1E2D3D;color:#fff;padding:3px 12px;border-radius:5px;font-size:11px;font-weight:700}
+      h3{font-size:11px;font-weight:700;background:#1E2D3D;color:#fff;padding:5px 10px;margin:12px 0 6px;text-transform:uppercase;letter-spacing:.5px}
+      .g2{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px}.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px 12px}
+      .fld{margin-bottom:3px}.fld b{font-size:9.5px;text-transform:uppercase;color:#666;display:block;margin-bottom:1px}
+      .fld span{display:block;font-size:11.5px}textarea-val{white-space:pre-wrap}
+      .tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+      .tag{background:#e8f5f5;color:#00796b;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:600}
+      .sig-block{display:flex;gap:40px;margin-top:20px;padding-top:14px;border-top:1px solid #ddd}
+      .sig-line{flex:1;text-align:center}.sig-line hr{border:none;border-bottom:1.5px solid #333;margin:40px 0 4px}
+      .sig-line small{font-size:9px;color:#666}
+      .print-btn{display:block;margin:18px auto 0;background:#1E2D3D;color:#fff;border:none;padding:9px 28px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600}
+      @media print{.print-btn{display:none}body{padding:10px 14px}}`;
+
+    const pdfField = (label, val) =>
+      `<div class="fld"><b>${label}</b><span>${val || '<span style="color:#bbb">—</span>'}</span></div>`;
+
+    const pdfTags = arr =>
+      arr && arr.length
+        ? `<div class="tags">${arr.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>`
+        : '<span style="color:#bbb">—</span>';
+
+    el.querySelector('#btnPdfReporte')?.addEventListener('click', () => {
+      const w = window.open('', '_blank', 'width=920,height=750,scrollbars=yes');
+      w.document.write(`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+        <title>Reporte Clínico — ${esc(App.currentFolio)}</title>
+        <style>${pdfStyles}</style></head><body>
+        <div class="doc-header">
+          <div>
+            <div class="doc-title"><i>⚕</i> ${esc(pro.clinica||'Kinerva Fisioterapia')}</div>
+            <div class="doc-sub">${esc(pro.nombre||'')}${pro.especialidad?' — '+esc(pro.especialidad):''}</div>
+            <div class="doc-sub">${[pro.cedula&&'Céd. '+pro.cedula, pro.telefono, pro.email].filter(Boolean).join(' | ')}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="folio-tag">${esc(App.currentFolio)}</div>
+            <div style="font-size:9px;color:#999;margin-top:4px">Impreso: ${new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'})}</div>
+          </div>
+        </div>
+
+        <h3>Datos del Paciente</h3>
+        <div class="g2">
+          ${pdfField('Nombre completo', esc(pac.nombre_paciente))}
+          ${pdfField('Folio', esc(pac.folio||App.currentFolio))}
+          ${pdfField('Fecha de nacimiento', pac.fecha_nac?fmtDate(pac.fecha_nac):'')}
+          ${pdfField('Edad', esc(pac.edad))}
+          ${pdfField('Sexo', esc(pac.sexo))}
+          ${pdfField('Lateralidad', esc(pac.lateralidad))}
+          ${pdfField('Teléfono', esc(pac.telefono_pac))}
+          ${pdfField('Ocupación', esc(pac.ocupacion))}
+          ${pdfField('Fecha de valoración', pac.fecha_valoracion?fmtDate(pac.fecha_valoracion):'')}
+          ${pdfField('Médico tratante', esc(pac.medico_tratante))}
+          ${pdfField('Motivo de consulta', esc(pac.motivo_consulta))}
+          ${pdfField('Diagnóstico referido', esc(pac.diagnostico_referido))}
+        </div>
+
+        <h3>Anamnesis</h3>
+        <div class="g2">
+          ${pdfField('Historia del padecimiento', esc(anam.historia_padecimiento))}
+          ${pdfField('Mecanismo de lesión', esc(anam.mecanismo_lesion))}
+          ${pdfField('Fecha de inicio', anam.fecha_inicio?fmtDate(anam.fecha_inicio):'')}
+          ${pdfField('Tiempo de evolución', esc(anam.tiempo_evolucion))}
+          ${pdfField('Factores que agravan', esc(anam.factores_agravan))}
+          ${pdfField('Factores que alivian', esc(anam.factores_alivian))}
+          ${pdfField('Tratamientos previos', esc(anam.tratamientos_previos))}
+          ${pdfField('Medicamentos actuales', esc(anam.medicamentos_actuales))}
+        </div>
+        <div class="fld" style="margin-top:6px"><b>Antecedentes</b>${pdfTags(anam.antecedentes)}</div>
+
+        <h3>Dolor</h3>
+        <div class="g3">
+          ${pdfField('Localización', esc(dolor.localizacion_dolor))}
+          ${pdfField('EVA actual / máx / mín', [dolor.eva_actual,dolor.eva_maximo,dolor.eva_minimo].join(' / '))}
+          ${pdfField('Irradiación', esc(dolor.irradiacion))}
+        </div>
+        <div class="g2" style="margin-top:4px">
+          <div class="fld"><b>Tipo de dolor</b>${pdfTags(dolor.tipo_dolor)}</div>
+          <div class="fld"><b>Comportamiento</b>${pdfTags(dolor.comportamiento)}</div>
+        </div>
+
+        <h3>Signos Vitales</h3>
+        <div class="g3">
+          ${pdfField('Peso', vitales.peso?vitales.peso+' kg':'')}
+          ${pdfField('Talla', vitales.talla?vitales.talla+' cm':'')}
+          ${pdfField('IMC', vitales.imc_val?(vitales.imc_val+' — '+vitales.imc_cls):'')}
+          ${pdfField('T.A.', esc(vitales.ta))}
+          ${pdfField('Temperatura', vitales.temperatura?vitales.temperatura+' °C':'')}
+          ${pdfField('Frec. Cardíaca', vitales.fc?vitales.fc+' lpm':'')}
+        </div>
+
+        <h3>Escalas Funcionales</h3>
+        <div class="g2">
+          ${pdfField('IFG (0-100)', escalas.ifg!=null?String(escalas.ifg):'')}
+          ${pdfField('Independencia (0-10)', escalas.indep!=null?String(escalas.indep):'')}
+          ${pdfField('Tolerancia (0-10)', escalas.tol!=null?String(escalas.tol):'')}
+          ${pdfField('Movilidad (0-10)', escalas.movil!=null?String(escalas.movil):'')}
+          ${pdfField('Severidad de la limitación', esc(escalas.severidad_limitacion))}
+        </div>
+
+        <h3>Diagnóstico Fisioterapéutico</h3>
+        <div class="g2">
+          ${pdfField('Diagnóstico fisioterapéutico', esc(diag.diagnostico_fisio))}
+          ${pdfField('Estructuras involucradas', esc(diag.estructuras))}
+          ${pdfField('Deficiencias', esc(diag.deficiencias))}
+          ${pdfField('Limitaciones funcionales', esc(diag.limitaciones_func))}
+          ${pdfField('Pronóstico funcional', esc(diag.pronostico_funcional))}
+          ${pdfField('Objetivo general', esc(diag.objetivo_general))}
+        </div>
+        ${diag.objetivos_especificos?`<div class="fld"><b>Objetivos específicos</b><span>${esc(diag.objetivos_especificos)}</span></div>`:''}
+
+        <div class="sig-block">
+          <div class="sig-line"><hr><small>Firma del fisioterapeuta — ${esc(pro.nombre||'')}</small></div>
+          <div class="sig-line"><hr><small>Firma del paciente — ${esc(pac.nombre_paciente||'')}</small></div>
+        </div>
+
+        <button class="print-btn" onclick="window.print()">🖨&nbsp; Imprimir / Guardar PDF</button>
+      </body></html>`);
+      w.document.close(); w.focus();
+    });
+
+    el.querySelector('#btnPdfPlan')?.addEventListener('click', () => {
+      const w = window.open('', '_blank', 'width=800,height=650,scrollbars=yes');
+      const modalidadesLabels = {
+        termoterapia:'Termoterapia', crioterapia:'Crioterapia', tens:'TENS / Electroterapia',
+        ultrasonido:'Ultrasonido', laser:'Láser', magnetoterapia:'Magnetoterapia',
+        terapia_manual:'Terapia manual', movilizacion:'Movilización articular',
+        estiramientos:'Estiramientos', fortalecimiento:'Fortalecimiento muscular',
+        propiocepcion:'Propiocepción', reeducacion:'Reeducación postural',
+        hidroterapia:'Hidroterapia', vendaje:'Vendaje neuromuscular',
+        acupuntura:'Acupuntura / Punción seca', ejercicio:'Ejercicio terapéutico',
+        educacion:'Educación al paciente',
+      };
+      const modNombres = (plan.modalidades||[]).map(k => modalidadesLabels[k]||k);
+      w.document.write(`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+        <title>Plan Terapéutico — ${esc(App.currentFolio)}</title>
+        <style>${pdfStyles}</style></head><body>
+        <div class="doc-header">
+          <div>
+            <div class="doc-title">Plan Terapéutico</div>
+            <div class="doc-sub">${esc(pro.clinica||'Kinerva Fisioterapia')} — ${esc(pro.nombre||'')}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="folio-tag">${esc(App.currentFolio)}</div>
+            <div style="font-size:9px;color:#999;margin-top:4px">${new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'})}</div>
+          </div>
+        </div>
+
+        <h3>Datos del Paciente</h3>
+        <div class="g2">
+          ${pdfField('Nombre', esc(pac.nombre_paciente))}
+          ${pdfField('Fecha de valoración', pac.fecha_valoracion?fmtDate(pac.fecha_valoracion):'')}
+          ${pdfField('Diagnóstico', esc(diag.diagnostico_fisio||pac.diagnostico_referido))}
+          ${pdfField('Objetivo general', esc(diag.objetivo_general))}
+        </div>
+
+        <h3>Plan de Tratamiento</h3>
+        <div class="g3">
+          ${pdfField('Frecuencia', esc(plan.frecuencia))}
+          ${pdfField('Duración del plan', esc(plan.duracion_plan))}
+          ${pdfField('Número de sesiones', esc(plan.num_sesiones))}
+        </div>
+        <div class="fld" style="margin-top:8px"><b>Modalidades terapéuticas</b>${pdfTags(modNombres)}</div>
+
+        ${plan.indicaciones_domiciliarias?`
+        <h3>Indicaciones Domiciliarias</h3>
+        <div style="white-space:pre-wrap;line-height:1.6;padding:6px 10px;background:#f8f9fa;border-radius:5px">${esc(plan.indicaciones_domiciliarias)}</div>`:''}
+
+        ${plan.precauciones?`
+        <h3>Precauciones</h3>
+        <div style="white-space:pre-wrap;line-height:1.6;padding:6px 10px;background:#fff8e1;border-radius:5px">${esc(plan.precauciones)}</div>`:''}
+
+        ${plan.criterios_alta?`<div class="fld" style="margin-top:8px"><b>Criterios de alta</b><span>${esc(plan.criterios_alta)}</span></div>`:''}
+        ${plan.recomendaciones_finales?`<div class="fld"><b>Recomendaciones finales</b><span>${esc(plan.recomendaciones_finales)}</span></div>`:''}
+
+        <div class="sig-block">
+          <div class="sig-line"><hr><small>Firma del fisioterapeuta — ${esc(pro.nombre||'')}</small></div>
+          <div class="sig-line"><hr><small>Firma del paciente — ${esc(pac.nombre_paciente||'')}</small></div>
+        </div>
+        <button class="print-btn" onclick="window.print()">🖨&nbsp; Imprimir / Guardar PDF</button>
+      </body></html>`);
+      w.document.close(); w.focus();
+    });
 
     el.querySelector('#btnLimpiarPro')?.addEventListener('click', async () => {
       if (!confirm('¿Limpiar los datos del profesional? Esta acción no se puede deshacer.')) return;
       const btn = el.querySelector('#btnLimpiarPro');
       btn.disabled = true;
-      await App.put('/expediente', { section: 'profesional', data: {}, folio: App.currentFolio });
+      await App.put('/expediente', { section: 'profesional', data: {}, folio: '_global' });
       btn.disabled = false;
       showToast('<i class="fas fa-check-circle me-2"></i>Datos del profesional eliminados.', 'success');
       Views.expediente(el, App.currentFolio);

@@ -439,6 +439,29 @@ body { background: #f4f6f9; font-family: 'Segoe UI', system-ui, sans-serif; marg
   background: linear-gradient(135deg, #7f8c8d, #95a5a6);
 }
 
+/* Delete button in list */
+.exp-del-btn {
+  background: none;
+  border: 1px solid #e8d0d0;
+  color: #c0392b;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .15s;
+  opacity: .6;
+}
+.exp-del-btn:hover  { background: #fdf0ef; opacity: 1; border-color: #c0392b; }
+.exp-del-btn:disabled { opacity: .3; cursor: default; }
+.exp-list-row:hover .exp-del-btn { opacity: 1; }
+
+/* Teal action button */
+.exp-action-teal {
+  background: linear-gradient(135deg, var(--ak-teal) 0%, #009d95 100%);
+  box-shadow: 0 3px 10px rgba(0,189,180,.28);
+}
+.exp-action-teal:hover { box-shadow: 0 6px 18px rgba(0,189,180,.4); }
+
 @media (max-width: 768px) {
     .ak-sidebar { width: 100%; height: auto; position: relative; }
     .ak-main    { margin-left: 0; }
