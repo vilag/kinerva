@@ -2168,14 +2168,14 @@ const Views = {
     });
 
     /* ── ANAMNESIS handlers ────────────────────────────── */
-    el.querySelectorAll('.ant-toggle').forEach(btn =>
+    el.querySelectorAll('#tab-anam .ant-toggle').forEach(btn =>
       btn.addEventListener('click', () => btn.classList.toggle('active'))
     );
 
     el.querySelector('#anamForm')?.addEventListener('submit', async e => {
       e.preventDefault();
       const fd  = new FormData(e.target);
-      const antecedentes = [...el.querySelectorAll('.ant-toggle.active')]
+      const antecedentes = [...el.querySelectorAll('#tab-anam .ant-toggle.active')]
         .map(b => b.dataset.key);
       const data = {
         motivo_consulta:       fd.get('motivo_consulta'),
