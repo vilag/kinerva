@@ -5,9 +5,11 @@ module.exports = async function (req, res) {
   res.setHeader('Content-Type', 'application/json');
   if (!verifyAdmin(req)) return res.status(401).json({ error: 'No autorizado' });
 
-  const conn = await getConnection();
+  let conn;
   try {
     if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+
+    conn = await getConnection();
 
     const [rows] = await conn.query(`
       SELECT
@@ -33,7 +35,11 @@ module.exports = async function (req, res) {
     });
 
     return res.json({ success: true, expedientes });
+
+  } catch (err) {
+    console.error('[expedientes]', err.message);
+    if (!res.headersSent) res.status(500).json({ error: err.message });
   } finally {
-    await conn.end();
+    if (conn) await conn.end();
   }
 };

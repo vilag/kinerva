@@ -25,8 +25,15 @@ const routes = {
 };
 
 for (const [route, file] of Object.entries(routes)) {
-  app.all(route, (req, res) => require(file)(req, res));
+  app.all(route, (req, res, next) =>
+    Promise.resolve(require(file)(req, res)).catch(next)
+  );
 }
+
+app.use((err, req, res, _next) => {
+  console.error(err.message);
+  if (!res.headersSent) res.status(500).json({ error: err.message });
+});
 
 // ── Admin SPA ──────────────────────────────────────────────────────────────
 app.get(['/admin', '/admin/'], (req, res) =>

@@ -63,9 +63,11 @@ const App = {
     };
     if (body) opts.body = JSON.stringify(body);
     try {
-      const res = await fetch(url, opts);
+      const res  = await fetch(url, opts);
       if (res.status === 401) { App.logout(); return null; }
-      return res.json();
+      const text = await res.text();
+      try { return JSON.parse(text); }
+      catch { console.error('API non-JSON response:', text.slice(0, 120)); return null; }
     } catch (e) {
       console.error('API error', e);
       return null;
@@ -712,7 +714,15 @@ const Views = {
   async expedientes(el) {
     el.innerHTML = spin();
     const res = await App.get('/expedientes');
-    if (!res) { el.innerHTML = '<div class="alert alert-danger m-3">Error cargando expedientes</div>'; return; }
+    if (!res || res.error) {
+      const msg = res?.error || 'Error de conexión';
+      const esTabla = msg.toLowerCase().includes("doesn't exist") || msg.toLowerCase().includes("exist");
+      el.innerHTML = `<div class="alert alert-danger m-4">
+        <b><i class="fas fa-exclamation-triangle me-2"></i>Error:</b> ${esc(msg)}<br>
+        ${esTabla ? '<small class="mt-1 d-block">La tabla <code>expediente_config</code> no existe. Ejecuta <code>setup_expediente.sql</code> en phpMyAdmin de Hostinger.</small>' : ''}
+      </div>`;
+      return;
+    }
     const list = res.expedientes || [];
 
     const renderTable = q => {
@@ -820,7 +830,15 @@ const Views = {
       App.get('/expediente', { section: 'fotos',       folio: App.currentFolio }),
       App.get('/expediente', { section: 'consentimiento', folio: App.currentFolio }),
     ]);
-    if (!resPro) { el.innerHTML = '<div class="alert alert-danger m-3">Error cargando datos</div>'; return; }
+    if (!resPro || resPro.error) {
+      const msg = resPro?.error || 'Error de conexión';
+      const esTabla = msg.toLowerCase().includes("doesn't exist") || msg.toLowerCase().includes("exist");
+      el.innerHTML = `<div class="alert alert-danger m-4">
+        <b><i class="fas fa-exclamation-triangle me-2"></i>Error cargando expediente:</b> ${esc(msg)}<br>
+        ${esTabla ? '<small class="mt-1 d-block">La tabla <code>expediente_config</code> no existe. Ejecuta <code>setup_expediente.sql</code> en phpMyAdmin de Hostinger.</small>' : ''}
+      </div>`;
+      return;
+    }
     const pro     = resPro.data || {};
     const pac     = resPac?.data    || {};
     const anam    = resAnam?.data   || {};
