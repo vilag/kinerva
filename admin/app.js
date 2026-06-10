@@ -46,6 +46,8 @@ const App = {
   // per-view filter state
   apptFilters:   {},
   patientSearch: '',
+  currentFolio:  'borrador',
+  expedientesSearch: '',
 
   /* ── API client ──────────────────────────────────────────── */
   async api(method, path, body, query) {
@@ -138,10 +140,16 @@ const App = {
         Views.patientDetail(content, param);
         break;
       }
-      case 'expediente':
-        title.textContent = 'Expediente Clínico';
-        Views.expediente(content);
+      case 'expedientes':
+        title.textContent = 'Expedientes Clínicos';
+        Views.expedientes(content);
         break;
+      case 'expediente': {
+        const folio = parts[1] || 'borrador';
+        title.textContent = 'Expediente Clínico';
+        Views.expediente(content, folio);
+        break;
+      }
       default:
         title.textContent = 'Dashboard';
         Views.dashboard(content);
@@ -700,21 +708,117 @@ const Views = {
       }
     });
   },
+  /* ── Lista de expedientes ───────────────────────────── */
+  async expedientes(el) {
+    el.innerHTML = spin();
+    const res = await App.get('/expedientes');
+    if (!res) { el.innerHTML = '<div class="alert alert-danger m-3">Error cargando expedientes</div>'; return; }
+    const list = res.expedientes || [];
+
+    const renderTable = q => {
+      const q2 = (q || '').toLowerCase();
+      const filtered = list.filter(e =>
+        !q2 ||
+        e.folio.toLowerCase().includes(q2) ||
+        e.nombre_paciente.toLowerCase().includes(q2) ||
+        (e.motivo_consulta || '').toLowerCase().includes(q2)
+      );
+      const rows = filtered.length === 0
+        ? `<tr><td colspan="5" class="text-center text-muted py-5">
+             <i class="fas fa-search fa-2x mb-2 d-block"></i>
+             ${q2 ? 'Sin resultados para &ldquo;' + esc(q) + '&rdquo;' : 'No hay expedientes guardados'}
+           </td></tr>`
+        : filtered.map(e => {
+            const isBorrador = e.folio === 'borrador';
+            const folioTag = isBorrador
+              ? `<span class="exp-folio-tag exp-folio-draft">Borrador</span>`
+              : `<span class="exp-folio-tag">${esc(e.folio)}</span>`;
+            const nombre = esc(e.nombre_paciente) || '<span class="text-muted fst-italic">Sin nombre</span>';
+            const fecha  = e.fecha_valoracion ? fmtDate(e.fecha_valoracion) : '<span class="text-muted">—</span>';
+            const mod    = e.updated_at ? fmtDate(String(e.updated_at)) : '—';
+            return `<tr class="exp-list-row" data-folio="${esc(e.folio)}">
+              <td>${folioTag}</td>
+              <td>${nombre}</td>
+              <td class="text-muted small">${esc(e.motivo_consulta||'—')}</td>
+              <td>${fecha}</td>
+              <td class="text-muted small">${mod}</td>
+            </tr>`;
+          }).join('');
+      const tbody = el.querySelector('#expTableBody');
+      if (tbody) tbody.innerHTML = rows;
+      const cnt = el.querySelector('#expCount');
+      if (cnt) cnt.textContent = filtered.length;
+    };
+
+    el.innerHTML = `
+      <div class="exp-list-card">
+        <div class="exp-list-header">
+          <div>
+            <h5 class="exp-list-title"><i class="fas fa-folder-open me-2" style="color:var(--ak-teal)"></i>Expedientes Clínicos</h5>
+            <span class="text-muted small"><span id="expCount">${list.length}</span> registros</span>
+          </div>
+          <div class="exp-list-actions">
+            <div class="exp-search-wrap">
+              <i class="fas fa-search exp-search-icon"></i>
+              <input type="text" id="expSearch" class="exp-search-input"
+                     placeholder="Buscar por folio, paciente…" autocomplete="off">
+            </div>
+            <button id="btnNuevoExp" class="exp-btn-nuevo">
+              <i class="fas fa-plus me-1"></i>Nuevo expediente
+            </button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="exp-list-table">
+            <thead>
+              <tr>
+                <th>Folio</th>
+                <th>Paciente</th>
+                <th>Motivo de consulta</th>
+                <th>Fecha valoración</th>
+                <th>Última modificación</th>
+              </tr>
+            </thead>
+            <tbody id="expTableBody"></tbody>
+          </table>
+        </div>
+      </div>`;
+
+    renderTable('');
+
+    el.querySelector('#expSearch')?.addEventListener('input', e => renderTable(e.target.value));
+
+    el.addEventListener('click', e => {
+      const row = e.target.closest('.exp-list-row');
+      if (row) App.go('expediente/' + row.dataset.folio);
+    });
+
+    el.querySelector('#btnNuevoExp')?.addEventListener('click', async () => {
+      const btn = el.querySelector('#btnNuevoExp');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Generando…';
+      const r = await App.get('/expediente', { section: 'folio_next' });
+      if (r?.folio) { App.go('expediente/' + r.folio); }
+      else { btn.disabled = false; btn.innerHTML = '<i class="fas fa-plus me-1"></i>Nuevo expediente'; }
+    });
+  },
+
   /* ── Expediente Clínico ────────────────────────────── */
-  async expediente(el) {
+  async expediente(el, folio) {
+    App.currentFolio = folio || 'borrador';
     const [resPro, resPac, resAnam, resEstilo, resDolor, resVit, resExplo, resEscalas, resDiag, resPlan, resFotos, resConsent] = await Promise.all([
-      App.get('/expediente', { section: 'profesional' }),
-      App.get('/expediente', { section: 'paciente' }),
-      App.get('/expediente', { section: 'anamnesis' }),
-      App.get('/expediente', { section: 'estilo' }),
-      App.get('/expediente', { section: 'dolor' }),
-      App.get('/expediente', { section: 'vitales' }),
-      App.get('/expediente', { section: 'exploracion' }),
-      App.get('/expediente', { section: 'escalas' }),
-      App.get('/expediente', { section: 'diagnostico' }),
-      App.get('/expediente', { section: 'plan' }),
-      App.get('/expediente', { section: 'fotos' }),
-      App.get('/expediente', { section: 'consentimiento' }),
+      App.get('/expediente', { section: 'profesional', folio: App.currentFolio }),
+      App.get('/expediente', { section: 'paciente',    folio: App.currentFolio }),
+      App.get('/expediente', { section: 'anamnesis',   folio: App.currentFolio }),
+      App.get('/expediente', { section: 'estilo',      folio: App.currentFolio }),
+      App.get('/expediente', { section: 'dolor',       folio: App.currentFolio }),
+      App.get('/expediente', { section: 'vitales',     folio: App.currentFolio }),
+      App.get('/expediente', { section: 'exploracion', folio: App.currentFolio }),
+      App.get('/expediente', { section: 'escalas',     folio: App.currentFolio }),
+      App.get('/expediente', { section: 'diagnostico', folio: App.currentFolio }),
+      App.get('/expediente', { section: 'plan',        folio: App.currentFolio }),
+      App.get('/expediente', { section: 'fotos',       folio: App.currentFolio }),
+      App.get('/expediente', { section: 'consentimiento', folio: App.currentFolio }),
     ]);
     if (!resPro) { el.innerHTML = '<div class="alert alert-danger m-3">Error cargando datos</div>'; return; }
     const pro     = resPro.data || {};
@@ -950,8 +1054,16 @@ const Views = {
 
     el.innerHTML = `
     <div class="ak-card">
-      <div class="ak-card-head">
-        <h6><i class="fas fa-file-medical-alt me-2" style="color:var(--ak-teal)"></i>Expediente Clínico</h6>
+      <div class="ak-card-head" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <h6 style="margin:0"><i class="fas fa-file-medical-alt me-2" style="color:var(--ak-teal)"></i>Expediente Clínico</h6>
+        <div style="display:flex;align-items:center;gap:8px">
+          ${App.currentFolio !== 'borrador'
+            ? `<span class="exp-folio-tag">${esc(App.currentFolio)}</span>`
+            : `<span class="exp-folio-tag exp-folio-draft">Borrador</span>`}
+          <a href="#expedientes" class="btn btn-sm btn-outline-secondary" style="font-size:11px;padding:3px 10px">
+            <i class="fas fa-list me-1"></i>Ver todos
+          </a>
+        </div>
       </div>
 
       <ul class="nav nav-tabs px-4 pt-3" id="expTabs" role="tablist">
@@ -1142,7 +1254,8 @@ const Views = {
                 <label class="exp-label">Folio clínico / expediente</label>
                 <div class="input-group">
                   <input type="text" name="folio" id="folioInput" class="form-control"
-                         value="${esc(pac.folio||'')}" placeholder="FISIO-0001">
+                         value="${esc(App.currentFolio !== 'borrador' ? App.currentFolio : pac.folio||'')}"
+                         placeholder="FISIO-0001">
                   <button class="btn btn-outline-secondary" type="button" id="genFolioBtn"
                           title="Generar folio automático">
                     <i class="fas fa-plus"></i>
@@ -2101,7 +2214,7 @@ const Views = {
       const btn = e.target.querySelector('button[type=submit]');
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
-      const res = await App.put('/expediente', { section: 'profesional', data });
+      const res = await App.put('/expediente', { section: 'profesional', data, folio: App.currentFolio });
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
       if (res?.success) {
@@ -2130,7 +2243,11 @@ const Views = {
       const res = await App.get('/expediente', { section: 'folio_next' });
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-plus"></i>';
-      if (res?.folio) el.querySelector('#folioInput').value = res.folio;
+      if (res?.folio) {
+        App.currentFolio = res.folio;
+        history.replaceState(null, '', '#expediente/' + res.folio);
+        el.querySelector('#folioInput').value = res.folio;
+      }
     });
 
     el.querySelector('#pacForm')?.addEventListener('submit', async e => {
@@ -2157,7 +2274,7 @@ const Views = {
       const btn = e.target.querySelector('button[type=submit]');
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
-      const res = await App.put('/expediente', { section: 'paciente', data });
+      const res = await App.put('/expediente', { section: 'paciente', data, folio: App.currentFolio });
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
       if (res?.success) {
@@ -2197,7 +2314,7 @@ const Views = {
       const btn = e.target.querySelector('button[type=submit]');
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
-      const res = await App.put('/expediente', { section: 'anamnesis', data });
+      const res = await App.put('/expediente', { section: 'anamnesis', data, folio: App.currentFolio });
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
       if (res?.success) {
@@ -2230,7 +2347,7 @@ const Views = {
       const btn = e.target.querySelector('button[type=submit]');
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
-      const res = await App.put('/expediente', { section: 'estilo', data });
+      const res = await App.put('/expediente', { section: 'estilo', data, folio: App.currentFolio });
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
       if (res?.success) {
@@ -2281,7 +2398,7 @@ const Views = {
       const btn = e.target.querySelector('button[type=submit]');
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
-      const res = await App.put('/expediente', { section: 'dolor', data });
+      const res = await App.put('/expediente', { section: 'dolor', data, folio: App.currentFolio });
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
       if (res?.success) {
@@ -2321,7 +2438,7 @@ const Views = {
       const btn = e.target.querySelector('button[type=submit]');
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
-      const res = await App.put('/expediente', { section: 'vitales', data });
+      const res = await App.put('/expediente', { section: 'vitales', data, folio: App.currentFolio });
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
       if (res?.success) {
@@ -2358,7 +2475,7 @@ const Views = {
       const btn = e.target.querySelector('button[type=submit]');
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
-      const res = await App.put('/expediente', { section: 'exploracion', data });
+      const res = await App.put('/expediente', { section: 'exploracion', data, folio: App.currentFolio });
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
       if (res?.success) {
@@ -2394,7 +2511,7 @@ const Views = {
       const btn = e.target.querySelector('button[type=submit]');
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
-      const res = await App.put('/expediente', { section: 'escalas', data });
+      const res = await App.put('/expediente', { section: 'escalas', data, folio: App.currentFolio });
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
       if (res?.success) {
@@ -2422,7 +2539,7 @@ const Views = {
       const btn = e.target.querySelector('button[type=submit]');
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
-      const res = await App.put('/expediente', { section: 'diagnostico', data });
+      const res = await App.put('/expediente', { section: 'diagnostico', data, folio: App.currentFolio });
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
       if (res?.success) {
@@ -2453,7 +2570,7 @@ const Views = {
       const btn = e.target.querySelector('button[type=submit]');
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
-      const res = await App.put('/expediente', { section: 'plan', data });
+      const res = await App.put('/expediente', { section: 'plan', data, folio: App.currentFolio });
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
       if (res?.success) {
@@ -2514,7 +2631,7 @@ const Views = {
       const btn = e.target.querySelector('button[type=submit]');
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
-      const res = await App.put('/expediente', { section: 'fotos', data });
+      const res = await App.put('/expediente', { section: 'fotos', data, folio: App.currentFolio });
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar fotos';
       if (res?.success) {
@@ -2592,7 +2709,7 @@ const Views = {
       const btn = e.target.querySelector('button[type=submit]');
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
-      const res = await App.put('/expediente', { section: 'consentimiento', data });
+      const res = await App.put('/expediente', { section: 'consentimiento', data, folio: App.currentFolio });
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar consentimiento';
       if (res?.success) {
@@ -2623,21 +2740,21 @@ const Views = {
       if (!confirm('¿Limpiar los datos del profesional? Esta acción no se puede deshacer.')) return;
       const btn = el.querySelector('#btnLimpiarPro');
       btn.disabled = true;
-      await App.put('/expediente', { section: 'profesional', data: {} });
+      await App.put('/expediente', { section: 'profesional', data: {}, folio: App.currentFolio });
       btn.disabled = false;
       showToast('<i class="fas fa-check-circle me-2"></i>Datos del profesional eliminados.', 'success');
-      Views.expediente(el);
+      Views.expediente(el, App.currentFolio);
     });
 
     el.querySelector('#btnNuevoRegistro')?.addEventListener('click', async () => {
-      if (!confirm('¿Iniciar un nuevo registro? Se borrará TODO el expediente actual. Esta acción no se puede deshacer.')) return;
+      if (!confirm('¿Iniciar un nuevo expediente? Se generará un nuevo folio. El expediente actual permanecerá guardado.')) return;
       const btn = el.querySelector('#btnNuevoRegistro');
       btn.disabled = true;
-      const sections = ['profesional','paciente','anamnesis','estilo','dolor','vitales',
-                        'exploracion','escalas','diagnostico','plan','fotos','consentimiento'];
-      await Promise.all(sections.map(s => App.put('/expediente', { section: s, data: {} })));
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-2"></i>Generando…';
+      const r = await App.get('/expediente', { section: 'folio_next' });
       btn.disabled = false;
-      Views.expediente(el);
+      if (r?.folio) App.go('expediente/' + r.folio);
+      else btn.innerHTML = '<i class="fas fa-user-plus me-2"></i>Nuevo registro';
     });
   },
 

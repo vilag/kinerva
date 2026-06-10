@@ -21,6 +21,7 @@ const routes = {
   '/api/admin/patients':     './api/admin/patients',
   '/api/admin/patient':      './api/admin/patient',
   '/api/admin/expediente':   './api/admin/expediente',
+  '/api/admin/expedientes':  './api/admin/expedientes',
 };
 
 for (const [route, file] of Object.entries(routes)) {
