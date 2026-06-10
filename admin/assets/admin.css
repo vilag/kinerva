@@ -210,6 +210,128 @@ body { background: #f4f6f9; font-family: 'Segoe UI', system-ui, sans-serif; marg
 }
 .scale-slider-wrap { padding-top: 4px; }
 
+/* ── Fotos clínicas ──────────────────────────── */
+.foto-slot {
+  position: relative; border-radius: 12px; overflow: hidden;
+  border: 2px dashed #ddd; background: #f8f9fa;
+  aspect-ratio: 4/3; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  transition: border-color .18s;
+}
+.foto-slot:hover { border-color: var(--ak-teal); }
+.foto-slot.has-img { border-style: solid; border-color: #ccc; }
+.foto-slot img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+}
+.foto-slot-label {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,.55); color: #fff;
+  font-size: 10px; font-weight: 800; text-align: center;
+  padding: 5px 4px; letter-spacing: .6px; z-index: 1;
+}
+.foto-remove {
+  position: absolute; top: 6px; right: 6px;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: #e74c3c; color: #fff; border: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; cursor: pointer; z-index: 2;
+}
+.foto-check {
+  position: absolute; bottom: 30px; right: 6px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #27ae60; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; z-index: 2;
+}
+.foto-placeholder {
+  display: flex; flex-direction: column; align-items: center;
+  color: #ccc; gap: 4px; font-size: 11px; font-weight: 600;
+  text-align: center; padding: 8px; letter-spacing: .4px;
+}
+
+/* ── Consentimiento / firmas ─────────────────── */
+.consent-text {
+  background: #f0f7ff; border-radius: 10px;
+  padding: 16px 20px; font-size: 13.5px; line-height: 1.7;
+  color: #333; border: 1px solid #cce3ff;
+}
+.consent-check-wrap {
+  display: flex; align-items: center;
+  border: 1.5px solid var(--ak-teal); border-radius: 8px;
+  padding: 12px 16px; background: #f8fffe;
+}
+.firma-wrap {
+  background: #f8f9fa; border-radius: 12px; padding: 14px 16px;
+  border: 1px solid #eee;
+}
+.firma-title {
+  font-size: 12px; font-weight: 800; letter-spacing: .5px;
+  color: var(--ak-navy); text-transform: uppercase;
+}
+.firma-pad {
+  width: 100%; height: auto; display: block;
+  border: 1.5px dashed #b0c0d0; border-radius: 8px;
+  background: #fff; cursor: crosshair; touch-action: none;
+}
+.firma-clear-link {
+  font-size: 12px; font-weight: 700; color: #e74c3c;
+  text-decoration: none;
+}
+.firma-clear-link:hover { color: #c0392b; }
+
+/* ── Barra de acciones del expediente ───────── */
+.exp-actions-bar {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; padding: 20px 24px;
+  border-top: 2px solid #f0f0f0;
+  background: #fafbfc; border-radius: 0 0 10px 10px;
+}
+@media (max-width: 640px) { .exp-actions-bar { grid-template-columns: 1fr; } }
+
+.exp-action-btn {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px; border-radius: 12px; border: none;
+  cursor: pointer; text-align: left; color: #fff;
+  transition: transform .15s, box-shadow .15s, filter .15s;
+  position: relative; overflow: hidden;
+}
+.exp-action-btn:hover  { transform: translateY(-2px); }
+.exp-action-btn:active { transform: translateY(0); filter: brightness(.92); }
+
+.exp-action-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: rgba(255,255,255,.18);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 19px; flex-shrink: 0; transition: background .15s;
+}
+.exp-action-btn:hover .exp-action-icon { background: rgba(255,255,255,.28); }
+
+.exp-action-title {
+  font-size: 12px; font-weight: 800; letter-spacing: .4px;
+  text-transform: uppercase; line-height: 1.2;
+}
+.exp-action-sub {
+  font-size: 11px; opacity: .78; margin-top: 2px; font-weight: 500;
+}
+
+.exp-action-navy {
+  background: linear-gradient(135deg, var(--ak-navy) 0%, #2c4a63 100%);
+  box-shadow: 0 3px 10px rgba(30,45,61,.25);
+}
+.exp-action-navy:hover { box-shadow: 0 6px 18px rgba(30,45,61,.35); }
+
+.exp-action-amber {
+  background: linear-gradient(135deg, #d68910 0%, #b7770d 100%);
+  box-shadow: 0 3px 10px rgba(214,137,16,.28);
+}
+.exp-action-amber:hover { box-shadow: 0 6px 18px rgba(214,137,16,.4); }
+
+.exp-action-danger {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  box-shadow: 0 3px 10px rgba(231,76,60,.28);
+}
+.exp-action-danger:hover { box-shadow: 0 6px 18px rgba(231,76,60,.4); }
+
 @media (max-width: 768px) {
     .ak-sidebar { width: 100%; height: auto; position: relative; }
     .ak-main    { margin-left: 0; }

@@ -702,7 +702,7 @@ const Views = {
   },
   /* ── Expediente Clínico ────────────────────────────── */
   async expediente(el) {
-    const [resPro, resPac, resAnam, resEstilo, resDolor, resVit, resExplo, resEscalas] = await Promise.all([
+    const [resPro, resPac, resAnam, resEstilo, resDolor, resVit, resExplo, resEscalas, resDiag, resPlan, resFotos, resConsent] = await Promise.all([
       App.get('/expediente', { section: 'profesional' }),
       App.get('/expediente', { section: 'paciente' }),
       App.get('/expediente', { section: 'anamnesis' }),
@@ -711,6 +711,10 @@ const Views = {
       App.get('/expediente', { section: 'vitales' }),
       App.get('/expediente', { section: 'exploracion' }),
       App.get('/expediente', { section: 'escalas' }),
+      App.get('/expediente', { section: 'diagnostico' }),
+      App.get('/expediente', { section: 'plan' }),
+      App.get('/expediente', { section: 'fotos' }),
+      App.get('/expediente', { section: 'consentimiento' }),
     ]);
     if (!resPro) { el.innerHTML = '<div class="alert alert-danger m-3">Error cargando datos</div>'; return; }
     const pro     = resPro.data || {};
@@ -721,6 +725,10 @@ const Views = {
     const vitales = resVit?.data    || {};
     const explo   = resExplo?.data  || {};
     const escalas = resEscalas?.data || {};
+    const diag    = resDiag?.data   || {};
+    const plan    = resPlan?.data   || {};
+    const fotos   = resFotos?.data  || {};
+    const consent = resConsent?.data || {};
 
 
     const antsList = [
@@ -896,6 +904,50 @@ const Views = {
         </div>`;
     };
 
+    // ── Plan helpers ─────────────────────────────────
+    const modalidadesList = [
+      ['mod_terapia_manual',    'Terapia manual'],
+      ['mod_ejercicio_ter',     'Ejercicio terapéutico'],
+      ['mod_estiramientos',     'Estiramientos'],
+      ['mod_fortalecimiento',   'Fortalecimiento'],
+      ['mod_reeducacion_post',  'Reeducación postural'],
+      ['mod_entren_marcha',     'Entrenamiento marcha'],
+      ['mod_propiocepcion',     'Propiocepción'],
+      ['mod_electroterapia',    'Electroterapia'],
+      ['mod_termoterapia',      'Termoterapia'],
+      ['mod_crioterapia',       'Crioterapia'],
+      ['mod_ultrasonido',       'Ultrasonido'],
+      ['mod_vendaje_neuro',     'Vendaje neuromuscular'],
+      ['mod_lib_miofascial',    'Liberación miofascial'],
+      ['mod_mov_articular',     'Mov. articular'],
+      ['mod_educacion',         'Educación'],
+      ['mod_prog_domiciliario', 'Programa domiciliario'],
+      ['mod_seguimiento_func',  'Seguimiento funcional'],
+    ];
+    const modalidadesHtml = mkToggles(modalidadesList, plan.modalidades || [], 'modal');
+
+    // ── Fotos helpers ─────────────────────────────────
+    const fotoSlotsConfig = [
+      ['postura_inicial', 'POSTURA INICIAL'],
+      ['zona_afectada',   'ZONA AFECTADA'],
+      ['rom_prueba',      'ROM / PRUEBA'],
+      ['evolucion',       'EVOLUCIÓN'],
+    ];
+    const mkFotoSlot = (k, lbl, img) => {
+      const has = !!img;
+      return '<div class="col-6 col-sm-3">' +
+        '<div class="foto-slot' + (has ? ' has-img' : '') + '" id="slot_' + k + '" data-key="' + k + '">' +
+        (has ? '<img src="' + img + '" alt="' + lbl + '">' : '') +
+        '<div class="foto-placeholder"' + (has ? ' style="display:none"' : '') + '>' +
+        '<i class="fas fa-camera fa-2x mb-1"></i><span>' + lbl + '</span></div>' +
+        '<div class="foto-slot-label">' + lbl + '</div>' +
+        (has ? '<button type="button" class="foto-remove" data-key="' + k + '"><i class="fas fa-times"></i></button>' +
+               '<span class="foto-check"><i class="fas fa-check"></i></span>' : '') +
+        '<input type="file" class="foto-input d-none" accept="image/*" data-key="' + k + '">' +
+        '</div></div>';
+    };
+    const fotosHtml = fotoSlotsConfig.map(([k, lbl]) => mkFotoSlot(k, lbl, fotos[k] || '')).join('');
+
     el.innerHTML = `
     <div class="ak-card">
       <div class="ak-card-head">
@@ -949,6 +1001,30 @@ const Views = {
           <button class="nav-link" data-bs-toggle="tab"
                   data-bs-target="#tab-escalas" type="button" role="tab">
             <i class="fas fa-chart-bar me-1"></i>ESCALAS
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" data-bs-toggle="tab"
+                  data-bs-target="#tab-diag" type="button" role="tab">
+            <i class="fas fa-diagnoses me-1"></i>DIAGNÓSTICO
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" data-bs-toggle="tab"
+                  data-bs-target="#tab-plan" type="button" role="tab">
+            <i class="fas fa-tasks me-1"></i>PLAN
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" data-bs-toggle="tab"
+                  data-bs-target="#tab-fotos" type="button" role="tab">
+            <i class="fas fa-camera me-1"></i>FOTOS
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" data-bs-toggle="tab"
+                  data-bs-target="#tab-consent" type="button" role="tab">
+            <i class="fas fa-file-signature me-1"></i>CONSENTIMIENTO
           </button>
         </li>
       </ul>
@@ -1700,6 +1776,300 @@ const Views = {
           </form>
         </div>
 
+        <!-- ── DIAGNÓSTICO ──────────────────────── -->
+        <div class="tab-pane fade p-4" id="tab-diag" role="tabpanel">
+          <form id="diagForm">
+            <div class="exp-section-header mb-4">
+              <i class="fas fa-diagnoses me-2" style="color:var(--ak-teal)"></i>
+              Diagnóstico funcional
+            </div>
+
+            <div class="mb-3">
+              <label class="exp-label">Diagnóstico fisioterapéutico</label>
+              <textarea name="diagnostico_fisio" class="form-control" rows="4"
+                        style="font-weight:600"
+                        placeholder="Descripción completa del diagnóstico fisioterapéutico…">${esc(diag.diagnostico_fisio||'')}</textarea>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Estructuras / regiones comprometidas</label>
+                <textarea name="estructuras" class="form-control" rows="4"
+                          placeholder="Regiones anatómicas comprometidas…">${esc(diag.estructuras||'')}</textarea>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Deficiencias principales</label>
+                <textarea name="deficiencias" class="form-control" rows="4"
+                          placeholder="Principales deficiencias identificadas…">${esc(diag.deficiencias||'')}</textarea>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Limitaciones funcionales</label>
+                <textarea name="limitaciones_func" class="form-control" rows="4"
+                          placeholder="Limitaciones en actividades funcionales…">${esc(diag.limitaciones_func||'')}</textarea>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Restricciones en participación</label>
+                <textarea name="restricciones_part" class="form-control" rows="4"
+                          placeholder="Restricciones en la participación social/laboral…">${esc(diag.restricciones_part||'')}</textarea>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Hipótesis clínica</label>
+                <textarea name="hipotesis_clinica" class="form-control" rows="4"
+                          placeholder="Hipótesis sobre la causa y mecanismo del cuadro…">${esc(diag.hipotesis_clinica||'')}</textarea>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Pronóstico funcional</label>
+                <select name="pronostico_funcional" class="form-select mt-1">
+                  ${['','Malo','Regular','Bueno','Muy bueno','Excelente'].map(o =>
+                    `<option value="${o}"${diag.pronostico_funcional===o?' selected':''}>${o||'— Seleccionar —'}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="exp-label">Objetivo general de tratamiento</label>
+              <textarea name="objetivo_general" class="form-control" rows="3"
+                        placeholder="Meta principal del tratamiento fisioterapéutico…">${esc(diag.objetivo_general||'')}</textarea>
+            </div>
+
+            <div class="mb-4">
+              <label class="exp-label">Objetivos específicos</label>
+              <textarea name="objetivos_especificos" class="form-control" rows="4"
+                        placeholder="• Reducir dolor de 8/10 a 3/10 en 4 semanas&#10;• Recuperar 90% del ROM…">${esc(diag.objetivos_especificos||'')}</textarea>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+              <button type="submit" class="btn btn-ak px-4">
+                <i class="fas fa-save me-1"></i>Guardar sección
+              </button>
+              <span id="diagSaveOk" class="text-success fw-semibold"
+                    style="display:none;font-size:13px">
+                <i class="fas fa-check-circle me-1"></i>Guardado correctamente
+              </span>
+            </div>
+          </form>
+        </div>
+
+        <!-- ── PLAN ──────────────────────────── -->
+        <div class="tab-pane fade p-4" id="tab-plan" role="tabpanel">
+          <form id="planForm">
+            <div class="exp-section-header mb-4">
+              <i class="fas fa-tasks me-2" style="color:var(--ak-teal)"></i>
+              Plan de tratamiento
+            </div>
+
+            <div class="ant-section mb-4">
+              <div class="ant-section-header mb-3">
+                <i class="fas fa-list-check me-2"></i>MODALIDADES TERAPÉUTICAS
+              </div>
+              <div class="ant-grid">
+                ${modalidadesHtml}
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-12 col-sm-4">
+                <label class="exp-label">Frecuencia sugerida</label>
+                <input type="text" name="frecuencia" class="form-control"
+                       value="${esc(plan.frecuencia||'')}"
+                       placeholder="Ej. 3 veces por semana">
+              </div>
+              <div class="col-12 col-sm-4">
+                <label class="exp-label">Duración estimada del plan</label>
+                <input type="text" name="duracion_plan" class="form-control"
+                       value="${esc(plan.duracion_plan||'')}"
+                       placeholder="Ej. 6 semanas">
+              </div>
+              <div class="col-12 col-sm-4">
+                <label class="exp-label">Número de sesiones sugeridas</label>
+                <input type="text" name="num_sesiones" class="form-control"
+                       value="${esc(plan.num_sesiones||'')}"
+                       placeholder="Ej. 12">
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Indicaciones domiciliarias</label>
+                <textarea name="indicaciones_domiciliarias" class="form-control" rows="4"
+                          placeholder="Ejercicios y cuidados en casa…">${esc(plan.indicaciones_domiciliarias||'')}</textarea>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Precauciones</label>
+                <textarea name="precauciones" class="form-control" rows="4"
+                          placeholder="Actividades a evitar o limitar…">${esc(plan.precauciones||'')}</textarea>
+              </div>
+            </div>
+
+            <div class="row mb-4">
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Criterios de alta</label>
+                <textarea name="criterios_alta" class="form-control" rows="4"
+                          placeholder="Criterios para dar de alta al paciente…">${esc(plan.criterios_alta||'')}</textarea>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Recomendaciones finales</label>
+                <textarea name="recomendaciones_finales" class="form-control" rows="4"
+                          placeholder="Recomendaciones al término del tratamiento…">${esc(plan.recomendaciones_finales||'')}</textarea>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+              <button type="submit" class="btn btn-ak px-4">
+                <i class="fas fa-save me-1"></i>Guardar sección
+              </button>
+              <span id="planSaveOk" class="text-success fw-semibold"
+                    style="display:none;font-size:13px">
+                <i class="fas fa-check-circle me-1"></i>Guardado correctamente
+              </span>
+            </div>
+          </form>
+        </div>
+
+        <!-- ── FOTOS ──────────────────────────── -->
+        <div class="tab-pane fade p-4" id="tab-fotos" role="tabpanel">
+          <form id="fotosForm">
+            <div class="exp-section-header mb-3">
+              <i class="fas fa-camera me-2" style="color:var(--ak-teal)"></i>
+              Documentación fotográfica clínica
+            </div>
+            <p class="text-muted mb-4" style="font-size:13px">
+              Adjunte hasta 4 imágenes para complementar la valoración.
+              Las fotos cargadas se incluirán en el reporte PDF.
+            </p>
+            <div class="row g-3 mb-4">
+              ${fotosHtml}
+            </div>
+            <div class="d-flex align-items-center gap-3">
+              <button type="submit" class="btn btn-ak px-4">
+                <i class="fas fa-save me-1"></i>Guardar fotos
+              </button>
+              <span id="fotosSaveOk" class="text-success fw-semibold"
+                    style="display:none;font-size:13px">
+                <i class="fas fa-check-circle me-1"></i>Guardado correctamente
+              </span>
+            </div>
+          </form>
+        </div>
+
+        <!-- ── CONSENTIMIENTO ──────────────────────── -->
+        <div class="tab-pane fade p-4" id="tab-consent" role="tabpanel">
+          <form id="consentForm">
+            <div class="exp-section-header mb-4">
+              <i class="fas fa-file-signature me-2" style="color:var(--ak-teal)"></i>
+              Consentimiento informado
+            </div>
+
+            <div class="consent-text mb-4">
+              Yo, <strong>el paciente o responsable legal</strong>, declaro que he sido informado(a)
+              de manera clara y suficiente sobre el procedimiento de
+              <strong>valoración fisioterapéutica</strong> y el
+              <strong>plan de tratamiento</strong> propuesto, así como de sus objetivos,
+              posibles beneficios, riesgos, alternativas y precauciones. He tenido la oportunidad
+              de aclarar mis dudas y entiendo que puedo retirar este consentimiento en cualquier
+              momento. Autorizo al fisioterapeuta tratante a llevar a cabo las técnicas y
+              modalidades terapéuticas necesarias para mi rehabilitación funcional, así como el
+              registro fotográfico clínico cuando sea pertinente,
+              <u>bajo confidencialidad</u>.
+            </div>
+
+            <div class="consent-check-wrap mb-4">
+              <input type="checkbox" id="consentAcepta" name="acepta" class="form-check-input me-2"
+                     ${consent.acepta ? 'checked' : ''}>
+              <label for="consentAcepta" class="fw-bold" style="font-size:14px">
+                El paciente acepta la valoración y tratamiento fisioterapéutico descrito.
+              </label>
+            </div>
+
+            <div class="row mb-4">
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Nombre del paciente o responsable</label>
+                <input type="text" name="nombre_responsable" class="form-control"
+                       value="${esc(consent.nombre_responsable||'')}"
+                       placeholder="Nombre completo">
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="exp-label">Fecha de firma</label>
+                <input type="date" name="fecha_firma" class="form-control"
+                       value="${consent.fecha_firma || new Date().toISOString().slice(0,10)}">
+              </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="firma-wrap">
+                  <div class="firma-title mb-2">
+                    <i class="fas fa-pen me-1"></i>FIRMA DEL PACIENTE / RESPONSABLE
+                  </div>
+                  <canvas id="canvasPaciente" class="firma-pad" width="800" height="200"></canvas>
+                  <a href="#" id="borrarFirmaPaciente" class="firma-clear-link mt-2 d-inline-block">
+                    <i class="fas fa-eraser me-1"></i>Borrar firma
+                  </a>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="firma-wrap">
+                  <div class="firma-title mb-2">
+                    <i class="fas fa-user-md me-1"></i>FIRMA DEL FISIOTERAPEUTA
+                  </div>
+                  <canvas id="canvasFisio" class="firma-pad" width="800" height="200"></canvas>
+                  <a href="#" id="borrarFirmaFisio" class="firma-clear-link mt-2 d-inline-block">
+                    <i class="fas fa-eraser me-1"></i>Borrar firma
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+              <button type="submit" class="btn btn-ak px-4">
+                <i class="fas fa-save me-1"></i>Guardar consentimiento
+              </button>
+              <span id="consentSaveOk" class="text-success fw-semibold"
+                    style="display:none;font-size:13px">
+                <i class="fas fa-check-circle me-1"></i>Guardado correctamente
+              </span>
+            </div>
+          </form>
+        </div>
+
+      </div><!-- /tab-content -->
+
+      <!-- ── Barra de acciones ─────────────────────── -->
+      <div class="exp-actions-bar">
+        <button type="button" class="exp-action-btn exp-action-navy" id="btnPdfReporte">
+          <span class="exp-action-icon"><i class="fas fa-file-medical-alt"></i></span>
+          <div>
+            <div class="exp-action-title">Generar reporte clínico</div>
+            <div class="exp-action-sub">Exportar expediente completo en PDF</div>
+          </div>
+        </button>
+        <button type="button" class="exp-action-btn exp-action-navy" id="btnPdfPlan">
+          <span class="exp-action-icon"><i class="fas fa-clipboard-list"></i></span>
+          <div>
+            <div class="exp-action-title">Hoja de plan terapéutico</div>
+            <div class="exp-action-sub">Generar PDF del plan de tratamiento</div>
+          </div>
+        </button>
+        <button type="button" class="exp-action-btn exp-action-amber" id="btnLimpiarPro">
+          <span class="exp-action-icon"><i class="fas fa-user-edit"></i></span>
+          <div>
+            <div class="exp-action-title">Limpiar datos del profesional</div>
+            <div class="exp-action-sub">Restablecer información del fisioterapeuta</div>
+          </div>
+        </button>
+        <button type="button" class="exp-action-btn exp-action-danger" id="btnNuevoRegistro">
+          <span class="exp-action-icon"><i class="fas fa-plus-circle"></i></span>
+          <div>
+            <div class="exp-action-title">Nuevo registro</div>
+            <div class="exp-action-sub">Iniciar expediente para nuevo paciente</div>
+          </div>
+        </button>
       </div>
     </div>`;
 
@@ -2032,6 +2402,242 @@ const Views = {
         ok.style.display = '';
         setTimeout(() => ok.style.display = 'none', 3000);
       }
+    });
+
+    /* ── DIAGNÓSTICO handlers ─────────────────────────── */
+    el.querySelector('#diagForm')?.addEventListener('submit', async e => {
+      e.preventDefault();
+      const fd   = new FormData(e.target);
+      const data = {
+        diagnostico_fisio:    fd.get('diagnostico_fisio'),
+        estructuras:          fd.get('estructuras'),
+        deficiencias:         fd.get('deficiencias'),
+        limitaciones_func:    fd.get('limitaciones_func'),
+        restricciones_part:   fd.get('restricciones_part'),
+        hipotesis_clinica:    fd.get('hipotesis_clinica'),
+        pronostico_funcional: fd.get('pronostico_funcional'),
+        objetivo_general:     fd.get('objetivo_general'),
+        objetivos_especificos:fd.get('objetivos_especificos'),
+      };
+      const btn = e.target.querySelector('button[type=submit]');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
+      const res = await App.put('/expediente', { section: 'diagnostico', data });
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
+      if (res?.success) {
+        const ok = el.querySelector('#diagSaveOk');
+        ok.style.display = '';
+        setTimeout(() => ok.style.display = 'none', 3000);
+      }
+    });
+
+    /* ── PLAN handlers ─────────────────────────────── */
+    el.querySelectorAll('#tab-plan .ant-toggle').forEach(btn =>
+      btn.addEventListener('click', () => btn.classList.toggle('active'))
+    );
+
+    el.querySelector('#planForm')?.addEventListener('submit', async e => {
+      e.preventDefault();
+      const fd   = new FormData(e.target);
+      const data = {
+        modalidades:              [...el.querySelectorAll('#tab-plan .ant-toggle.active')].map(b => b.dataset.key),
+        frecuencia:               fd.get('frecuencia'),
+        duracion_plan:            fd.get('duracion_plan'),
+        num_sesiones:             fd.get('num_sesiones'),
+        indicaciones_domiciliarias: fd.get('indicaciones_domiciliarias'),
+        precauciones:             fd.get('precauciones'),
+        criterios_alta:           fd.get('criterios_alta'),
+        recomendaciones_finales:  fd.get('recomendaciones_finales'),
+      };
+      const btn = e.target.querySelector('button[type=submit]');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
+      const res = await App.put('/expediente', { section: 'plan', data });
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar sección';
+      if (res?.success) {
+        const ok = el.querySelector('#planSaveOk');
+        ok.style.display = '';
+        setTimeout(() => ok.style.display = 'none', 3000);
+      }
+    });
+
+    /* ── FOTOS handlers ─────────────────────────────── */
+    const resizeToDataUrl = (file, maxPx, quality) => new Promise(resolve => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        const ratio  = Math.min(maxPx / img.width, maxPx / img.height, 1);
+        const w = Math.round(img.width * ratio);
+        const h = Math.round(img.height * ratio);
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = url;
+    });
+
+    const refreshFotoSlot = (k, imgSrc) => {
+      const lbl  = fotoSlotsConfig.find(([key]) => key === k)?.[1] || k;
+      const slot = el.querySelector(`#slot_${k}`);
+      if (!slot) return;
+      const tmp = document.createElement('div');
+      tmp.innerHTML = mkFotoSlot(k, lbl, imgSrc);
+      const newSlot = tmp.querySelector('.foto-slot');
+      if (newSlot) { slot.className = newSlot.className; slot.innerHTML = newSlot.innerHTML; }
+    };
+
+    el.querySelector('#tab-fotos')?.addEventListener('click', e => {
+      const removeBtn = e.target.closest('.foto-remove');
+      if (removeBtn) { refreshFotoSlot(removeBtn.dataset.key, ''); return; }
+      const slot = e.target.closest('.foto-slot');
+      if (slot) slot.querySelector('.foto-input')?.click();
+    });
+
+    el.querySelector('#tab-fotos')?.addEventListener('change', async e => {
+      const input = e.target.closest('.foto-input');
+      if (!input || !input.files[0]) return;
+      const imgSrc = await resizeToDataUrl(input.files[0], 1200, 0.85);
+      refreshFotoSlot(input.dataset.key, imgSrc);
+    });
+
+    el.querySelector('#fotosForm')?.addEventListener('submit', async e => {
+      e.preventDefault();
+      const data = {};
+      fotoSlotsConfig.forEach(([k]) => {
+        const imgEl = el.querySelector(`#slot_${k} img`);
+        data[k] = imgEl?.src?.startsWith('data:') ? imgEl.src : '';
+      });
+      const btn = e.target.querySelector('button[type=submit]');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
+      const res = await App.put('/expediente', { section: 'fotos', data });
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar fotos';
+      if (res?.success) {
+        const ok = el.querySelector('#fotosSaveOk');
+        ok.style.display = '';
+        setTimeout(() => ok.style.display = 'none', 3000);
+      }
+    });
+
+    /* ── CONSENTIMIENTO handlers ──────────────────────── */
+    const initPad = id => {
+      const canvas = el.querySelector('#' + id);
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      ctx.strokeStyle = '#1E2D3D'; ctx.lineWidth = 2.5;
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      let drawing = false;
+      const pos = e => {
+        const r = canvas.getBoundingClientRect();
+        const t = e.touches?.[0] || e;
+        return [(t.clientX - r.left) * (canvas.width  / r.width),
+                (t.clientY - r.top)  * (canvas.height / r.height)];
+      };
+      canvas.addEventListener('mousedown',  e => { drawing = true;  const [x,y]=pos(e); ctx.beginPath(); ctx.moveTo(x,y); });
+      canvas.addEventListener('mousemove',  e => { if (!drawing) return; const [x,y]=pos(e); ctx.lineTo(x,y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x,y); });
+      canvas.addEventListener('mouseup',    () => drawing = false);
+      canvas.addEventListener('mouseleave', () => drawing = false);
+      canvas.addEventListener('touchstart', e => { e.preventDefault(); drawing = true;  const [x,y]=pos(e); ctx.beginPath(); ctx.moveTo(x,y); }, {passive:false});
+      canvas.addEventListener('touchmove',  e => { e.preventDefault(); if (!drawing) return; const [x,y]=pos(e); ctx.lineTo(x,y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x,y); }, {passive:false});
+      canvas.addEventListener('touchend',   () => drawing = false);
+    };
+
+    const loadSig = (id, dataUrl) => {
+      if (!dataUrl) return;
+      const canvas = el.querySelector('#' + id);
+      if (!canvas) return;
+      const img = new Image();
+      img.onload = () => canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      img.src = dataUrl;
+    };
+
+    const isCanvasEmpty = canvas => {
+      const d = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
+      return !d.some(v => v !== 0);
+    };
+
+    initPad('canvasPaciente');
+    initPad('canvasFisio');
+    loadSig('canvasPaciente', consent.firma_paciente || '');
+    loadSig('canvasFisio',    consent.firma_fisio    || '');
+
+    el.querySelector('#borrarFirmaPaciente')?.addEventListener('click', e => {
+      e.preventDefault();
+      const c = el.querySelector('#canvasPaciente');
+      c?.getContext('2d').clearRect(0, 0, c.width, c.height);
+    });
+    el.querySelector('#borrarFirmaFisio')?.addEventListener('click', e => {
+      e.preventDefault();
+      const c = el.querySelector('#canvasFisio');
+      c?.getContext('2d').clearRect(0, 0, c.width, c.height);
+    });
+
+    el.querySelector('#consentForm')?.addEventListener('submit', async e => {
+      e.preventDefault();
+      const fd     = new FormData(e.target);
+      const cPac   = el.querySelector('#canvasPaciente');
+      const cFisio = el.querySelector('#canvasFisio');
+      const data   = {
+        acepta:              !!fd.get('acepta'),
+        nombre_responsable:  fd.get('nombre_responsable'),
+        fecha_firma:         fd.get('fecha_firma'),
+        firma_paciente:      cPac  && !isCanvasEmpty(cPac)   ? cPac.toDataURL('image/png')   : (consent.firma_paciente || ''),
+        firma_fisio:         cFisio && !isCanvasEmpty(cFisio) ? cFisio.toDataURL('image/png') : (consent.firma_fisio    || ''),
+      };
+      const btn = e.target.querySelector('button[type=submit]');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
+      const res = await App.put('/expediente', { section: 'consentimiento', data });
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar consentimiento';
+      if (res?.success) {
+        const ok = el.querySelector('#consentSaveOk');
+        ok.style.display = '';
+        setTimeout(() => ok.style.display = 'none', 3000);
+      }
+    });
+
+    /* ── Acciones globales ─────────────────────────── */
+    const showToast = (msg, type = 'info') => {
+      const t = document.createElement('div');
+      t.className = `alert alert-${type} position-fixed shadow`;
+      t.style.cssText = 'bottom:24px;right:24px;z-index:9999;min-width:280px;font-size:13px;font-weight:600';
+      t.innerHTML = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 3500);
+    };
+
+    el.querySelector('#btnPdfReporte')?.addEventListener('click', () =>
+      showToast('<i class="fas fa-info-circle me-2"></i>Generación de PDF en desarrollo.', 'info')
+    );
+    el.querySelector('#btnPdfPlan')?.addEventListener('click', () =>
+      showToast('<i class="fas fa-info-circle me-2"></i>Generación de PDF en desarrollo.', 'info')
+    );
+
+    el.querySelector('#btnLimpiarPro')?.addEventListener('click', async () => {
+      if (!confirm('¿Limpiar los datos del profesional? Esta acción no se puede deshacer.')) return;
+      const btn = el.querySelector('#btnLimpiarPro');
+      btn.disabled = true;
+      await App.put('/expediente', { section: 'profesional', data: {} });
+      btn.disabled = false;
+      showToast('<i class="fas fa-check-circle me-2"></i>Datos del profesional eliminados.', 'success');
+      Views.expediente(el);
+    });
+
+    el.querySelector('#btnNuevoRegistro')?.addEventListener('click', async () => {
+      if (!confirm('¿Iniciar un nuevo registro? Se borrará TODO el expediente actual. Esta acción no se puede deshacer.')) return;
+      const btn = el.querySelector('#btnNuevoRegistro');
+      btn.disabled = true;
+      const sections = ['profesional','paciente','anamnesis','estilo','dolor','vitales',
+                        'exploracion','escalas','diagnostico','plan','fotos','consentimiento'];
+      await Promise.all(sections.map(s => App.put('/expediente', { section: s, data: {} })));
+      btn.disabled = false;
+      Views.expediente(el);
     });
   },
 
