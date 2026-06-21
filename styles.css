@@ -2058,13 +2058,13 @@ ul {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: #25D366;
+  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
   color: var(--white);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 28px;
-  box-shadow: 0 6px 22px rgba(37, 211, 102, .48);
+  box-shadow: 0 6px 22px rgba(214, 36, 159, .48);
   z-index: 800;
   transition: transform .3s;
 }
