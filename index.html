@@ -469,8 +469,8 @@
       <h2>Agenda tu Evaluación</h2>
       <p class="cta-sub">Dinos tu número y te llamamos en menos de 1 hora para confirmar tu lugar</p>
       <form onsubmit="return handleCTALead(event)" class="cta-lead-form">
-        <input type="tel" placeholder="Tu número de WhatsApp o teléfono" required>
-        <button type="submit">Quiero mi Cita &nbsp;<i class="fas fa-arrow-right"></i></button>
+        <input type="tel" name="phone" placeholder="Tu número de WhatsApp o teléfono" required>
+        <button type="submit" id="ctaLeadBtn">Quiero mi Cita &nbsp;<i class="fas fa-arrow-right"></i></button>
       </form>
       <div class="cta-guarantees">
         <span><i class="fas fa-check-circle"></i> Primera evaluación</span>
@@ -1558,10 +1558,32 @@
       e.target.reset();
       return false;
     }
-    function handleCTALead(e) {
+    async function handleCTALead(e) {
       e.preventDefault();
-      showToast('¡Recibido! Te llamamos en menos de 1 hora para tu cita.');
-      e.target.reset();
+      const f   = e.target;
+      const btn = document.getElementById('ctaLeadBtn');
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+      btn.disabled = true;
+      try {
+        const res  = await fetch('api/prospects', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: 'Prospecto web', phone: f.phone.value })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('¡Recibido! Te llamamos en menos de 1 hora para tu cita.');
+          f.reset();
+        } else {
+          showToast('Hubo un problema. Llámanos directamente.');
+        }
+      } catch {
+        showToast('Sin conexión. Llámanos al (33) 3024-9555.');
+      } finally {
+        btn.innerHTML = orig;
+        btn.disabled = false;
+      }
       return false;
     }
     async function quickAppt(e) {
