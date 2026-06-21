@@ -192,7 +192,7 @@
         <div class="lbl">Primera consulta</div>
         <h3>40% <span class="ib-free-badge">DESCUENTO</span></h3>
         <form onsubmit="return quickAppt(event)">
-          <input type="text" name="name" placeholder="Nombre completo" required>
+          <input type="text" name="nombre" placeholder="Nombre completo" required>
           <input type="tel" name="phone" placeholder="WhatsApp / Teléfono" required>
           <select name="service">
             <option value="">Tipo de tratamiento</option>
@@ -890,7 +890,7 @@
             hora hábil.</p>
           <form onsubmit="return handleContact(event)">
             <div class="f-row">
-              <div class="f-group"><label>Nombre *</label><input type="text" name="name" placeholder="Tu nombre" required></div>
+              <div class="f-group"><label>Nombre *</label><input type="text" name="nombre" placeholder="Tu nombre" required></div>
               <div class="f-group"><label>WhatsApp / Teléfono *</label><input type="tel" name="phone" placeholder="(33) 0000-0000" required></div>
             </div>
             <div class="f-group"><label>Correo Electrónico</label><input type="email" name="email" placeholder="tu@correo.com"></div>
@@ -1563,7 +1563,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            name:    f.name.value,
+            name:    f.nombre.value,
             phone:   f.phone.value,
             email:   f.email.value   || null,
             service: f.service.value || null,
@@ -1626,7 +1626,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            name:    f.name.value,
+            name:    f.nombre.value,
             phone:   f.phone.value,
             service: f.service.value || null,
             source:  'info-bar',
