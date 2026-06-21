@@ -692,7 +692,7 @@
   <!-- ========================
      BLOG
 ========================= -->
-  <section class="blog sec" id="blog">
+  <!-- <section class="blog sec" id="blog">
     <div class="container">
       <div class="sec-head t-center">
         <span class="kicker">Aprende más</span>
@@ -750,7 +750,7 @@
 
       </div>
     </div>
-  </section>
+  </section> -->
 
   <!-- ========================
      FAQ
@@ -890,10 +890,13 @@
             hora hábil.</p>
           <form onsubmit="return handleContact(event)">
             <div class="f-row">
-              <div class="f-group"><label>Nombre *</label><input type="text" name="nombre" placeholder="Tu nombre" required></div>
-              <div class="f-group"><label>WhatsApp / Teléfono *</label><input type="tel" name="phone" placeholder="(33) 0000-0000" required></div>
+              <div class="f-group"><label>Nombre *</label><input type="text" name="nombre" placeholder="Tu nombre"
+                  required></div>
+              <div class="f-group"><label>WhatsApp / Teléfono *</label><input type="tel" name="phone"
+                  placeholder="(33) 0000-0000" required></div>
             </div>
-            <div class="f-group"><label>Correo Electrónico</label><input type="email" name="email" placeholder="tu@correo.com"></div>
+            <div class="f-group"><label>Correo Electrónico</label><input type="email" name="email"
+                placeholder="tu@correo.com"></div>
             <div class="f-group">
               <label>Tipo de tratamiento</label>
               <select name="service">
@@ -903,10 +906,10 @@
                 <option>Rehabilitación deportiva</option>
               </select>
             </div>
-            <div class="f-group"><label>Describe aqui tu molestia o platícanos tus dudas</label><textarea
-                name="notes" placeholder="Cuéntanos sobre tu condición o consulta..."></textarea></div>
-            <button type="submit" class="btn btn-teal" id="contactFormBtn" style="width:100%">Quiero mi Cita con Descuento &nbsp;<i
-                class="fas fa-arrow-right"></i></button>
+            <div class="f-group"><label>Describe aqui tu molestia o platícanos tus dudas</label><textarea name="notes"
+                placeholder="Cuéntanos sobre tu condición o consulta..."></textarea></div>
+            <button type="submit" class="btn btn-teal" id="contactFormBtn" style="width:100%">Quiero mi Cita con
+              Descuento &nbsp;<i class="fas fa-arrow-right"></i></button>
           </form>
           <p class="form-privacy" style="margin-top:12px"><i class="fas fa-lock"></i> Tus datos están protegidos. No
             spam, nunca.</p>
@@ -1553,22 +1556,22 @@
     }
     async function handleContact(e) {
       e.preventDefault();
-      const f   = e.target;
+      const f = e.target;
       const btn = document.getElementById('contactFormBtn');
       const orig = btn.innerHTML;
       btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>&nbsp; Enviando...';
       btn.disabled = true;
       try {
-        const res  = await fetch('api/prospects', {
+        const res = await fetch('api/prospects', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            name:    f.nombre.value,
-            phone:   f.phone.value,
-            email:   f.email.value   || null,
+            name: f.nombre.value,
+            phone: f.phone.value,
+            email: f.email.value || null,
             service: f.service.value || null,
-            notes:   f.notes.value   || null,
-            source:  'contacto',
+            notes: f.notes.value || null,
+            source: 'contacto',
           })
         });
         const data = await res.json();
@@ -1626,10 +1629,10 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            name:    f.nombre.value,
-            phone:   f.phone.value,
+            name: f.nombre.value,
+            phone: f.phone.value,
             service: f.service.value || null,
-            source:  'info-bar',
+            source: 'info-bar',
           })
         });
         const data = await res.json();
