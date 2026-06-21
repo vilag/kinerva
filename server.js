@@ -22,6 +22,7 @@ const routes = {
   '/api/admin/patient':      './api/admin/patient',
   '/api/admin/expediente':   './api/admin/expediente',
   '/api/admin/expedientes':  './api/admin/expedientes',
+  '/api/admin/prospects':    './api/admin/prospects',
   '/api/prospects':          './api/prospects',
 };
 
