@@ -780,23 +780,24 @@
             sesiones, mientras que una rehabilitación postoperatoria puede requerir 3–6 meses. Te daremos una estimación
             clara y honesta desde la primera evaluación.</div>
         </div>
-        <div class="faq-item">
+        <!-- <div class="faq-item">
           <div class="faq-q" onclick="toggleFaq(this)">¿Aceptan seguros médicos? <i class="fas fa-chevron-down"></i>
           </div>
           <div class="faq-a">Sí, trabajamos con las principales aseguradoras: GNP, MAPFRE, AXA, Metlife y más. También
             emitimos facturas deducibles de impuestos. Consulta disponibilidad llamando a nuestra recepción.</div>
-        </div>
+        </div> -->
         <div class="faq-item">
-          <div class="faq-q" onclick="toggleFaq(this)">¿Qué debo llevar a mi primera cita? <i
+          <div class="faq-q" onclick="toggleFaq(this)">¿Qué debo usar en mi primera cita? <i
               class="fas fa-chevron-down"></i></div>
-          <div class="faq-a">Trae ropa cómoda y deportiva, estudios previos si los tienes (radiografías, resonancias) y
+          <div class="faq-a">Usa ropa cómoda y deportiva, prepara tus estudios previos si los tienes (radiografías,
+            resonancias) y
             el resultado de alguna valoración médica si la tienes. ¡Solo eso!</div>
         </div>
         <div class="faq-item">
           <div class="faq-q" onclick="toggleFaq(this)">¿Hacen servicio a domicilio? <i class="fas fa-chevron-down"></i>
           </div>
-          <div class="faq-a">Sí, contamos con fisioterapia a domicilio en un radio de 15 km desde nuestra clínica. Ideal
-            para postoperatorios, adultos mayores o pacientes con movilidad reducida.</div>
+          <div class="faq-a">Sí, contamos con fisioterapia a domicilio dentro del Área Metropolitana de Guadalajara.
+          </div>
         </div>
         <div class="faq-item">
           <div class="faq-q" onclick="toggleFaq(this)">¿Cuánto cuesta la primera evaluación? <i
@@ -889,15 +890,13 @@
             hora hábil.</p>
           <form onsubmit="return handleContact(event)">
             <div class="f-row">
-              <div class="f-group"><label>Nombre *</label><input type="text" placeholder="Tu nombre" required></div>
-              <div class="f-group"><label>WhatsApp / Teléfono *</label><input type="tel" placeholder="(33) 0000-0000"
-                  required>
-              </div>
+              <div class="f-group"><label>Nombre *</label><input type="text" name="name" placeholder="Tu nombre" required></div>
+              <div class="f-group"><label>WhatsApp / Teléfono *</label><input type="tel" name="phone" placeholder="(33) 0000-0000" required></div>
             </div>
-            <div class="f-group"><label>Correo Electrónico</label><input type="email" placeholder="tu@correo.com"></div>
+            <div class="f-group"><label>Correo Electrónico</label><input type="email" name="email" placeholder="tu@correo.com"></div>
             <div class="f-group">
               <label>Tipo de tratamiento</label>
-              <select>
+              <select name="service">
                 <option value="">Seleccionar...</option>
                 <option>Valoración</option>
                 <option>Terapia general</option>
@@ -905,8 +904,8 @@
               </select>
             </div>
             <div class="f-group"><label>Describe aqui tu molestia o platícanos tus dudas</label><textarea
-                placeholder="Cuéntanos sobre tu condición o consulta..."></textarea></div>
-            <button type="submit" class="btn btn-teal" style="width:100%">Quiero mi Cita con Descuento &nbsp;<i
+                name="notes" placeholder="Cuéntanos sobre tu condición o consulta..."></textarea></div>
+            <button type="submit" class="btn btn-teal" id="contactFormBtn" style="width:100%">Quiero mi Cita con Descuento &nbsp;<i
                 class="fas fa-arrow-right"></i></button>
           </form>
           <p class="form-privacy" style="margin-top:12px"><i class="fas fa-lock"></i> Tus datos están protegidos. No
@@ -918,10 +917,10 @@
   </section>
 
   <!-- MAP PLACEHOLDER -->
-  <div class="map-ph">
+  <!-- <div class="map-ph">
     <i class="fas fa-map-marked-alt"></i>
     <span>Aquí va el iframe de Google Maps con tu dirección</span>
-  </div>
+  </div> -->
 
   <!-- ========================
      FOOTER
@@ -1552,24 +1551,53 @@
         btn.disabled = false;
       }
     }
-    function handleContact(e) {
-      e.preventDefault();
-      showToast('¡Mensaje recibido! Te contactamos en menos de 1 hora hábil.');
-      e.target.reset();
-      return false;
-    }
-    async function handleCTALead(e) {
+    async function handleContact(e) {
       e.preventDefault();
       const f   = e.target;
-      const btn = document.getElementById('ctaLeadBtn');
+      const btn = document.getElementById('contactFormBtn');
       const orig = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>&nbsp; Enviando...';
       btn.disabled = true;
       try {
         const res  = await fetch('api/prospects', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: 'Prospecto web', phone: f.phone.value })
+          body: JSON.stringify({
+            name:    f.name.value,
+            phone:   f.phone.value,
+            email:   f.email.value   || null,
+            service: f.service.value || null,
+            notes:   f.notes.value   || null,
+            source:  'contacto',
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('¡Mensaje recibido! Te contactamos en menos de 1 hora hábil.');
+          f.reset();
+        } else {
+          showToast('Hubo un problema. Llámanos directamente.');
+        }
+      } catch {
+        showToast('Sin conexión. Llámanos al (33) 3024-9555.');
+      } finally {
+        btn.innerHTML = orig;
+        btn.disabled = false;
+      }
+      return false;
+    }
+    async function handleCTALead(e) {
+      e.preventDefault();
+      const f = e.target;
+      const btn = document.getElementById('ctaLeadBtn');
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+      btn.disabled = true;
+      try {
+        const res = await fetch('api/prospects', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: f.phone.value, source: 'cta-band' })
         });
         const data = await res.json();
         if (data.success) {
@@ -1598,9 +1626,10 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            name: f.name.value,
-            phone: f.phone.value,
+            name:    f.name.value,
+            phone:   f.phone.value,
             service: f.service.value || null,
+            source:  'info-bar',
           })
         });
         const data = await res.json();

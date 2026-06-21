@@ -546,13 +546,16 @@ const Views = {
       ${prospects.length === 0
         ? '<div class="ak-card-body text-center text-muted py-5"><i class="fas fa-inbox fa-2x d-block mb-3" style="opacity:.25"></i>Sin prospectos para estos filtros</div>'
         : `<div class="table-responsive"><table class="ak-tbl">
-            <thead><tr><th>Fecha</th><th>Nombre</th><th>Teléfono</th><th>Servicio</th><th>Estado</th><th>Acción</th></tr></thead>
+            <thead><tr><th>Fecha</th><th>Origen</th><th>Nombre</th><th>Teléfono</th><th>Correo</th><th>Servicio</th><th>Notas</th><th>Estado</th><th>Acción</th></tr></thead>
             <tbody>${prospects.map(p=>`
               <tr data-id="${p.id}">
                 <td style="white-space:nowrap;font-size:12px">${fmtDate(p.created_at)}</td>
-                <td class="fw-semibold">${esc(p.name)}</td>
+                <td>${p.source ? `<span style="background:#e8f5e9;color:#2e7d32;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:600">${esc(p.source)}</span>` : '<span style="color:#bbb;font-size:12px">—</span>'}</td>
+                <td class="fw-semibold">${esc(p.name||'—')}</td>
                 <td><a href="tel:${esc(p.phone)}" style="text-decoration:none;color:inherit">${esc(p.phone)}</a></td>
-                <td>${esc(p.service||'—')}</td>
+                <td style="font-size:12px">${p.email ? `<a href="mailto:${esc(p.email)}" style="text-decoration:none;color:inherit">${esc(p.email)}</a>` : '<span style="color:#bbb">—</span>'}</td>
+                <td style="font-size:12px">${esc(p.service||'—')}</td>
+                <td style="max-width:180px">${p.notes ? `<span style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;color:#555" title="${esc(p.notes)}">${esc(p.notes)}</span>` : '<span style="color:#bbb;font-size:12px">—</span>'}</td>
                 <td class="pr-st-cell">${prospectBadge(p.status)}</td>
                 <td>
                   <div class="d-flex gap-1">

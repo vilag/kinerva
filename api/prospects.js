@@ -9,16 +9,23 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST')
     return res.status(405).json({ success: false, message: 'Método no permitido' });
 
-  const { name, phone, service } = req.body || {};
-  if (!name || !phone)
-    return res.status(400).json({ success: false, message: 'Nombre y teléfono son obligatorios' });
+  const { name, phone, email, service, notes, source } = req.body || {};
+  if (!phone)
+    return res.status(400).json({ success: false, message: 'El teléfono es obligatorio' });
 
   let conn;
   try {
     conn = await getConnection();
     await conn.execute(
-      'INSERT INTO prospects (name, phone, service) VALUES (?, ?, ?)',
-      [name.trim(), phone.trim(), service || null]
+      'INSERT INTO prospects (name, phone, email, service, notes, source) VALUES (?, ?, ?, ?, ?, ?)',
+      [
+        (name || 'Prospecto web').trim(),
+        phone.trim(),
+        email  || null,
+        service || null,
+        notes  || null,
+        source || null,
+      ]
     );
     return res.json({ success: true, message: 'Solicitud recibida' });
   } catch (err) {
