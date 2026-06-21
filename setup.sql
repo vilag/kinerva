@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS appointments (
     phone       VARCHAR(25)     NOT NULL,
     email       VARCHAR(120)    DEFAULT NULL,
     service     VARCHAR(100)    DEFAULT NULL,
+    notes       TEXT            DEFAULT NULL,
     created_at  TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_date (date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

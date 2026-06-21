@@ -441,7 +441,7 @@ const Views = {
       ${appointments.length === 0
         ? '<div class="ak-card-body text-center text-muted py-5"><i class="fas fa-search fa-2x d-block mb-3" style="opacity:.25"></i>Sin citas para estos filtros</div>'
         : `<div class="table-responsive"><table class="ak-tbl">
-            <thead><tr><th>Fecha</th><th>Hora</th><th>Paciente</th><th>Tel.</th><th>Servicio</th><th>Dur.</th><th>Estado</th><th>Acción</th></tr></thead>
+            <thead><tr><th>Fecha</th><th>Hora</th><th>Paciente</th><th>Tel.</th><th>Servicio</th><th>Molestia / Duda</th><th>Dur.</th><th>Estado</th><th>Acción</th></tr></thead>
             <tbody>${appointments.map(a=>`
               <tr data-id="${a.id}">
                 <td>${fmtDate(a.date)}</td>
@@ -449,6 +449,7 @@ const Views = {
                 <td><a href="#" class="fw-semibold text-decoration-none pt-link" data-phone="${esc(a.phone)}">${esc(a.name)}</a></td>
                 <td>${esc(a.phone)}</td>
                 <td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(a.service||'')}">${esc(a.service||'Evaluación')}</td>
+                <td style="max-width:200px">${a.notes ? `<span style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;color:#555" title="${esc(a.notes)}">${esc(a.notes)}</span>` : '<span style="color:#bbb;font-size:12px">—</span>'}</td>
                 <td>${a.duration}h</td>
                 <td class="st-cell">${statusBadge(a.status)}</td>
                 <td>

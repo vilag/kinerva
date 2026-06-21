@@ -1077,6 +1077,12 @@
               <option>Rehabilitación deportiva</option>
             </select>
           </div>
+          <div class="f-group" style="margin:0">
+            <label>¿Cuál es tu molestia o duda? <span style="color:#aaa;font-weight:400">(opcional)</span></label>
+            <textarea name="notes" rows="3" placeholder="Describe brevemente tu molestia, lesión o cualquier pregunta que tengas..."
+              style="width:100%;resize:vertical;border:1.5px solid #e0e0e0;border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;color:#333;outline:none;transition:border-color .2s"
+              onfocus="this.style.borderColor='#1a9b8a'" onblur="this.style.borderColor='#e0e0e0'"></textarea>
+          </div>
           <div id="bookingError"
             style="display:none;color:#c0392b;font-size:12px;padding:8px 10px;background:#fef0ef;border-radius:4px;border-left:3px solid #e74c3c;">
           </div>
@@ -1400,13 +1406,13 @@
         this.renderSlots();
       },
 
-      async book(name, phone, email, service) {
+      async book(name, phone, email, service, notes) {
         const res = await fetch('api/book', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             date: this.selectedDate, hour: this.selectedHour, duration: this.duration,
-            name, phone, email, service
+            name, phone, email, service, notes
           })
         });
         const data = await res.json();
@@ -1503,7 +1509,7 @@
       btn.disabled = true;
       try {
         const result = await BookingSystem.book(
-          f.pname.value, f.phone.value, f.email.value, f.service.value
+          f.pname.value, f.phone.value, f.email.value, f.service.value, f.notes.value
         );
         if (result.success) {
           const d = new Date(dateStr + 'T12:00:00');

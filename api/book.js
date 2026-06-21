@@ -11,7 +11,7 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ success: false, message: 'Método no permitido' });
   }
 
-  const { date, hour, duration, name, phone, email, service } = req.body;
+  const { date, hour, duration, name, phone, email, service, notes } = req.body;
   const h   = parseInt(hour, 10);
   const dur = parseInt(duration, 10);
 
@@ -40,8 +40,8 @@ module.exports = async function handler(req, res) {
       return res.json({ success: false, message: 'Ese horario ya fue reservado. Elige otro.' });
 
     await conn.execute(
-      'INSERT INTO appointments (date,hour,duration,name,phone,email,service) VALUES(?,?,?,?,?,?,?)',
-      [date, h, dur, name, phone, email || null, service || null]
+      'INSERT INTO appointments (date,hour,duration,name,phone,email,service,notes) VALUES(?,?,?,?,?,?,?,?)',
+      [date, h, dur, name, phone, email || null, service || null, notes || null]
     );
 
     // Crear o actualizar registro de paciente
