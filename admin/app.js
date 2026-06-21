@@ -123,7 +123,7 @@ const App = {
     document.querySelectorAll('.ak-nav a').forEach(a => {
       const h = a.getAttribute('href')?.slice(1);
       a.classList.toggle('active',
-        h === page || (page === 'patient' && h === 'patients'));
+        h === page || (page === 'patient' && h === 'patients') || (page === 'prospectos' && h === 'prospectos'));
     });
 
     const content = document.getElementById('pageContent');
@@ -138,6 +138,10 @@ const App = {
       case 'appointments':
         title.textContent = 'Citas';
         Views.appointments(content);
+        break;
+      case 'prospectos':
+        title.textContent = 'Prospectos';
+        Views.prospectos(content);
         break;
       case 'patients':
         title.textContent = 'Pacientes';
@@ -490,6 +494,98 @@ const Views = {
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-check"></i>';
         if (res?.success) row.querySelector('.st-cell').innerHTML = statusBadge(status);
+      });
+    });
+  },
+
+  /* ── Prospectos ────────────────────────────────────────── */
+  async prospectos(el) {
+    const f = App.prospectosFilter || '';
+    const query = f ? { status: f } : {};
+    const data = await App.get('/prospects', query);
+    if (!data) { el.innerHTML = '<div class="alert alert-danger">Error cargando prospectos</div>'; return; }
+    const { prospects } = data;
+
+    const STATUSES = ['nuevo','contactado','convertido','descartado'];
+    const statusOpts = STATUSES.map(s =>
+      `<option value="${s}" ${f===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`
+    ).join('');
+
+    const prospectBadge = s => {
+      const map = {
+        nuevo:       ['Nuevo',       '#0d6efd','#e7f1ff'],
+        contactado:  ['Contactado',  '#fd7e14','#fff3e0'],
+        convertido:  ['Convertido',  '#198754','#e8f5e9'],
+        descartado:  ['Descartado',  '#6c757d','#f0f0f0'],
+      };
+      const [lbl, color, bg] = map[s] || ['Nuevo','#0d6efd','#e7f1ff'];
+      return `<span style="background:${bg};color:${color};padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700">${lbl}</span>`;
+    };
+
+    el.innerHTML = `
+    <div class="ak-card mb-3">
+      <div class="ak-card-body">
+        <form id="prospFilterForm" class="row g-2 align-items-end">
+          <div class="col-sm-4 col-md-3">
+            <label class="form-label" style="font-size:12px;font-weight:600">Estado</label>
+            <select name="status" class="form-select form-select-sm">
+              <option value="">Todos</option>${statusOpts}
+            </select>
+          </div>
+          <div class="col-auto d-flex gap-1">
+            <button type="submit" class="btn btn-sm btn-ak"><i class="fas fa-filter me-1"></i>Filtrar</button>
+            <button type="button" id="prospClearBtn" class="btn btn-sm btn-outline-secondary">Limpiar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="ak-card">
+      <div class="ak-card-head">
+        <h6><i class="fas fa-user-plus me-2" style="color:var(--ak-teal)"></i>${prospects.length} prospecto${prospects.length!==1?'s':''}</h6>
+      </div>
+      ${prospects.length === 0
+        ? '<div class="ak-card-body text-center text-muted py-5"><i class="fas fa-inbox fa-2x d-block mb-3" style="opacity:.25"></i>Sin prospectos para estos filtros</div>'
+        : `<div class="table-responsive"><table class="ak-tbl">
+            <thead><tr><th>Fecha</th><th>Nombre</th><th>Teléfono</th><th>Servicio</th><th>Estado</th><th>Acción</th></tr></thead>
+            <tbody>${prospects.map(p=>`
+              <tr data-id="${p.id}">
+                <td style="white-space:nowrap;font-size:12px">${fmtDate(p.created_at)}</td>
+                <td class="fw-semibold">${esc(p.name)}</td>
+                <td><a href="tel:${esc(p.phone)}" style="text-decoration:none;color:inherit">${esc(p.phone)}</a></td>
+                <td>${esc(p.service||'—')}</td>
+                <td class="pr-st-cell">${prospectBadge(p.status)}</td>
+                <td>
+                  <div class="d-flex gap-1">
+                    <select class="form-select form-select-sm pr-sel" style="width:130px;font-size:12px">
+                      ${STATUSES.map(s=>`<option value="${s}" ${p.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
+                    </select>
+                    <button class="btn btn-sm btn-ak save-pr" title="Guardar"><i class="fas fa-check"></i></button>
+                  </div>
+                </td>
+              </tr>`).join('')}
+            </tbody></table></div>`}
+    </div>`;
+
+    el.querySelector('#prospFilterForm')?.addEventListener('submit', e => {
+      e.preventDefault();
+      App.prospectosFilter = new FormData(e.target).get('status') || '';
+      Views.prospectos(el);
+    });
+    el.querySelector('#prospClearBtn')?.addEventListener('click', () => {
+      App.prospectosFilter = '';
+      Views.prospectos(el);
+    });
+    el.querySelectorAll('.save-pr').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const row    = btn.closest('tr');
+        const id     = parseInt(row.dataset.id, 10);
+        const status = row.querySelector('.pr-sel').value;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+        const res = await App.patch('/prospects', { id, status });
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check"></i>';
+        if (res?.success) row.querySelector('.pr-st-cell').innerHTML = prospectBadge(status);
       });
     });
   },

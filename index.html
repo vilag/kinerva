@@ -5,10 +5,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description"
-    content="Kinerva – Centro de Fisioterapia y Rehabilitación en Guadalajara. Evaluación gratuita. Especialistas en lesiones deportivas, columna y neurorrehabilitación.">
+    content="Kinerva – Centro de Fisioterapia y Rehabilitación en Guadalajara. Especialistas en lesiones deportivas y terapia general.">
   <meta name="keywords"
-    content="fisioterapia, rehabilitación, terapia física, Kinerva, fisioterapeuta, lesiones deportivas, CDMX, evaluación gratuita">
-  <title>Kinerva – Recupera tu Vida Sin Dolor | Fisioterapia CDMX</title>
+    content="fisioterapia, rehabilitación, terapia física, Kinerva, fisioterapeuta, lesiones deportivas, Guadalajara.">
+  <title>Kinerva – Recupera tu Vida Sin Dolor | Fisioterapia en Guadalajara</title>
 
   <!-- Google Fonts -->
   <link
@@ -29,8 +29,10 @@
     <div class="container">
       <div class="topbar-left">
         <!-- <span><i class="fas fa-map-marker-alt"></i>Calle Salud 123, CDMX</span> -->
-        <a href="tel:+523330249555" style="text-decoration:none;color:inherit"><span><i class="fas fa-phone"></i>(33) 3024-9555</span></a>
-        <a href="tel:+523338229540" style="text-decoration:none;color:inherit"><span><i class="fas fa-phone"></i>(33) 3822-9540</span></a>
+        <a href="tel:+523330249555" style="text-decoration:none;color:inherit"><span><i class="fas fa-phone"></i>(33)
+            3024-9555</span></a>
+        <a href="tel:+523338229540" style="text-decoration:none;color:inherit"><span><i class="fas fa-phone"></i>(33)
+            3822-9540</span></a>
         <!-- <span class="topbar-promo"><i class="fas fa-gift"></i>Primera evaluación en línea <strong>100% GRATIS</strong></span> -->
       </div>
       <div class="topbar-right">
@@ -121,10 +123,10 @@
           <a href="#cita" class="btn btn-pulse" onclick="openModal(event)">
             <i class="fas fa-calendar-check"></i>&nbsp; Agenda tu Evaluación
           </a>
-          <a href="https://wa.me/3330249555?text=Hola%2C%20quisiera%20agendar%20una%20cita%20en%20Kinerva"
+          <!-- <a href="https://wa.me/3330249555?text=Hola%2C%20quisiera%20agendar%20una%20cita%20en%20Kinerva"
             class="btn btn-outline-wa" target="_blank" rel="noopener">
             <i class="fab fa-whatsapp"></i>&nbsp; WhatsApp
-          </a>
+          </a> -->
         </div>
 
         <!-- Trust signals -->
@@ -179,7 +181,9 @@
         <div class="lbl">Nuestros</div>
         <h3>Contactos</h3>
         <div class="ib-line"><i class="fas fa-map-marker-alt"></i> Guadalajara, Jalisco</div>
-        <div class="ib-line"><i class="fas fa-phone"></i> <a href="tel:+523330249555" style="text-decoration:none;color:inherit">33 3024 9555</a> &nbsp;/&nbsp; <a href="tel:+523338229540" style="text-decoration:none;color:inherit">33 3822 9540</a></div>
+        <div class="ib-line"><i class="fas fa-phone"></i> <a href="tel:+523330249555"
+            style="text-decoration:none;color:inherit">33 3024 9555</a> &nbsp;/&nbsp; <a href="tel:+523338229540"
+            style="text-decoration:none;color:inherit">33 3822 9540</a></div>
         <div class="ib-line"><i class="fas fa-envelope"></i> contacto@kinervafisioterapia.com</div>
       </div>
 
@@ -188,19 +192,15 @@
         <div class="lbl">Primera consulta</div>
         <h3>40% <span class="ib-free-badge">DESCUENTO</span></h3>
         <form onsubmit="return quickAppt(event)">
-          <input type="text" placeholder="Nombre completo" required>
-          <input type="tel" placeholder="WhatsApp / Teléfono" required>
-          <select>
+          <input type="text" name="name" placeholder="Nombre completo" required>
+          <input type="tel" name="phone" placeholder="WhatsApp / Teléfono" required>
+          <select name="service">
             <option value="">Tipo de tratamiento</option>
             <option>Valoración</option>
             <option>Terapia general</option>
             <option>Rehabilitación deportiva</option>
-            <!-- <option>Rodilla / cadera</option>
-            <option>Hombro / cuello</option>
-            <option>Rehabilitación postoperatoria</option>
-            <option>Otro</option> -->
           </select>
-          <button type="submit" class="cta-appt">
+          <button type="submit" class="cta-appt" id="quickApptBtn">
             <i class="fas fa-calendar-check"></i>&nbsp; Quiero mi Consulta con descuento
           </button>
         </form>
@@ -312,10 +312,11 @@
         <div class="step-card">
           <div class="step-num">02</div>
           <div class="step-ico"><i class="fas fa-stethoscope"></i></div>
-          <h4>Evaluación Gratuita</h4>
-          <p>Tu primera sesión es una evaluación completa sin costo. Identificamos el origen del problema y diseñamos tu
+          <h4>Evaluación con Descuento</h4>
+          <p>Tu primera sesión es una evaluación completa con descuento del 40%. Identificamos el origen del problema y
+            diseñamos tu
             plan personalizado.</p>
-          <span class="step-badge">GRATIS</span>
+          <span class="step-badge">con Descuento</span>
         </div>
 
         <div class="step-arrow"><i class="fas fa-arrow-right"></i></div>
@@ -418,7 +419,7 @@
       </div>
       <div class="srv-footer t-center">
         <div class="srv-incl">
-          <i class="fas fa-check-circle"></i> Evaluación inicial gratuita incluida en tu primer servicio
+          <i class="fas fa-check-circle"></i> Evaluación inicial con descuento en tu primer servicio
         </div>
       </div>
     </div>
@@ -769,7 +770,7 @@
           <div class="faq-q" onclick="toggleFaq(this)">¿Necesito una orden médica para agendar cita? <i
               class="fas fa-chevron-down"></i></div>
           <div class="faq-a">No es obligatorio. Puedes acudir directamente con nosotros. En la primera sesión realizamos
-            una evaluación completa gratuita y, si detectamos que necesitas valoración médica previa, te lo
+            una evaluación completa y, si detectamos que necesitas valoración médica previa, te lo
             indicaremos.</div>
         </div>
         <div class="faq-item">
@@ -813,12 +814,15 @@
           <h3>¿Tienes más preguntas?</h3>
           <p>Nuestro equipo está disponible para resolver todas tus dudas antes de tu primera cita. No esperes más para
             iniciar tu recuperación.</p>
-          <a href="https://wa.me/5512345678?text=Hola%2C%20quisiera%20información%20sobre%20Kinerva"
+          <!-- <a href="https://wa.me/3330249555?text=Hola%2C%20quisiera%20información%20sobre%20Kinerva"
             class="btn btn-teal" style="display:block; text-align:center; margin-bottom:10px;">
             <i class="fab fa-whatsapp" style="margin-right:8px;"></i>Escribir por WhatsApp
+          </a> -->
+          <a href="tel:3330249555" class="btn btn-red" style="display:block; text-align:center;">
+            <i class="fas fa-phone" style="margin-right:8px;"></i>Llamar Ahora - 33 3024 9555
           </a>
-          <a href="tel:5512345678" class="btn btn-red" style="display:block; text-align:center;">
-            <i class="fas fa-phone" style="margin-right:8px;"></i>Llamar Ahora
+          <a href="tel:3338229540" class="btn btn-red" style="display:block; text-align:center;">
+            <i class="fas fa-phone" style="margin-right:8px;"></i>Llamar Ahora - 33 3822 9540
           </a>
         </div>
         <!-- <div class="cert-box">
@@ -859,7 +863,8 @@
             <div class="c-ico"><i class="fas fa-phone"></i></div>
             <div class="c-txt">
               <h5>Teléfonos</h5>
-              <p><a href="tel:+523330249555" style="text-decoration:none;color:inherit">33 3024 9555</a><br><a href="tel:+523338229540" style="text-decoration:none;color:inherit">33 3822 9540</a></p>
+              <p><a href="tel:+523330249555" style="text-decoration:none;color:inherit">33 3024 9555</a><br><a
+                  href="tel:+523338229540" style="text-decoration:none;color:inherit">33 3822 9540</a></p>
             </div>
           </div>
           <div class="c-detail">
@@ -969,7 +974,9 @@
           <div>
             <h4>Contacto</h4>
             <div class="f-contact-li"><i class="fas fa-map-marker-alt"></i><span>Guadalajara, Jalisco</span></div>
-            <div class="f-contact-li"><i class="fas fa-phone"></i><span><a href="tel:+523330249555" style="text-decoration:none;color:inherit">33 3024 9555</a> / <a href="tel:+523338229540" style="text-decoration:none;color:inherit">33 3822 9540</a></span></div>
+            <div class="f-contact-li"><i class="fas fa-phone"></i><span><a href="tel:+523330249555"
+                  style="text-decoration:none;color:inherit">33 3024 9555</a> / <a href="tel:+523338229540"
+                  style="text-decoration:none;color:inherit">33 3822 9540</a></span></div>
             <div class="f-contact-li"><i class="fas fa-envelope"></i><span>contacto@kinervafisioterapia.com</span></div>
             <div class="f-contact-li"><i class="fas fa-clock"></i><span>Lun–Vie: 8:00–19:00<br>Sáb: 9:00–14:00</span>
             </div>
@@ -1000,17 +1007,21 @@
   <div class="sticky-bar" id="stickyBar">
     <a href="tel:+523330249555" class="sticky-btn sticky-call">
       <i class="fas fa-phone"></i>
-      <span>Llamar</span>
+      <span>Llamar - 33 3024 9555</span>
+    </a>
+    <a href="tel:+523338229540" class="sticky-btn sticky-call">
+      <i class="fas fa-phone"></i>
+      <span>Llamar - 33 3822 9540</span>
     </a>
     <a href="#cita" class="sticky-btn sticky-appt" onclick="openModal(event)">
       <i class="fas fa-calendar-check"></i>
-      <span>Cita Gratis</span>
+      <span>Cita con descuento</span>
     </a>
-    <a href="https://wa.me/5512345678?text=Hola%2C%20quiero%20agendar%20en%20Kinerva" class="sticky-btn sticky-wa"
+    <!-- <a href="https://wa.me/5512345678?text=Hola%2C%20quiero%20agendar%20en%20Kinerva" class="sticky-btn sticky-wa"
       target="_blank" rel="noopener">
       <i class="fab fa-whatsapp"></i>
       <span>WhatsApp</span>
-    </a>
+    </a> -->
   </div>
 
   <!-- Toast -->
@@ -1022,7 +1033,7 @@
   <div class="modal-wrap" id="modalWrap" onclick="closeModalOverlay(event)">
     <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="mTitle">
       <div class="modal-head">
-        <h3 id="mTitle"><i class="fas fa-calendar-check" style="margin-right:8px"></i>Agenda tu Cita Gratuita</h3>
+        <h3 id="mTitle"><i class="fas fa-calendar-check" style="margin-right:8px"></i>Agenda tu Cita con Descuento</h3>
         <button class="modal-x" onclick="closeModal()" aria-label="Cerrar">&times;</button>
       </div>
       <div class="modal-body">
@@ -1079,7 +1090,8 @@
           </div>
           <div class="f-group" style="margin:0">
             <label>¿Cuál es tu molestia o duda? <span style="color:#aaa;font-weight:400">(opcional)</span></label>
-            <textarea name="notes" rows="3" placeholder="Describe brevemente tu molestia, lesión o cualquier pregunta que tengas..."
+            <textarea name="notes" rows="3"
+              placeholder="Describe brevemente tu molestia, lesión o cualquier pregunta que tengas..."
               style="width:100%;resize:vertical;border:1.5px solid #e0e0e0;border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;color:#333;outline:none;transition:border-color .2s"
               onfocus="this.style.borderColor='#1a9b8a'" onblur="this.style.borderColor='#e0e0e0'"></textarea>
           </div>
@@ -1087,7 +1099,7 @@
             style="display:none;color:#c0392b;font-size:12px;padding:8px 10px;background:#fef0ef;border-radius:4px;border-left:3px solid #e74c3c;">
           </div>
           <button type="submit" class="btn btn-teal" style="width:100%;margin-top:4px;font-size:14px;padding:14px">
-            <i class="fas fa-check"></i>&nbsp; Confirmar mi Cita Gratuita
+            <i class="fas fa-check"></i>&nbsp; Confirmar mi Cita con Descuento
           </button>
           <p style="text-align:center;font-size:11.5px;color:#aaa">
             <i class="fas fa-lock"></i> Tus datos están protegidos. Sin spam.
@@ -1552,10 +1564,36 @@
       e.target.reset();
       return false;
     }
-    function quickAppt(e) {
+    async function quickAppt(e) {
       e.preventDefault();
-      showToast('¡Solicitud recibida! Te confirmamos tu lugar muy pronto.');
-      e.target.reset();
+      const f = e.target;
+      const btn = document.getElementById('quickApptBtn');
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>&nbsp; Enviando...';
+      btn.disabled = true;
+      try {
+        const res = await fetch('api/prospects', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: f.name.value,
+            phone: f.phone.value,
+            service: f.service.value || null,
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('¡Solicitud recibida! Te llamamos en menos de 1 hora.');
+          f.reset();
+        } else {
+          showToast('Hubo un problema. Llámanos directamente.');
+        }
+      } catch {
+        showToast('Sin conexión. Llámanos al (33) 3024-9555.');
+      } finally {
+        btn.innerHTML = orig;
+        btn.disabled = false;
+      }
       return false;
     }
 
