@@ -1,16 +1,16 @@
 -- Portal de pacientes — ejecutar UNA SOLA VEZ en phpMyAdmin › pestaña SQL
+-- (Si ya ejecutaste una versión anterior, usa DROP TABLE IF EXISTS antes de cada CREATE)
 
 CREATE TABLE IF NOT EXISTS patient_users (
-  id         INT AUTO_INCREMENT PRIMARY KEY,
-  google_id  VARCHAR(128) UNIQUE NOT NULL,
-  email      VARCHAR(120) NOT NULL,
-  name       VARCHAR(120),
-  picture    VARCHAR(500),
-  phone      VARCHAR(20),
-  birth_date DATE,
-  notes      TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  id            INT AUTO_INCREMENT PRIMARY KEY,
+  username      VARCHAR(60)  UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  name          VARCHAR(120) NOT NULL,
+  phone         VARCHAR(20),
+  birth_date    DATE,
+  notes         TEXT,
+  created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  last_login    TIMESTAMP NULL
 );
 
 CREATE TABLE IF NOT EXISTS routines (

@@ -3116,26 +3116,32 @@ const Views = {
     content.innerHTML = `
       <div class="d-flex justify-content-between align-items-center mb-3">
         <span class="text-muted">${users.length} paciente${users.length !== 1 ? 's' : ''} registrado${users.length !== 1 ? 's' : ''} en el portal</span>
-        <a href="/portal" target="_blank" class="btn btn-sm btn-outline-secondary">
-          <i class="fas fa-external-link-alt me-1"></i>Ver portal
-        </a>
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createPatientModal">
+            <i class="fas fa-user-plus me-1"></i>Crear Paciente
+          </button>
+          <a href="/portal" target="_blank" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-external-link-alt me-1"></i>Ver portal
+          </a>
+        </div>
       </div>
 
       ${users.length === 0 ? `
         <div class="text-center py-5 text-muted">
           <i class="fas fa-user-shield fa-3x mb-3 d-block" style="color:#dee2e6"></i>
           <h5>Sin pacientes registrados</h5>
-          <p class="small">Cuando los pacientes inicien sesión en el portal aparecerán aquí.</p>
+          <p class="small">Usa el botón "Crear Paciente" para dar de alta al primer paciente del portal.</p>
         </div>` : `
         <div class="table-responsive">
           <table class="table table-hover align-middle">
             <thead class="table-light">
               <tr>
                 <th>Paciente</th>
+                <th>Usuario</th>
                 <th>Teléfono</th>
                 <th>Rutinas</th>
                 <th>Último acceso</th>
-                <th>Registrado</th>
+                <th>Alta</th>
                 <th></th>
               </tr>
             </thead>
@@ -3144,28 +3150,73 @@ const Views = {
                 <tr>
                   <td>
                     <div class="d-flex align-items-center gap-2">
-                      ${u.picture
-                        ? `<img src="${esc(u.picture)}" width="36" height="36" style="border-radius:50%;object-fit:cover">`
-                        : `<div style="width:36px;height:36px;border-radius:50%;background:#00BDB4;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px"><i class="fas fa-user"></i></div>`}
-                      <div>
-                        <div class="fw-semibold">${esc(u.name || '—')}</div>
-                        <div class="text-muted small">${esc(u.email)}</div>
+                      <div style="width:36px;height:36px;border-radius:50%;background:#00BDB4;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0">
+                        ${(u.name||'?').split(' ').slice(0,2).map(w=>w[0]?.toUpperCase()||'').join('')}
                       </div>
+                      <div class="fw-semibold">${esc(u.name || '—')}</div>
                     </div>
                   </td>
+                  <td><span class="text-muted small">@${esc(u.username)}</span></td>
                   <td>${u.phone ? `<a href="tel:${esc(u.phone)}">${esc(u.phone)}</a>` : '<span class="text-muted">—</span>'}</td>
                   <td><span class="badge bg-primary rounded-pill">${u.routine_count}</span></td>
-                  <td class="small text-muted">${fmtDate(u.last_login)}</td>
+                  <td class="small text-muted">${u.last_login ? fmtDate(u.last_login) : 'Nunca'}</td>
                   <td class="small text-muted">${fmtDate(u.created_at)}</td>
                   <td>
-                    <button class="btn btn-sm btn-outline-primary" onclick="Views.openRoutineManager(${u.id}, '${esc(u.name || u.email)}')">
-                      <i class="fas fa-dumbbell me-1"></i>Rutinas
-                    </button>
+                    <div class="d-flex gap-1">
+                      <button class="btn btn-sm btn-outline-primary" onclick="Views.openRoutineManager(${u.id}, '${esc(u.name)}')">
+                        <i class="fas fa-dumbbell"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger" onclick="Views.deletePatient(${u.id}, '${esc(u.name)}')">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
                   </td>
                 </tr>`).join('')}
             </tbody>
           </table>
         </div>`}
+
+      <!-- Create Patient Modal -->
+      <div class="modal fade" id="createPatientModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title"><i class="fas fa-user-plus me-2 text-primary"></i>Nuevo Paciente del Portal</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <p class="text-muted small mb-3">Crea las credenciales de acceso que le darás al paciente para que ingrese al portal.</p>
+              <div id="createPatientError" class="alert alert-danger d-none"></div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Nombre completo <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="cpName" placeholder="Ej. María González López">
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Usuario <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text">@</span>
+                  <input type="text" class="form-control" id="cpUsername" placeholder="maria.gonzalez" autocomplete="off">
+                </div>
+                <div class="form-text">Solo letras, números y puntos. Se convierte a minúsculas.</div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Contraseña <span class="text-danger">*</span></label>
+                <input type="password" class="form-control" id="cpPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Confirmar contraseña <span class="text-danger">*</span></label>
+                <input type="password" class="form-control" id="cpPassword2" placeholder="Repite la contraseña">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="button" class="btn btn-primary" id="cpSaveBtn" onclick="Views.createPatient()">
+                <i class="fas fa-save me-1"></i>Crear paciente
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Routine Manager Modal -->
       <div class="modal fade" id="routineModal" tabindex="-1">
@@ -3181,6 +3232,46 @@ const Views = {
           </div>
         </div>
       </div>`;
+  },
+
+  async createPatient() {
+    const name  = document.getElementById('cpName').value.trim();
+    const uname = document.getElementById('cpUsername').value.trim().toLowerCase();
+    const pass  = document.getElementById('cpPassword').value;
+    const pass2 = document.getElementById('cpPassword2').value;
+    const errEl = document.getElementById('createPatientError');
+    errEl.classList.add('d-none');
+
+    if (!name || !uname || !pass) { errEl.textContent = 'Completa todos los campos.'; errEl.classList.remove('d-none'); return; }
+    if (pass.length < 6)          { errEl.textContent = 'La contraseña debe tener al menos 6 caracteres.'; errEl.classList.remove('d-none'); return; }
+    if (pass !== pass2)           { errEl.textContent = 'Las contraseñas no coinciden.'; errEl.classList.remove('d-none'); return; }
+
+    const btn = document.getElementById('cpSaveBtn');
+    btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Creando…';
+
+    const r = await App.api('POST', '/patient-users', { name, username: uname, password: pass });
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-save me-1"></i>Crear paciente';
+
+    if (r?.success) {
+      bootstrap.Modal.getInstance(document.getElementById('createPatientModal'))?.hide();
+      showToastGlobal(`Paciente "${name}" creado correctamente`, 'success');
+      ['cpName','cpUsername','cpPassword','cpPassword2'].forEach(id => document.getElementById(id).value = '');
+      Views.portalPacientes(document.getElementById('pageContent'));
+    } else {
+      errEl.textContent = r?.message || 'Error al crear el paciente.';
+      errEl.classList.remove('d-none');
+    }
+  },
+
+  async deletePatient(id, name) {
+    if (!confirm(`¿Eliminar al paciente "${name}" y todas sus rutinas?`)) return;
+    const r = await App.api('DELETE', '/patient-users', null, { id });
+    if (r?.success) {
+      showToastGlobal('Paciente eliminado', 'success');
+      Views.portalPacientes(document.getElementById('pageContent'));
+    } else {
+      showToastGlobal('Error al eliminar', 'danger');
+    }
   },
 
   async openRoutineManager(patientId, patientName) {

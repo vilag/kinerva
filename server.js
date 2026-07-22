@@ -26,8 +26,7 @@ const routes = {
   '/api/admin/patient-users':   './api/admin/patient-users',
   '/api/admin/patient-routines':'./api/admin/patient-routines',
   '/api/prospects':             './api/prospects',
-  '/api/auth/config':           './api/auth/config',
-  '/api/auth/google':           './api/auth/google',
+  '/api/auth/patient':          './api/auth/patient',
   '/api/patient/me':            './api/patient/me',
   '/api/patient/routines':      './api/patient/routines',
 };
