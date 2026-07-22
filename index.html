@@ -1528,7 +1528,7 @@
         const [y, m, d] = dateStr.split('-').map(Number);
         const dow = new Date(y, m - 1, d).getDay();
         if (dow === 0) return [];
-        const maxEnd = dow === 6 ? 14 : 18;
+        const maxEnd = dow === 6 ? 14 : 22;
         const hours = [];
         for (let h = 8; h + this.duration <= maxEnd; h++) hours.push(h);
         return hours;
@@ -1629,7 +1629,7 @@
         const dow = new Date(y, m - 1, d).getDay();
         const hours = this.getStartHours(this.selectedDate);
         if (hours.length === 0) { hint.textContent = 'Domingo — cerrado'; grid.innerHTML = ''; return; }
-        hint.textContent = dow === 6 ? 'Sábado: 8 AM – 2 PM' : 'Lun–Vie: 8 AM – 6 PM';
+        hint.textContent = dow === 6 ? 'Sábado: 8 AM – 2 PM' : 'Lun–Vie: 8 AM – 10 PM';
         let html = '';
         hours.forEach(h => {
           const free = this.isSlotFree(this.selectedDate, h);

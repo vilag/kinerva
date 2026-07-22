@@ -17,7 +17,7 @@ module.exports = async function handler(req, res) {
 
   if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date))
     return res.status(400).json({ success: false, message: 'Fecha inválida' });
-  if (h < 8 || h > 17 || ![1, 2].includes(dur))
+  if (h < 8 || h > 21 || ![1, 2].includes(dur))
     return res.status(400).json({ success: false, message: 'Horario fuera de rango' });
   if (!name || !phone)
     return res.status(400).json({ success: false, message: 'Nombre y teléfono son obligatorios' });
