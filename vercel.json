@@ -2,8 +2,10 @@
   "rewrites": [
     { "source": "/admin",  "destination": "/admin/index.html" },
     { "source": "/admin/", "destination": "/admin/index.html" },
-    { "source": "/portal", "destination": "/portal/index.html" },
-    { "source": "/portal/","destination": "/portal/index.html" }
+    { "source": "/portal",   "destination": "/portal/index.html" },
+    { "source": "/portal/",  "destination": "/portal/index.html" },
+    { "source": "/paciente", "destination": "/paciente/index.html" },
+    { "source": "/paciente/","destination": "/paciente/index.html" }
   ],
   "functions": {
     "api/**/*.js": {
