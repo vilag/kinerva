@@ -55,6 +55,10 @@ app.get(['/paciente', '/paciente/'], (req, res) =>
   res.sendFile(path.join(__dirname, 'paciente/index.html'))
 );
 
+app.get(['/privacidad', '/privacidad/'], (req, res) =>
+  res.sendFile(path.join(__dirname, 'privacidad/index.html'))
+);
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>
   console.log(`\n🚀  Kinerva dev → http://localhost:${PORT}\n   Admin      → http://localhost:${PORT}/admin\n`)

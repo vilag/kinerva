@@ -1211,19 +1211,13 @@
           <div class="f-app">
             <h4>Nuestra App</h4>
             <p style="font-size:13px;line-height:1.5;margin-bottom:16px;color:rgba(255,255,255,.65)">Accede a tu portal de pacientes desde tu celular.</p>
-            <a class="store-btn" id="btnAndroid" href="#" onclick="installAndroid(event)">
+            <a class="store-btn" id="btnAndroid" href="#" onclick="openAndroidGuide(event)">
               <i class="fab fa-android" style="font-size:22px"></i>
-              <span>
-                <small>Instalar en</small>
-                Android
-              </span>
+              <span><small>Instalar en</small>Android</span>
             </a>
-            <a class="store-btn" id="btnIOS" href="#" onclick="showIOSGuide(event)">
+            <a class="store-btn" href="#" onclick="openIOSGuide(event)">
               <i class="fab fa-apple" style="font-size:24px"></i>
-              <span>
-                <small>Instalar en</small>
-                iPhone / iPad
-              </span>
+              <span><small>Instalar en</small>iPhone / iPad</span>
             </a>
           </div>
 
@@ -1231,26 +1225,99 @@
       </div>
     </div>
 
-    <!-- iOS install guide -->
-    <div id="iosGuide" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:24px">
-      <div style="background:#fff;border-radius:20px;padding:32px;max-width:360px;width:100%;text-align:center">
-        <div style="font-size:38px;margin-bottom:10px">📱</div>
-        <h3 style="font-size:18px;font-weight:700;color:#1a2533;margin-bottom:8px">Instalar en iPhone / iPad</h3>
-        <p style="font-size:13px;color:#6b7280;margin-bottom:20px">Abre esta página en Safari y sigue estos pasos:</p>
-        <div style="text-align:left;display:flex;flex-direction:column;gap:12px;margin-bottom:24px">
-          <div style="display:flex;align-items:center;gap:12px;background:#f3f7f9;border-radius:12px;padding:12px">
-            <span style="font-size:22px">1️⃣</span>
-            <span style="font-size:13px;color:#1a2533">Toca el ícono de compartir <strong>⬆️</strong> en la barra de Safari</span>
+    <!-- ── Modal Android ─────────────────────────────────────── -->
+    <div id="androidGuide" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)this.style.display='none'">
+      <div style="background:#fff;border-radius:20px;padding:30px;max-width:380px;width:100%">
+        <div style="text-align:center;margin-bottom:18px">
+          <span style="font-size:36px">🤖</span>
+          <h3 style="font-size:18px;font-weight:700;color:#1a2533;margin:8px 0 4px">Instalar en Android</h3>
+          <p style="font-size:12px;color:#6b7280">Requiere Chrome en Android</p>
+        </div>
+
+        <div style="background:#f3f7f9;border-radius:12px;padding:14px;margin-bottom:14px">
+          <p style="font-size:12px;font-weight:700;color:#1a2533;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">🔒 Seguridad e información</p>
+          <ul style="padding-left:16px;font-size:13px;color:#374151;line-height:1.7">
+            <li>La app se instala directamente desde nuestro sitio seguro (HTTPS).</li>
+            <li>No requiere tienda de aplicaciones ni permisos especiales del dispositivo.</li>
+            <li>No accede a tu cámara, micrófono ni ubicación.</li>
+            <li>Tus datos viajan cifrados y nunca se almacenan en el dispositivo.</li>
+          </ul>
+        </div>
+
+        <p style="font-size:13px;font-weight:600;color:#1a2533;margin-bottom:10px">Pasos para instalar:</p>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px">
+          <div style="display:flex;align-items:center;gap:10px;background:#f3f7f9;border-radius:10px;padding:10px">
+            <span style="font-size:20px">1️⃣</span>
+            <span style="font-size:13px;color:#1a2533">Toca el botón <strong>"Instalar"</strong> que aparece abajo (si no aparece, busca el menú ⋮ del navegador y elige "Añadir a pantalla de inicio").</span>
           </div>
-          <div style="display:flex;align-items:center;gap:12px;background:#f3f7f9;border-radius:12px;padding:12px">
-            <span style="font-size:22px">2️⃣</span>
-            <span style="font-size:13px;color:#1a2533">Desliza y selecciona <strong>"Agregar a pantalla de inicio"</strong></span>
+          <div style="display:flex;align-items:center;gap:10px;background:#f3f7f9;border-radius:10px;padding:10px">
+            <span style="font-size:20px">2️⃣</span>
+            <span style="font-size:13px;color:#1a2533">Confirma tocando <strong>"Instalar"</strong> en el diálogo del sistema.</span>
           </div>
-          <div style="display:flex;align-items:center;gap:12px;background:#f3f7f9;border-radius:12px;padding:12px">
-            <span style="font-size:22px">3️⃣</span>
-            <span style="font-size:13px;color:#1a2533">Toca <strong>"Agregar"</strong> — la app aparecerá en tu pantalla</span>
+          <div style="display:flex;align-items:center;gap:10px;background:#f3f7f9;border-radius:10px;padding:10px">
+            <span style="font-size:20px">3️⃣</span>
+            <span style="font-size:13px;color:#1a2533">La app <strong>Kinerva</strong> aparecerá en tu pantalla de inicio.</span>
           </div>
         </div>
+
+        <p style="font-size:11px;color:#9ca3af;margin-bottom:16px;text-align:center">
+          Al instalar aceptas nuestro <a href="/privacidad" target="_blank" style="color:#00BDB4">Aviso de Privacidad</a>.
+        </p>
+        <div style="display:flex;gap:10px">
+          <button onclick="document.getElementById('androidGuide').style.display='none'"
+            style="flex:1;padding:11px;background:#f3f4f6;color:#374151;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">
+            Cancelar
+          </button>
+          <button onclick="doInstallAndroid()"
+            style="flex:2;padding:11px;background:#00BDB4;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">
+            <i class="fab fa-android"></i> Instalar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Modal iOS ─────────────────────────────────────────── -->
+    <div id="iosGuide" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)this.style.display='none'">
+      <div style="background:#fff;border-radius:20px;padding:30px;max-width:380px;width:100%">
+        <div style="text-align:center;margin-bottom:18px">
+          <span style="font-size:36px">🍎</span>
+          <h3 style="font-size:18px;font-weight:700;color:#1a2533;margin:8px 0 4px">Instalar en iPhone / iPad</h3>
+          <p style="font-size:12px;color:#6b7280">Requiere Safari en iOS</p>
+        </div>
+
+        <div style="background:#f3f7f9;border-radius:12px;padding:14px;margin-bottom:14px">
+          <p style="font-size:12px;font-weight:700;color:#1a2533;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">🔒 Seguridad e información</p>
+          <ul style="padding-left:16px;font-size:13px;color:#374151;line-height:1.7">
+            <li>La app se instala directamente desde nuestro sitio seguro (HTTPS).</li>
+            <li>No requiere permisos de cámara, micrófono ni ubicación.</li>
+            <li>Tus datos viajan cifrados y no se guardan en el dispositivo.</li>
+            <li>Funciona igual que el sitio web, sin descargar nada adicional.</li>
+          </ul>
+        </div>
+
+        <p style="font-size:13px;font-weight:600;color:#1a2533;margin-bottom:10px">Pasos para instalar:</p>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px">
+          <div style="display:flex;align-items:center;gap:10px;background:#f3f7f9;border-radius:10px;padding:10px">
+            <span style="font-size:20px">1️⃣</span>
+            <span style="font-size:13px;color:#1a2533">Abre <strong>kinervafisioterapia.com</strong> en <strong>Safari</strong> (no en Chrome ni otro navegador).</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;background:#f3f7f9;border-radius:10px;padding:10px">
+            <span style="font-size:20px">2️⃣</span>
+            <span style="font-size:13px;color:#1a2533">Toca el ícono de compartir <strong>⬆</strong> en la barra inferior de Safari.</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;background:#f3f7f9;border-radius:10px;padding:10px">
+            <span style="font-size:20px">3️⃣</span>
+            <span style="font-size:13px;color:#1a2533">Desliza hacia abajo y toca <strong>"Agregar a pantalla de inicio"</strong>.</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;background:#f3f7f9;border-radius:10px;padding:10px">
+            <span style="font-size:20px">4️⃣</span>
+            <span style="font-size:13px;color:#1a2533">Toca <strong>"Agregar"</strong> — el ícono de Kinerva aparecerá en tu pantalla.</span>
+          </div>
+        </div>
+
+        <p style="font-size:11px;color:#9ca3af;margin-bottom:16px;text-align:center">
+          Al instalar aceptas nuestro <a href="/privacidad" target="_blank" style="color:#00BDB4">Aviso de Privacidad</a>.
+        </p>
         <button onclick="document.getElementById('iosGuide').style.display='none'"
           style="width:100%;padding:12px;background:#00BDB4;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">
           Entendido
@@ -1261,7 +1328,7 @@
     <div class="footer-bot">
       <div class="container">
         <span>© 2025 Kinerva Fisioterapia. Todos los derechos reservados.</span>
-        <span>Fisioterapia y Rehabilitación · Guadalajara, Jalisco</span>
+        <span><a href="/privacidad" style="color:inherit;text-decoration:none;opacity:.7" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">Aviso de Privacidad</a> &nbsp;·&nbsp; Guadalajara, Jalisco</span>
       </div>
     </div>
   </footer>
@@ -1963,39 +2030,36 @@
   <script>
     // PWA: Service Worker
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
+      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
     }
 
-    // PWA: Android install prompt
+    // PWA: Capture Android install prompt
     let _installPrompt = null;
     window.addEventListener('beforeinstallprompt', e => {
       e.preventDefault();
       _installPrompt = e;
-      const btn = document.getElementById('btnAndroid');
-      if (btn) btn.style.opacity = '1';
     });
 
-    function installAndroid(e) {
+    function openAndroidGuide(e) {
       e.preventDefault();
+      document.getElementById('androidGuide').style.display = 'flex';
+    }
+
+    function openIOSGuide(e) {
+      e.preventDefault();
+      document.getElementById('iosGuide').style.display = 'flex';
+    }
+
+    function doInstallAndroid() {
+      document.getElementById('androidGuide').style.display = 'none';
       if (_installPrompt) {
         _installPrompt.prompt();
         _installPrompt.userChoice.then(() => { _installPrompt = null; });
       } else {
-        // Fallback: open portal so user can install from browser menu
+        // Fallback: navigate to portal so Chrome can offer install from address bar
         window.open('/portal', '_blank');
       }
     }
-
-    function showIOSGuide(e) {
-      e.preventDefault();
-      const guide = document.getElementById('iosGuide');
-      guide.style.display = 'flex';
-    }
-
-    // Close iOS guide on backdrop click
-    document.getElementById('iosGuide')?.addEventListener('click', function(e) {
-      if (e.target === this) this.style.display = 'none';
-    });
   </script>
 </body>
 
