@@ -4,7 +4,7 @@ const { verifyAdmin }   = require('../_adminAuth');
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (!verifyAdmin(req)) return res.status(401).json({ success: false, message: 'No autorizado' });
@@ -41,6 +41,34 @@ module.exports = async function handler(req, res) {
           'INSERT INTO patient_users (name, username, password_hash) VALUES (?, ?, ?)',
           [name.trim(), clean, hash]
         );
+      } catch (e) {
+        if (e.code === 'ER_DUP_ENTRY')
+          return res.status(409).json({ success: false, message: 'Ese usuario ya existe' });
+        throw e;
+      }
+      return res.json({ success: true });
+    }
+
+    /* PATCH — editar paciente */
+    if (req.method === 'PATCH') {
+      const { id } = req.query || {};
+      const { name, username, password } = req.body || {};
+      if (!id) return res.status(400).json({ success: false, message: 'id requerido' });
+      if (!name || !username)
+        return res.status(400).json({ success: false, message: 'Nombre y usuario son obligatorios' });
+
+      const clean = username.trim().toLowerCase();
+      const sets  = ['name = ?', 'username = ?'];
+      const vals  = [name.trim(), clean];
+
+      if (password) {
+        sets.push('password_hash = ?');
+        vals.push(await bcrypt.hash(password, 10));
+      }
+
+      vals.push(id);
+      try {
+        await conn.execute(`UPDATE patient_users SET ${sets.join(', ')} WHERE id = ?`, vals);
       } catch (e) {
         if (e.code === 'ER_DUP_ENTRY')
           return res.status(409).json({ success: false, message: 'Ese usuario ya existe' });

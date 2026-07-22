@@ -3253,6 +3253,53 @@ const Views = {
       document.body.appendChild(m.firstElementChild);
     }
 
+    if (!document.getElementById('editPatientModal')) {
+      const m = document.createElement('div');
+      m.innerHTML = `
+        <div class="modal fade" id="editPatientModal" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-user-edit me-2 text-primary"></i>Editar Acceso del Paciente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <div id="editPatientError" class="alert alert-danger d-none"></div>
+                <input type="hidden" id="epId">
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Nombre completo <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="epName">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Usuario <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text">@</span>
+                    <input type="text" class="form-control" id="epUsername" autocomplete="off">
+                  </div>
+                </div>
+                <hr class="my-3">
+                <p class="text-muted small mb-2">Deja en blanco para conservar la contraseña actual.</p>
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Nueva contraseña</label>
+                  <input type="password" class="form-control" id="epPassword" autocomplete="new-password">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Confirmar nueva contraseña</label>
+                  <input type="password" class="form-control" id="epPassword2">
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="epSaveBtn" onclick="Views.updatePatient()">
+                  <i class="fas fa-save me-1"></i>Guardar cambios
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      document.body.appendChild(m.firstElementChild);
+    }
+
     if (!document.getElementById('routineModal')) {
       const m = document.createElement('div');
       m.innerHTML = `
@@ -3326,10 +3373,13 @@ const Views = {
                   <td class="small text-muted">${fmtDate(u.created_at)}</td>
                   <td>
                     <div class="d-flex gap-1">
-                      <button class="btn btn-sm btn-outline-primary" onclick="Views.openRoutineManager(${u.id}, '${esc(u.name)}')">
+                      <button class="btn btn-sm btn-outline-primary" onclick="Views.openRoutineManager(${u.id}, '${esc(u.name)}')" title="Rutinas">
                         <i class="fas fa-dumbbell"></i>
                       </button>
-                      <button class="btn btn-sm btn-outline-danger" onclick="Views.deletePatient(${u.id}, '${esc(u.name)}')">
+                      <button class="btn btn-sm btn-outline-secondary" onclick="Views.openEditPatient(${u.id}, '${esc(u.name)}', '${esc(u.username)}')" title="Editar acceso">
+                        <i class="fas fa-pen"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger" onclick="Views.deletePatient(${u.id}, '${esc(u.name)}')" title="Eliminar">
                         <i class="fas fa-trash"></i>
                       </button>
                     </div>
@@ -3377,6 +3427,46 @@ const Views = {
       Views.portalPacientes(document.getElementById('pageContent'));
     } else {
       showToastGlobal('Error al eliminar', 'danger');
+    }
+  },
+
+  openEditPatient(id, name, username) {
+    document.getElementById('epId').value       = id;
+    document.getElementById('epName').value     = name;
+    document.getElementById('epUsername').value = username;
+    document.getElementById('epPassword').value  = '';
+    document.getElementById('epPassword2').value = '';
+    document.getElementById('editPatientError').classList.add('d-none');
+    new bootstrap.Modal(document.getElementById('editPatientModal')).show();
+  },
+
+  async updatePatient() {
+    const id    = document.getElementById('epId').value;
+    const name  = document.getElementById('epName').value.trim();
+    const uname = document.getElementById('epUsername').value.trim().toLowerCase();
+    const pass  = document.getElementById('epPassword').value;
+    const pass2 = document.getElementById('epPassword2').value;
+    const errEl = document.getElementById('editPatientError');
+    errEl.classList.add('d-none');
+
+    if (!name || !uname) { errEl.textContent = 'Nombre y usuario son obligatorios.'; errEl.classList.remove('d-none'); return; }
+    if (pass && pass !== pass2) { errEl.textContent = 'Las contraseñas no coinciden.'; errEl.classList.remove('d-none'); return; }
+    if (pass && pass.length < 6) { errEl.textContent = 'La contraseña debe tener al menos 6 caracteres.'; errEl.classList.remove('d-none'); return; }
+
+    const btn = document.getElementById('epSaveBtn');
+    btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
+    const body = { name, username: uname };
+    if (pass) body.password = pass;
+    const r = await App.api('PATCH', '/patient-users', body, { id });
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar cambios';
+
+    if (r?.success) {
+      bootstrap.Modal.getInstance(document.getElementById('editPatientModal'))?.hide();
+      showToastGlobal('Acceso actualizado correctamente', 'success');
+      Views.portalPacientes(document.getElementById('pageContent'));
+    } else {
+      errEl.textContent = r?.message || 'Error al actualizar.';
+      errEl.classList.remove('d-none');
     }
   },
 
