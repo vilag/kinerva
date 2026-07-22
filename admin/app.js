@@ -422,25 +422,31 @@ const Views = {
       .map(s=>`<option value="${s}" ${f.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('');
 
     el.innerHTML = `
-    <div class="ak-card mb-3">
-      <div class="ak-card-body">
-        <form id="filterForm" class="row g-2 align-items-end">
-          <div class="col-sm-4 col-md-3">
-            <label class="form-label" style="font-size:12px;font-weight:600">Fecha</label>
-            <input type="date" name="date" class="form-control form-control-sm" value="${esc(f.date||'')}">
-          </div>
-          <div class="col-sm-4 col-md-3">
-            <label class="form-label" style="font-size:12px;font-weight:600">Estado</label>
-            <select name="status" class="form-select form-select-sm">
-              <option value="">Todos</option>${statusOpts}
-            </select>
-          </div>
-          <div class="col-auto d-flex gap-1">
-            <button type="submit" class="btn btn-sm btn-ak"><i class="fas fa-filter me-1"></i>Filtrar</button>
-            <button type="button" id="clearBtn" class="btn btn-sm btn-outline-secondary">Limpiar</button>
-          </div>
-        </form>
+    <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+      <div class="ak-card flex-grow-1">
+        <div class="ak-card-body">
+          <form id="filterForm" class="row g-2 align-items-end">
+            <div class="col-sm-4 col-md-3">
+              <label class="form-label" style="font-size:12px;font-weight:600">Fecha</label>
+              <input type="date" name="date" class="form-control form-control-sm" value="${esc(f.date||'')}">
+            </div>
+            <div class="col-sm-4 col-md-3">
+              <label class="form-label" style="font-size:12px;font-weight:600">Estado</label>
+              <select name="status" class="form-select form-select-sm">
+                <option value="">Todos</option>${statusOpts}
+              </select>
+            </div>
+            <div class="col-auto d-flex gap-1">
+              <button type="submit" class="btn btn-sm btn-ak"><i class="fas fa-filter me-1"></i>Filtrar</button>
+              <button type="button" id="clearBtn" class="btn btn-sm btn-outline-secondary">Limpiar</button>
+            </div>
+          </form>
+        </div>
       </div>
+      <button class="btn btn-ak" data-bs-toggle="modal" data-bs-target="#newApptModal"
+        onclick="adminAppt.reset()" style="white-space:nowrap">
+        <i class="fas fa-calendar-plus me-2"></i>Nueva Cita
+      </button>
     </div>
     <div class="ak-card">
       <div class="ak-card-head">
@@ -473,6 +479,92 @@ const Views = {
               </tr>`).join('')}
             </tbody></table></div>`}
     </div>`;
+
+    // Nueva Cita Modal
+    if (!document.getElementById('newApptModal')) {
+      const m = document.createElement('div');
+      m.innerHTML = `
+      <div class="modal fade" id="newApptModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header text-white" style="background:var(--ak-teal)">
+              <h5 class="modal-title"><i class="fas fa-calendar-plus me-2"></i>Nueva Cita</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <!-- Duración -->
+              <div class="mb-4">
+                <label class="fw-bold mb-2 d-block">Duración:</label>
+                <div class="d-flex gap-2">
+                  <button type="button" id="dur1Btn" class="btn btn-ak"
+                    onclick="adminAppt.setDuration(1)">
+                    <i class="fas fa-clock me-1"></i>1 Hora
+                  </button>
+                  <button type="button" id="dur2Btn" class="btn btn-outline-secondary"
+                    onclick="adminAppt.setDuration(2)">
+                    <i class="fas fa-clock me-1"></i>2 Horas
+                  </button>
+                </div>
+              </div>
+
+              <!-- Fecha + Slots -->
+              <div class="row g-3 mb-4">
+                <div class="col-md-5">
+                  <label class="fw-bold mb-2 d-block">Fecha:</label>
+                  <input type="date" class="form-control" id="apptDate">
+                </div>
+                <div class="col-md-7">
+                  <label class="fw-bold mb-2 d-block" id="slotsLabel" style="color:#666">← Selecciona una fecha</label>
+                  <div id="slotsGrid" class="d-flex flex-wrap gap-2"></div>
+                </div>
+              </div>
+
+              <!-- Datos del paciente -->
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="fw-semibold">Nombre *</label>
+                  <input type="text" class="form-control mt-1" id="apptName" placeholder="Nombre completo">
+                </div>
+                <div class="col-md-6">
+                  <label class="fw-semibold">WhatsApp / Tel *</label>
+                  <input type="text" class="form-control mt-1" id="apptPhone" placeholder="(33) 0000-0000">
+                </div>
+                <div class="col-md-6">
+                  <label class="fw-semibold">Correo (opcional)</label>
+                  <input type="email" class="form-control mt-1" id="apptEmail" placeholder="tu@correo.com">
+                </div>
+                <div class="col-md-6">
+                  <label class="fw-semibold">Tipo de tratamiento</label>
+                  <select class="form-select mt-1" id="apptService">
+                    <option>Valoración</option>
+                    <option>Fisioterapia Deportiva</option>
+                    <option>Fisioterapia Geriátrica</option>
+                    <option>Fisioterapia Traumatológica</option>
+                    <option>Parálisis Facial</option>
+                    <option>Fisioterapia y Rehabilitación</option>
+                    <option>Otro</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label class="fw-semibold">Molestia / Dudas</label>
+                  <textarea class="form-control mt-1" id="apptNotes" rows="3"
+                    placeholder="Describe la molestia o duda del paciente…"></textarea>
+                </div>
+              </div>
+
+              <div id="apptError" class="alert alert-danger mt-3 d-none"></div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="button" class="btn btn-ak" id="apptSaveBtn" onclick="adminAppt.submit()">
+                <i class="fas fa-calendar-check me-1"></i>Guardar Cita
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+      document.body.appendChild(m.firstElementChild);
+    }
 
     el.querySelector('#filterForm')?.addEventListener('submit', e => {
       e.preventDefault();
@@ -3453,6 +3545,180 @@ const Views = {
     showToastGlobal('Ejercicio eliminado', 'success');
   },
 
+};
+
+/* ══════════════════════════════════════════════════════════ Nueva Cita */
+const adminAppt = {
+  duration: 1,
+  selectedHour: null,
+  monthCache: {},
+
+  reset() {
+    this.duration = 1;
+    this.selectedHour = null;
+    this.monthCache = {};
+    const d1 = document.getElementById('dur1Btn');
+    const d2 = document.getElementById('dur2Btn');
+    if (d1) { d1.className = 'btn btn-ak'; }
+    if (d2) { d2.className = 'btn btn-outline-secondary'; }
+    const fields = ['apptDate','apptName','apptPhone','apptEmail','apptNotes'];
+    fields.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    const g = document.getElementById('slotsGrid');
+    const l = document.getElementById('slotsLabel');
+    const e = document.getElementById('apptError');
+    if (g) g.innerHTML = '';
+    if (l) l.textContent = '← Selecciona una fecha';
+    if (e) e.classList.add('d-none');
+    // Set min date to today
+    const dateEl = document.getElementById('apptDate');
+    if (dateEl) {
+      const today = new Date();
+      dateEl.min = today.toISOString().slice(0,10);
+      dateEl.onchange = e => adminAppt.loadSlots(e.target.value);
+    }
+  },
+
+  setDuration(d) {
+    this.duration = d;
+    this.selectedHour = null;
+    const d1 = document.getElementById('dur1Btn');
+    const d2 = document.getElementById('dur2Btn');
+    if (d1) d1.className = d === 1 ? 'btn btn-ak' : 'btn btn-outline-secondary';
+    if (d2) d2.className = d === 2 ? 'btn btn-ak' : 'btn btn-outline-secondary';
+    const dateVal = document.getElementById('apptDate')?.value;
+    if (dateVal) this.loadSlots(dateVal);
+  },
+
+  fmtSlot(h) {
+    const f = n => {
+      if (n < 12)  return `${n}:00 AM`;
+      if (n === 12) return '12:00 PM';
+      return `${n - 12}:00 PM`;
+    };
+    return `${f(h)} – ${f(h + this.duration)}`;
+  },
+
+  async fetchMonth(year, month) {
+    const key = `${year}-${month}`;
+    if (this.monthCache[key]) return this.monthCache[key];
+    try {
+      const r = await fetch(`/api/get_slots?year=${year}&month=${month}`);
+      const d = await r.json();
+      this.monthCache[key] = d.slots || [];
+    } catch { this.monthCache[key] = []; }
+    return this.monthCache[key];
+  },
+
+  isOccupied(slots, dateStr, h) {
+    return slots.some(a => a.date === dateStr && h >= a.hour && h < a.hour + a.duration);
+  },
+
+  isFree(slots, dateStr, startH) {
+    for (let h = startH; h < startH + this.duration; h++) {
+      if (this.isOccupied(slots, dateStr, h)) return false;
+    }
+    return true;
+  },
+
+  async loadSlots(dateStr) {
+    this.selectedHour = null;
+    const grid  = document.getElementById('slotsGrid');
+    const label = document.getElementById('slotsLabel');
+    if (!grid || !label) return;
+
+    grid.innerHTML = '<span class="text-muted small"><i class="fas fa-circle-notch fa-spin me-1"></i>Cargando…</span>';
+
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const dow = new Date(y, m - 1, d).getDay(); // 0=Dom
+
+    if (dow === 0) {
+      label.textContent = 'Domingo — Cerrado';
+      grid.innerHTML = '<span class="text-muted small">No hay atención los domingos.</span>';
+      return;
+    }
+
+    const maxEnd = dow === 6 ? 14 : 22;
+    const slots  = await this.fetchMonth(y, m);
+    label.textContent = dow === 6 ? 'Sábado: 8 AM – 2 PM' : 'Lun–Vie: 8 AM – 10 PM';
+
+    const hours = [];
+    for (let h = 8; h + this.duration <= maxEnd; h++) hours.push(h);
+
+    if (!hours.length) {
+      grid.innerHTML = '<span class="text-muted small">Sin horarios disponibles.</span>';
+      return;
+    }
+
+    grid.innerHTML = hours.map(h => {
+      const free = this.isFree(slots, dateStr, h);
+      return `<button type="button" class="btn btn-sm slot-time ${free ? 'btn-outline-secondary' : 'btn-light text-muted'}"
+        data-hour="${h}" ${free ? '' : 'disabled title="Ocupado"'}
+        style="font-size:12px;min-width:138px;border-radius:8px">
+        ${this.fmtSlot(h)}
+      </button>`;
+    }).join('');
+
+    grid.querySelectorAll('.slot-time:not([disabled])').forEach(btn => {
+      btn.addEventListener('click', () => {
+        grid.querySelectorAll('.slot-time').forEach(b => {
+          b.classList.remove('btn-ak');
+          if (!b.disabled) b.classList.add('btn-outline-secondary');
+        });
+        btn.classList.remove('btn-outline-secondary');
+        btn.classList.add('btn-ak');
+        this.selectedHour = parseInt(btn.dataset.hour, 10);
+      });
+    });
+  },
+
+  async submit() {
+    const name    = document.getElementById('apptName')?.value.trim();
+    const phone   = document.getElementById('apptPhone')?.value.trim();
+    const email   = document.getElementById('apptEmail')?.value.trim();
+    const service = document.getElementById('apptService')?.value;
+    const notes   = document.getElementById('apptNotes')?.value.trim();
+    const date    = document.getElementById('apptDate')?.value;
+    const errEl   = document.getElementById('apptError');
+    errEl.classList.add('d-none');
+
+    if (!name)                    { errEl.textContent = 'El nombre es obligatorio.';        errEl.classList.remove('d-none'); return; }
+    if (!phone)                   { errEl.textContent = 'El teléfono es obligatorio.';      errEl.classList.remove('d-none'); return; }
+    if (!date)                    { errEl.textContent = 'Selecciona una fecha.';            errEl.classList.remove('d-none'); return; }
+    if (this.selectedHour === null) { errEl.textContent = 'Selecciona un horario.';         errEl.classList.remove('d-none'); return; }
+
+    const btn = document.getElementById('apptSaveBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
+
+    try {
+      const r = await fetch('/api/book', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          date, hour: this.selectedHour, duration: this.duration,
+          name, phone,
+          email:  email  || null,
+          service: service || null,
+          notes:  notes  || null,
+        }),
+      });
+      const d = await r.json();
+      if (d.success) {
+        bootstrap.Modal.getInstance(document.getElementById('newApptModal'))?.hide();
+        showToastGlobal('Cita registrada correctamente', 'success');
+        Views.appointments(document.getElementById('pageContent'));
+      } else {
+        errEl.textContent = d.message || 'Error al guardar la cita.';
+        errEl.classList.remove('d-none');
+      }
+    } catch {
+      errEl.textContent = 'Error de red. Intenta de nuevo.';
+      errEl.classList.remove('d-none');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-calendar-check me-1"></i>Guardar Cita';
+    }
+  },
 };
 
 /* ══════════════════════════════════════════════════════════ Boot */
