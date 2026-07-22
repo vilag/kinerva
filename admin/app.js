@@ -3285,9 +3285,7 @@ const Views = {
             onclick="document.getElementById('createPatientError')?.classList.add('d-none');['cpName','cpUsername','cpPassword','cpPassword2'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''})">
             <i class="fas fa-user-plus me-1"></i>Crear Paciente
           </button>
-          <a href="/portal" target="_blank" class="btn btn-sm btn-outline-secondary">
-            <i class="fas fa-external-link-alt me-1"></i>Ver portal
-          </a>
+
         </div>
       </div>
 
