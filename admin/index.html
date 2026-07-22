@@ -38,8 +38,16 @@
       </div>
     </aside>
 
+    <!-- Mobile overlay + drawer -->
+    <div class="ak-overlay" id="akOverlay" onclick="closeMobNav()">
+      <aside class="ak-mob-drawer" id="akMobDrawer" onclick="event.stopPropagation()"></aside>
+    </div>
+
     <div class="ak-main">
       <div class="ak-topbar">
+        <button class="ak-mob-btn" onclick="openMobNav()" aria-label="Menú">
+          <i class="fas fa-bars"></i>
+        </button>
         <span class="ak-topbar-title" id="pageTitle"></span>
         <span class="ak-topbar-meta" id="topDate"></span>
       </div>

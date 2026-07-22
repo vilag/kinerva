@@ -227,7 +227,7 @@ const App = {
         window.location.href = '/portal';
       }
     }
-    window.addEventListener('hashchange', () => { if (App.isValid()) App.route(); });
+    window.addEventListener('hashchange', () => { if (App.isValid()) { closeMobNav(); App.route(); } });
   },
 };
 
@@ -3833,3 +3833,40 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   App.init();
 });
+
+/* ── Mobile nav ─────────────────────────────────────────────── */
+function openMobNav() {
+  const overlay = document.getElementById('akOverlay');
+  const drawer  = document.getElementById('akMobDrawer');
+  if (!overlay || !drawer) return;
+
+  // Mirror sidebar content into the drawer
+  const sidebar = document.querySelector('.ak-sidebar');
+  if (sidebar) {
+    drawer.innerHTML = sidebar.innerHTML;
+
+    // Close drawer when any nav link is clicked
+    drawer.querySelectorAll('.ak-nav a').forEach(a => {
+      a.addEventListener('click', () => closeMobNav());
+    });
+
+    // Rebind logout
+    const logoutBtn = drawer.querySelector('#logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', e => {
+        e.preventDefault();
+        closeMobNav();
+        App.logout();
+      });
+    }
+  }
+
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMobNav() {
+  const overlay = document.getElementById('akOverlay');
+  if (overlay) overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}

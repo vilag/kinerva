@@ -270,12 +270,18 @@
     .mob-menu-btn  { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; }
     .mob-overlay {
       display: none; position: fixed; inset: 0; z-index: 200;
-      background: rgba(0,0,0,.5);
+      background: rgba(0,0,0,.55);
     }
+    .mob-overlay.open { display: block; }
     .mob-drawer {
-      width: 250px; height: 100%; background: var(--sidebar);
+      width: 260px; max-width: 82vw; height: 100%;
+      background: var(--sidebar);
       display: flex; flex-direction: column; overflow-y: auto;
+      transform: translateX(-100%);
+      transition: transform .26s cubic-bezier(.4,0,.2,1);
+      box-shadow: 4px 0 24px rgba(0,0,0,.35);
     }
+    .mob-overlay.open .mob-drawer { transform: translateX(0); }
 
     @media (max-width: 768px) {
       .sidebar { display: none; }
@@ -297,7 +303,7 @@
   </div>
 
   <!-- Mobile drawer overlay -->
-  <div class="mob-overlay" id="mobOverlay" onclick="closeMobNav()">
+  <div class="mob-overlay" id="mobOverlay" onclick="if(event.target===this)closeMobNav()">
     <div class="mob-drawer" onclick="event.stopPropagation()" id="mobDrawer"></div>
   </div>
 
@@ -424,8 +430,15 @@ function syncMobDrawer() {
   if (logoutBtn) logoutBtn.onclick = signOut;
 }
 
-function openMobNav()  { document.getElementById('mobOverlay').style.display = 'flex'; }
-function closeMobNav() { document.getElementById('mobOverlay').style.display = 'none'; }
+function openMobNav() {
+  syncMobDrawer();
+  document.getElementById('mobOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeMobNav() {
+  document.getElementById('mobOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
 
 /* ── Navigation ─────────────────────────────────────────────── */
 function goTo(page) {
