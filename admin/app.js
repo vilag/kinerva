@@ -100,7 +100,7 @@ const App = {
     App.user  = null;
     localStorage.removeItem('kinerva_token');
     localStorage.removeItem('kinerva_user');
-    App.showAuth();
+    window.location.href = '/portal';
   },
 
   isValid() {
@@ -216,9 +216,15 @@ const App = {
       localStorage.removeItem('kinerva_token');
       try {
         const data = await fetch('/api/admin/auth').then(r => r.json());
-        App.showAuth(data.hasAdmins ? 'login' : 'setup');
+        if (!data.hasAdmins) {
+          // Primera vez: no hay admins — mostrar setup directamente
+          App.showAuth('setup');
+        } else {
+          // Redirigir al portal unificado de login
+          window.location.href = '/portal';
+        }
       } catch {
-        App.showAuth('login');
+        window.location.href = '/portal';
       }
     }
     window.addEventListener('hashchange', () => { if (App.isValid()) App.route(); });
