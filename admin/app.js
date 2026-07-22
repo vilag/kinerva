@@ -3200,6 +3200,72 @@ const Views = {
 
   /* ══ Portal Pacientes ══════════════════════════════════════════ */
   async portalPacientes(content) {
+    // Ensure modals exist in body (Bootstrap requires them outside overflow containers)
+    if (!document.getElementById('createPatientModal')) {
+      const m = document.createElement('div');
+      m.innerHTML = `
+        <div class="modal fade" id="createPatientModal" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-user-plus me-2 text-primary"></i>Nuevo Paciente del Portal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <p class="text-muted small mb-3">Crea las credenciales que le darás al paciente para ingresar al portal.</p>
+                <div id="createPatientError" class="alert alert-danger d-none"></div>
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Nombre completo <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="cpName" placeholder="Ej. María González López">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Usuario <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text">@</span>
+                    <input type="text" class="form-control" id="cpUsername" placeholder="maria.gonzalez" autocomplete="off">
+                  </div>
+                  <div class="form-text">Solo letras, números y puntos. Se convierte a minúsculas.</div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Contraseña <span class="text-danger">*</span></label>
+                  <input type="password" class="form-control" id="cpPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Confirmar contraseña <span class="text-danger">*</span></label>
+                  <input type="password" class="form-control" id="cpPassword2" placeholder="Repite la contraseña">
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="cpSaveBtn" onclick="Views.createPatient()">
+                  <i class="fas fa-save me-1"></i>Crear paciente
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      document.body.appendChild(m.firstElementChild);
+    }
+
+    if (!document.getElementById('routineModal')) {
+      const m = document.createElement('div');
+      m.innerHTML = `
+        <div class="modal fade" id="routineModal" tabindex="-1">
+          <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="routineModalTitle">Rutinas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body" id="routineModalBody">
+                <div class="text-center py-4"><i class="fas fa-circle-notch fa-spin fa-2x text-muted"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      document.body.appendChild(m.firstElementChild);
+    }
+
     content.innerHTML = spin();
     const data = await App.get('/patient-users');
     if (!data?.success) { content.innerHTML = '<div class="alert alert-danger">Error al cargar pacientes del portal.</div>'; return; }
@@ -3209,7 +3275,8 @@ const Views = {
       <div class="d-flex justify-content-between align-items-center mb-3">
         <span class="text-muted">${users.length} paciente${users.length !== 1 ? 's' : ''} registrado${users.length !== 1 ? 's' : ''} en el portal</span>
         <div class="d-flex gap-2">
-          <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createPatientModal">
+          <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createPatientModal"
+            onclick="document.getElementById('createPatientError')?.classList.add('d-none');['cpName','cpUsername','cpPassword','cpPassword2'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''})">
             <i class="fas fa-user-plus me-1"></i>Crear Paciente
           </button>
           <a href="/portal" target="_blank" class="btn btn-sm btn-outline-secondary">
@@ -3266,64 +3333,7 @@ const Views = {
                 </tr>`).join('')}
             </tbody>
           </table>
-        </div>`}
-
-      <!-- Create Patient Modal -->
-      <div class="modal fade" id="createPatientModal" tabindex="-1">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title"><i class="fas fa-user-plus me-2 text-primary"></i>Nuevo Paciente del Portal</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-              <p class="text-muted small mb-3">Crea las credenciales de acceso que le darás al paciente para que ingrese al portal.</p>
-              <div id="createPatientError" class="alert alert-danger d-none"></div>
-              <div class="mb-3">
-                <label class="form-label fw-semibold">Nombre completo <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="cpName" placeholder="Ej. María González López">
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-semibold">Usuario <span class="text-danger">*</span></label>
-                <div class="input-group">
-                  <span class="input-group-text">@</span>
-                  <input type="text" class="form-control" id="cpUsername" placeholder="maria.gonzalez" autocomplete="off">
-                </div>
-                <div class="form-text">Solo letras, números y puntos. Se convierte a minúsculas.</div>
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-semibold">Contraseña <span class="text-danger">*</span></label>
-                <input type="password" class="form-control" id="cpPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-semibold">Confirmar contraseña <span class="text-danger">*</span></label>
-                <input type="password" class="form-control" id="cpPassword2" placeholder="Repite la contraseña">
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-              <button type="button" class="btn btn-primary" id="cpSaveBtn" onclick="Views.createPatient()">
-                <i class="fas fa-save me-1"></i>Crear paciente
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Routine Manager Modal -->
-      <div class="modal fade" id="routineModal" tabindex="-1">
-        <div class="modal-dialog modal-xl">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="routineModalTitle">Rutinas</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" id="routineModalBody">
-              <div class="text-center py-4"><i class="fas fa-circle-notch fa-spin fa-2x text-muted"></i></div>
-            </div>
-          </div>
-        </div>
-      </div>`;
+        </div>`}`;
   },
 
   async createPatient() {
