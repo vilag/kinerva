@@ -165,6 +165,10 @@ const App = {
         Views.expediente(content, folio);
         break;
       }
+      case 'portal-pacientes':
+        title.textContent = 'Pacientes del Portal';
+        Views.portalPacientes(content);
+        break;
       default:
         title.textContent = 'Dashboard';
         Views.dashboard(content);
@@ -3100,6 +3104,262 @@ const Views = {
       if (r?.folio) App.go('expediente/' + r.folio);
       else btn.innerHTML = '<i class="fas fa-user-plus me-2"></i>Nuevo registro';
     });
+  },
+
+  /* ══ Portal Pacientes ══════════════════════════════════════════ */
+  async portalPacientes(content) {
+    content.innerHTML = spin();
+    const data = await App.get('/patient-users');
+    if (!data?.success) { content.innerHTML = '<div class="alert alert-danger">Error al cargar pacientes del portal.</div>'; return; }
+    const users = data.users || [];
+
+    content.innerHTML = `
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="text-muted">${users.length} paciente${users.length !== 1 ? 's' : ''} registrado${users.length !== 1 ? 's' : ''} en el portal</span>
+        <a href="/portal" target="_blank" class="btn btn-sm btn-outline-secondary">
+          <i class="fas fa-external-link-alt me-1"></i>Ver portal
+        </a>
+      </div>
+
+      ${users.length === 0 ? `
+        <div class="text-center py-5 text-muted">
+          <i class="fas fa-user-shield fa-3x mb-3 d-block" style="color:#dee2e6"></i>
+          <h5>Sin pacientes registrados</h5>
+          <p class="small">Cuando los pacientes inicien sesión en el portal aparecerán aquí.</p>
+        </div>` : `
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Paciente</th>
+                <th>Teléfono</th>
+                <th>Rutinas</th>
+                <th>Último acceso</th>
+                <th>Registrado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${users.map(u => `
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      ${u.picture
+                        ? `<img src="${esc(u.picture)}" width="36" height="36" style="border-radius:50%;object-fit:cover">`
+                        : `<div style="width:36px;height:36px;border-radius:50%;background:#00BDB4;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px"><i class="fas fa-user"></i></div>`}
+                      <div>
+                        <div class="fw-semibold">${esc(u.name || '—')}</div>
+                        <div class="text-muted small">${esc(u.email)}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>${u.phone ? `<a href="tel:${esc(u.phone)}">${esc(u.phone)}</a>` : '<span class="text-muted">—</span>'}</td>
+                  <td><span class="badge bg-primary rounded-pill">${u.routine_count}</span></td>
+                  <td class="small text-muted">${fmtDate(u.last_login)}</td>
+                  <td class="small text-muted">${fmtDate(u.created_at)}</td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="Views.openRoutineManager(${u.id}, '${esc(u.name || u.email)}')">
+                      <i class="fas fa-dumbbell me-1"></i>Rutinas
+                    </button>
+                  </td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>`}
+
+      <!-- Routine Manager Modal -->
+      <div class="modal fade" id="routineModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="routineModalTitle">Rutinas</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="routineModalBody">
+              <div class="text-center py-4"><i class="fas fa-circle-notch fa-spin fa-2x text-muted"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  },
+
+  async openRoutineManager(patientId, patientName) {
+    document.getElementById('routineModalTitle').textContent = `Rutinas de ${patientName}`;
+    const modal = new bootstrap.Modal(document.getElementById('routineModal'));
+    modal.show();
+    await Views.loadRoutineManager(patientId);
+  },
+
+  async loadRoutineManager(patientId) {
+    const body = document.getElementById('routineModalBody');
+    body.innerHTML = '<div class="text-center py-4"><i class="fas fa-circle-notch fa-spin fa-2x text-muted"></i></div>';
+
+    const data = await App.api('GET', '/patient-routines', null, { patient_id: patientId });
+    const routines = data?.routines || [];
+
+    const statusOpts = ['activa','pausada','completada'].map(s =>
+      `<option value="${s}">${s.charAt(0).toUpperCase()+s.slice(1)}</option>`
+    ).join('');
+
+    body.innerHTML = `
+      <!-- Create routine form -->
+      <div class="card mb-4 border-primary border-opacity-25">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3"><i class="fas fa-plus-circle text-primary me-2"></i>Nueva Rutina</h6>
+          <div class="row g-2">
+            <div class="col-md-5">
+              <input class="form-control form-control-sm" id="newRoutineTitle" placeholder="Título de la rutina *">
+            </div>
+            <div class="col-md-5">
+              <input class="form-control form-control-sm" id="newRoutineDesc" placeholder="Descripción (opcional)">
+            </div>
+            <div class="col-md-2">
+              <button class="btn btn-primary btn-sm w-100" onclick="Views.createRoutine(${patientId})">
+                <i class="fas fa-save me-1"></i>Crear
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      ${routines.length === 0 ? `
+        <div class="text-center py-4 text-muted">
+          <i class="fas fa-clipboard-list fa-2x mb-2 d-block"></i>
+          Sin rutinas asignadas todavía.
+        </div>` :
+        routines.map(r => `
+          <div class="card mb-3" id="routine-${r.id}">
+            <div class="card-header d-flex align-items-center justify-content-between gap-2 py-2">
+              <div class="d-flex align-items-center gap-2 flex-grow-1">
+                <i class="fas fa-clipboard-list text-primary"></i>
+                <strong>${esc(r.title)}</strong>
+                ${r.description ? `<small class="text-muted">— ${esc(r.description)}</small>` : ''}
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <select class="form-select form-select-sm" style="width:130px"
+                  onchange="Views.updateRoutineStatus(${r.id}, this.value, ${patientId})">
+                  ${['activa','pausada','completada'].map(s =>
+                    `<option value="${s}" ${r.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`
+                  ).join('')}
+                </select>
+                <button class="btn btn-sm btn-outline-danger" onclick="Views.deleteRoutine(${r.id}, ${patientId})">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body p-3">
+              <!-- Exercises list -->
+              <div id="exList-${r.id}">
+                ${(r.exercises || []).length === 0
+                  ? '<p class="text-muted small mb-2">Sin ejercicios aún.</p>'
+                  : r.exercises.map(ex => Views.renderExerciseRow(ex, r.id, patientId)).join('')}
+              </div>
+
+              <!-- Add exercise form -->
+              <div class="border-top pt-3 mt-2">
+                <p class="small fw-semibold text-muted mb-2"><i class="fas fa-plus me-1"></i>Agregar ejercicio</p>
+                <div class="row g-2 align-items-end" id="exForm-${r.id}">
+                  <div class="col-md-3">
+                    <input class="form-control form-control-sm" placeholder="Nombre *" id="exName-${r.id}">
+                  </div>
+                  <div class="col-md-4">
+                    <input class="form-control form-control-sm" placeholder="Descripción" id="exDesc-${r.id}">
+                  </div>
+                  <div class="col-md-1">
+                    <input type="number" class="form-control form-control-sm" placeholder="Series" id="exSets-${r.id}" min="1">
+                  </div>
+                  <div class="col-md-1">
+                    <input type="number" class="form-control form-control-sm" placeholder="Reps" id="exReps-${r.id}" min="1">
+                  </div>
+                  <div class="col-md-1">
+                    <input type="number" class="form-control form-control-sm" placeholder="Seg" id="exDur-${r.id}" min="1">
+                  </div>
+                  <div class="col-md-2">
+                    <input class="form-control form-control-sm" placeholder="URL Video" id="exVid-${r.id}">
+                  </div>
+                  <div class="col-md-12 mt-1">
+                    <button class="btn btn-success btn-sm" onclick="Views.addExercise(${r.id}, ${patientId})">
+                      <i class="fas fa-plus me-1"></i>Agregar ejercicio
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>`).join('')}`;
+  },
+
+  renderExerciseRow(ex, routineId, patientId) {
+    const meta = [];
+    if (ex.sets && ex.reps) meta.push(`${ex.sets}×${ex.reps}`);
+    else if (ex.sets) meta.push(`${ex.sets} series`);
+    if (ex.duration_seconds) meta.push(`${ex.duration_seconds}s`);
+
+    return `
+      <div class="d-flex align-items-start gap-2 mb-2 p-2 bg-light rounded" id="ex-${ex.id}">
+        <i class="fas fa-dumbbell text-primary mt-1"></i>
+        <div class="flex-grow-1">
+          <span class="fw-semibold small">${esc(ex.name)}</span>
+          ${meta.length ? `<span class="badge bg-primary bg-opacity-10 text-primary ms-2 small">${meta.join(' · ')}</span>` : ''}
+          ${ex.description ? `<div class="text-muted" style="font-size:12px">${esc(ex.description)}</div>` : ''}
+          ${ex.video_url ? `<a href="${esc(ex.video_url)}" target="_blank" class="small text-primary"><i class="fas fa-play-circle me-1"></i>Ver video</a>` : ''}
+        </div>
+        <button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="Views.deleteExercise(${ex.id}, ${routineId}, ${patientId})">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>`;
+  },
+
+  async createRoutine(patientId) {
+    const title = document.getElementById('newRoutineTitle').value.trim();
+    const desc  = document.getElementById('newRoutineDesc').value.trim();
+    if (!title) { showToastGlobal('El título es obligatorio', 'warning'); return; }
+    const r = await App.api('POST', '/patient-routines', { title, description: desc || null }, { patient_id: patientId });
+    if (r?.success) {
+      showToastGlobal('Rutina creada', 'success');
+      await Views.loadRoutineManager(patientId);
+    } else {
+      showToastGlobal('Error al crear rutina', 'danger');
+    }
+  },
+
+  async updateRoutineStatus(routineId, status, patientId) {
+    await App.api('PATCH', '/patient-routines', { status }, { routine_id: routineId });
+    showToastGlobal('Estado actualizado', 'success');
+  },
+
+  async deleteRoutine(routineId, patientId) {
+    if (!confirm('¿Eliminar esta rutina y todos sus ejercicios?')) return;
+    await App.api('DELETE', '/patient-routines', null, { routine_id: routineId });
+    await Views.loadRoutineManager(patientId);
+    showToastGlobal('Rutina eliminada', 'success');
+  },
+
+  async addExercise(routineId, patientId) {
+    const name = document.getElementById(`exName-${routineId}`).value.trim();
+    if (!name) { showToastGlobal('El nombre del ejercicio es obligatorio', 'warning'); return; }
+
+    const body = {
+      name,
+      description:      document.getElementById(`exDesc-${routineId}`).value.trim() || null,
+      sets:             parseInt(document.getElementById(`exSets-${routineId}`).value) || null,
+      reps:             parseInt(document.getElementById(`exReps-${routineId}`).value) || null,
+      duration_seconds: parseInt(document.getElementById(`exDur-${routineId}`).value)  || null,
+      video_url:        document.getElementById(`exVid-${routineId}`).value.trim()    || null,
+    };
+
+    const r = await App.api('POST', '/patient-routines', body, { action: 'add-exercise', routine_id: routineId });
+    if (r?.success) {
+      showToastGlobal('Ejercicio agregado', 'success');
+      await Views.loadRoutineManager(patientId);
+    } else {
+      showToastGlobal('Error al agregar ejercicio', 'danger');
+    }
+  },
+
+  async deleteExercise(exerciseId, routineId, patientId) {
+    await App.api('DELETE', '/patient-routines', null, { action: 'exercise', exercise_id: exerciseId });
+    await Views.loadRoutineManager(patientId);
+    showToastGlobal('Ejercicio eliminado', 'success');
   },
 
 };

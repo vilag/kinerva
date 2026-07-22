@@ -1,7 +1,9 @@
 {
   "rewrites": [
     { "source": "/admin",  "destination": "/admin/index.html" },
-    { "source": "/admin/", "destination": "/admin/index.html" }
+    { "source": "/admin/", "destination": "/admin/index.html" },
+    { "source": "/portal", "destination": "/portal/index.html" },
+    { "source": "/portal/","destination": "/portal/index.html" }
   ],
   "functions": {
     "api/**/*.js": {

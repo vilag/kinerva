@@ -22,8 +22,14 @@ const routes = {
   '/api/admin/patient':      './api/admin/patient',
   '/api/admin/expediente':   './api/admin/expediente',
   '/api/admin/expedientes':  './api/admin/expedientes',
-  '/api/admin/prospects':    './api/admin/prospects',
-  '/api/prospects':          './api/prospects',
+  '/api/admin/prospects':       './api/admin/prospects',
+  '/api/admin/patient-users':   './api/admin/patient-users',
+  '/api/admin/patient-routines':'./api/admin/patient-routines',
+  '/api/prospects':             './api/prospects',
+  '/api/auth/config':           './api/auth/config',
+  '/api/auth/google':           './api/auth/google',
+  '/api/patient/me':            './api/patient/me',
+  '/api/patient/routines':      './api/patient/routines',
 };
 
 for (const [route, file] of Object.entries(routes)) {
@@ -40,6 +46,10 @@ app.use((err, req, res, _next) => {
 // ── Admin SPA ──────────────────────────────────────────────────────────────
 app.get(['/admin', '/admin/'], (req, res) =>
   res.sendFile(path.join(__dirname, 'admin/index.html'))
+);
+
+app.get(['/portal', '/portal/'], (req, res) =>
+  res.sendFile(path.join(__dirname, 'portal/index.html'))
 );
 
 const PORT = process.env.PORT || 3000;
