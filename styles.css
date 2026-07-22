@@ -1932,9 +1932,28 @@ ul {
 
 .footer-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1.4fr;
+  grid-template-columns: 2fr 1fr 1fr 1.2fr 1.2fr;
   gap: 40px;
 }
+
+.store-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 12px;
+  padding: 11px 16px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  transition: background .2s, border-color .2s;
+  width: 100%;
+}
+.store-btn:hover { background: rgba(0,189,180,.25); border-color: #00BDB4; color: #fff; }
+.store-btn small { display: block; font-size: 10px; font-weight: 400; opacity: .7; }
 
 .f-brand p {
   color: rgba(255, 255, 255, .58);

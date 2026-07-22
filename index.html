@@ -15,6 +15,15 @@
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <link rel="canonical" href="https://kinervafisioterapia.com/">
 
+  <!-- ── PWA ──────────────────────────────────────────────── -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#00BDB4">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Kinerva">
+  <link rel="apple-touch-icon" href="/icons/icon.svg">
+
   <!-- ── Open Graph / Facebook ────────────────────────────── -->
   <meta property="og:type" content="website">
   <meta property="og:locale" content="es_MX">
@@ -1199,9 +1208,56 @@
             </a> -->
           </div>
 
+          <div class="f-app">
+            <h4>Nuestra App</h4>
+            <p style="font-size:13px;line-height:1.5;margin-bottom:16px;color:rgba(255,255,255,.65)">Accede a tu portal de pacientes desde tu celular.</p>
+            <a class="store-btn" id="btnAndroid" href="#" onclick="installAndroid(event)">
+              <i class="fab fa-android" style="font-size:22px"></i>
+              <span>
+                <small>Instalar en</small>
+                Android
+              </span>
+            </a>
+            <a class="store-btn" id="btnIOS" href="#" onclick="showIOSGuide(event)">
+              <i class="fab fa-apple" style="font-size:24px"></i>
+              <span>
+                <small>Instalar en</small>
+                iPhone / iPad
+              </span>
+            </a>
+          </div>
+
         </div>
       </div>
     </div>
+
+    <!-- iOS install guide -->
+    <div id="iosGuide" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:24px">
+      <div style="background:#fff;border-radius:20px;padding:32px;max-width:360px;width:100%;text-align:center">
+        <div style="font-size:38px;margin-bottom:10px">📱</div>
+        <h3 style="font-size:18px;font-weight:700;color:#1a2533;margin-bottom:8px">Instalar en iPhone / iPad</h3>
+        <p style="font-size:13px;color:#6b7280;margin-bottom:20px">Abre esta página en Safari y sigue estos pasos:</p>
+        <div style="text-align:left;display:flex;flex-direction:column;gap:12px;margin-bottom:24px">
+          <div style="display:flex;align-items:center;gap:12px;background:#f3f7f9;border-radius:12px;padding:12px">
+            <span style="font-size:22px">1️⃣</span>
+            <span style="font-size:13px;color:#1a2533">Toca el ícono de compartir <strong>⬆️</strong> en la barra de Safari</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;background:#f3f7f9;border-radius:12px;padding:12px">
+            <span style="font-size:22px">2️⃣</span>
+            <span style="font-size:13px;color:#1a2533">Desliza y selecciona <strong>"Agregar a pantalla de inicio"</strong></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;background:#f3f7f9;border-radius:12px;padding:12px">
+            <span style="font-size:22px">3️⃣</span>
+            <span style="font-size:13px;color:#1a2533">Toca <strong>"Agregar"</strong> — la app aparecerá en tu pantalla</span>
+          </div>
+        </div>
+        <button onclick="document.getElementById('iosGuide').style.display='none'"
+          style="width:100%;padding:12px;background:#00BDB4;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">
+          Entendido
+        </button>
+      </div>
+    </div>
+
     <div class="footer-bot">
       <div class="container">
         <span>© 2025 Kinerva Fisioterapia. Todos los derechos reservados.</span>
@@ -1904,6 +1960,43 @@
     }, { passive: true });
   </script>
 
+  <script>
+    // PWA: Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+
+    // PWA: Android install prompt
+    let _installPrompt = null;
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      _installPrompt = e;
+      const btn = document.getElementById('btnAndroid');
+      if (btn) btn.style.opacity = '1';
+    });
+
+    function installAndroid(e) {
+      e.preventDefault();
+      if (_installPrompt) {
+        _installPrompt.prompt();
+        _installPrompt.userChoice.then(() => { _installPrompt = null; });
+      } else {
+        // Fallback: open portal so user can install from browser menu
+        window.open('/portal', '_blank');
+      }
+    }
+
+    function showIOSGuide(e) {
+      e.preventDefault();
+      const guide = document.getElementById('iosGuide');
+      guide.style.display = 'flex';
+    }
+
+    // Close iOS guide on backdrop click
+    document.getElementById('iosGuide')?.addEventListener('click', function(e) {
+      if (e.target === this) this.style.display = 'none';
+    });
+  </script>
 </body>
 
 </html>

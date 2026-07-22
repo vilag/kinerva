@@ -1,0 +1,35 @@
+{
+  "name": "Kinerva Fisioterapia",
+  "short_name": "Kinerva",
+  "description": "Accede a tu portal de pacientes, consulta rutinas y gestiona tu rehabilitación.",
+  "start_url": "/portal",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f2027",
+  "theme_color": "#00BDB4",
+  "lang": "es",
+  "categories": ["health", "medical"],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Mi Portal",
+      "url": "/portal",
+      "description": "Inicia sesión en el portal de pacientes"
+    }
+  ]
+}
