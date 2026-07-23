@@ -39,11 +39,5 @@
     "api/**/*.js": {
       "maxDuration": 15
     }
-  },
-  "crons": [
-    {
-      "path": "/api/cron/exercise-notifications",
-      "schedule": "* * * * *"
-    }
-  ]
+  }
 }

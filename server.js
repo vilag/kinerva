@@ -1,10 +1,9 @@
-// Servidor de desarrollo local — equivalente a `vercel dev`
-// Uso: node server.js  (o: npm run dev)
 require('dotenv').config();
 
-const express = require('express');
-const path    = require('path');
-const app     = express();
+const express  = require('express');
+const path     = require('path');
+const cron     = require('node-cron');
+const app      = express();
 
 app.use(express.json({ limit: '15mb' }));
 app.use(express.urlencoded({ extended: true, limit: '15mb' }));
@@ -27,8 +26,9 @@ const routes = {
   '/api/admin/patient-routines':'./api/admin/patient-routines',
   '/api/prospects':             './api/prospects',
   '/api/auth/patient':          './api/auth/patient',
-  '/api/patient/me':            './api/patient/me',
-  '/api/patient/routines':      './api/patient/routines',
+  '/api/patient/me':              './api/patient/me',
+  '/api/patient/routines':        './api/patient/routines',
+  '/api/patient/push-subscribe':  './api/patient/push-subscribe',
 };
 
 for (const [route, file] of Object.entries(routes)) {
@@ -60,6 +60,17 @@ app.get(['/privacidad', '/privacidad/'], (req, res) =>
 );
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () =>
-  console.log(`\n🚀  Kinerva dev → http://localhost:${PORT}\n   Admin      → http://localhost:${PORT}/admin\n`)
-);
+app.listen(PORT, () => {
+  console.log(`Kinerva → http://localhost:${PORT}`);
+
+  // ── Cron: notificaciones de ejercicio (cada minuto) ──────────────
+  const sendNotifications = require('./api/cron/exercise-notifications-logic');
+  cron.schedule('* * * * *', async () => {
+    try {
+      const result = await sendNotifications();
+      if (result?.sent > 0) console.log(`[cron] notificaciones enviadas: ${result.sent} (${result.time})`);
+    } catch (err) {
+      console.error('[cron] exercise-notifications error:', err.message);
+    }
+  });
+});
