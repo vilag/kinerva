@@ -3514,7 +3514,9 @@ const Views = {
                       <span class="small text-muted fw-semibold" style="white-space:nowrap"><i class="fas fa-clock me-1"></i>Horario(s):</span>
                       <div id="exTimeChips-${r.id}" class="d-flex gap-1 flex-wrap"></div>
                       <div class="d-flex gap-1 align-items-center">
-                        <input type="time" class="form-control form-control-sm" id="exTimeInput-${r.id}" style="width:130px">
+                        <input type="time" class="form-control form-control-sm" id="exTimeInput-${r.id}" style="width:130px"
+                          onkeydown="if(event.key==='Enter'){event.preventDefault();Views.addTimeChip('${r.id}')}"
+                          onchange="Views.addTimeChip('${r.id}')">
                         <button type="button" class="btn btn-outline-secondary btn-sm px-2" onclick="Views.addTimeChip('${r.id}')">
                           <i class="fas fa-plus"></i>
                         </button>
@@ -3612,7 +3614,9 @@ const Views = {
               <span class="small text-muted fw-semibold" style="white-space:nowrap"><i class="fas fa-clock me-1"></i>Horario(s):</span>
               <div id="editExTimeChips-${id}" class="d-flex gap-1 flex-wrap">${chipHtml}</div>
               <div class="d-flex gap-1 align-items-center">
-                <input type="time" class="form-control form-control-sm" id="editExTimeInput-${id}" style="width:130px">
+                <input type="time" class="form-control form-control-sm" id="editExTimeInput-${id}" style="width:130px"
+                  onkeydown="if(event.key==='Enter'){event.preventDefault();Views.addEditTimeChip(${id})}"
+                  onchange="Views.addEditTimeChip(${id})">
                 <button type="button" class="btn btn-outline-secondary btn-sm px-2" onclick="Views.addEditTimeChip(${id})">
                   <i class="fas fa-plus"></i>
                 </button>
