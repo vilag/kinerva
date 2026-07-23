@@ -74,3 +74,30 @@ self.addEventListener('fetch', e => {
       })
   );
 });
+
+/* ── Push: mostrar notificación ───────────────────────────── */
+self.addEventListener('push', e => {
+  const data = e.data?.json() || {};
+  e.waitUntil(
+    self.registration.showNotification(data.title || '⏰ Kinerva', {
+      body:  data.body  || '',
+      icon:  '/icons/icon.svg',
+      badge: '/icons/icon.svg',
+      tag:   data.tag   || 'kinerva',
+      data:  { url: data.url || '/paciente' },
+      requireInteraction: false,
+    })
+  );
+});
+
+/* ── Notification click: abrir app ────────────────────────── */
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cs => {
+      const open = cs.find(c => c.url.includes('/paciente'));
+      if (open) return open.focus();
+      return clients.openWindow(e.notification.data?.url || '/paciente');
+    })
+  );
+});
