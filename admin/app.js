@@ -487,90 +487,7 @@ const Views = {
     </div>`;
 
     // Nueva Cita Modal
-    if (!document.getElementById('newApptModal')) {
-      const m = document.createElement('div');
-      m.innerHTML = `
-      <div class="modal fade" id="newApptModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-            <div class="modal-header text-white" style="background:var(--ak-teal)">
-              <h5 class="modal-title"><i class="fas fa-calendar-plus me-2"></i>Nueva Cita</h5>
-              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-              <!-- Duración -->
-              <div class="mb-4">
-                <label class="fw-bold mb-2 d-block">Duración:</label>
-                <div class="d-flex gap-2">
-                  <button type="button" id="dur1Btn" class="btn btn-ak"
-                    onclick="adminAppt.setDuration(1)">
-                    <i class="fas fa-clock me-1"></i>1 Hora
-                  </button>
-                  <button type="button" id="dur2Btn" class="btn btn-outline-secondary"
-                    onclick="adminAppt.setDuration(2)">
-                    <i class="fas fa-clock me-1"></i>2 Horas
-                  </button>
-                </div>
-              </div>
-
-              <!-- Fecha + Slots -->
-              <div class="row g-3 mb-4">
-                <div class="col-md-5">
-                  <label class="fw-bold mb-2 d-block">Fecha:</label>
-                  <input type="date" class="form-control" id="apptDate">
-                </div>
-                <div class="col-md-7">
-                  <label class="fw-bold mb-2 d-block" id="slotsLabel" style="color:#666">← Selecciona una fecha</label>
-                  <div id="slotsGrid" class="d-flex flex-wrap gap-2"></div>
-                </div>
-              </div>
-
-              <!-- Datos del paciente -->
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="fw-semibold">Nombre *</label>
-                  <input type="text" class="form-control mt-1" id="apptName" placeholder="Nombre completo">
-                </div>
-                <div class="col-md-6">
-                  <label class="fw-semibold">WhatsApp / Tel *</label>
-                  <input type="text" class="form-control mt-1" id="apptPhone" placeholder="(33) 0000-0000">
-                </div>
-                <div class="col-md-6">
-                  <label class="fw-semibold">Correo (opcional)</label>
-                  <input type="email" class="form-control mt-1" id="apptEmail" placeholder="tu@correo.com">
-                </div>
-                <div class="col-md-6">
-                  <label class="fw-semibold">Tipo de tratamiento</label>
-                  <select class="form-select mt-1" id="apptService">
-                    <option>Valoración</option>
-                    <option>Fisioterapia Deportiva</option>
-                    <option>Fisioterapia Geriátrica</option>
-                    <option>Fisioterapia Traumatológica</option>
-                    <option>Parálisis Facial</option>
-                    <option>Fisioterapia y Rehabilitación</option>
-                    <option>Otro</option>
-                  </select>
-                </div>
-                <div class="col-12">
-                  <label class="fw-semibold">Molestia / Dudas</label>
-                  <textarea class="form-control mt-1" id="apptNotes" rows="3"
-                    placeholder="Describe la molestia o duda del paciente…"></textarea>
-                </div>
-              </div>
-
-              <div id="apptError" class="alert alert-danger mt-3 d-none"></div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-              <button type="button" class="btn btn-ak" id="apptSaveBtn" onclick="adminAppt.submit()">
-                <i class="fas fa-calendar-check me-1"></i>Guardar Cita
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>`;
-      document.body.appendChild(m.firstElementChild);
-    }
+    adminAppt.ensureModal();
 
     el.querySelector('#filterForm')?.addEventListener('submit', e => {
       e.preventDefault();
@@ -805,6 +722,10 @@ const Views = {
               <div id="patSaveOk" class="alert alert-success py-1 px-2 mb-2" style="display:none;font-size:12px">Guardado ✓</div>
               <button type="submit" class="btn btn-sm btn-ak w-100"><i class="fas fa-save me-1"></i>Guardar</button>
             </form>
+            <button type="button" class="btn btn-sm w-100 mt-2" id="btnAgendarDesdePatient"
+              style="border:1px solid var(--ak-teal);color:var(--ak-teal);background:transparent">
+              <i class="fas fa-calendar-plus me-1"></i>Agendar cita
+            </button>
           </div>
         </div>
         <div class="ak-card">
@@ -867,6 +788,15 @@ const Views = {
 
     // Back
     el.querySelector('#backBtn')?.addEventListener('click', e => { e.preventDefault(); App.go('patients'); });
+
+    // Agendar cita pre-rellena con datos del paciente
+    el.querySelector('#btnAgendarDesdePatient')?.addEventListener('click', () => {
+      adminAppt.open({
+        name:  patient.name  || '',
+        phone: patient.phone || '',
+        email: patient.email || '',
+      });
+    });
 
     // Save patient info
     el.querySelector('#patForm')?.addEventListener('submit', async e => {
@@ -2433,6 +2363,13 @@ const Views = {
             <div class="exp-action-sub">Generar PDF del plan de tratamiento</div>
           </div>
         </button>
+        <button type="button" class="exp-action-btn exp-action-teal" id="btnAgendarSesion">
+          <span class="exp-action-icon"><i class="fas fa-calendar-plus"></i></span>
+          <div>
+            <div class="exp-action-title">Agendar próxima sesión</div>
+            <div class="exp-action-sub">Crear cita para este paciente</div>
+          </div>
+        </button>
         ${App.currentFolio === 'borrador' ? `
         <button type="button" class="exp-action-btn exp-action-amber" id="btnLimpiarPro">
           <span class="exp-action-icon"><i class="fas fa-user-edit"></i></span>
@@ -3202,6 +3139,14 @@ const Views = {
       if (r?.folio) App.go('expediente/' + r.folio);
       else btn.innerHTML = '<i class="fas fa-user-plus me-2"></i>Nuevo registro';
     });
+
+    el.querySelector('#btnAgendarSesion')?.addEventListener('click', () => {
+      adminAppt.open({
+        name:  pac.nombre_paciente       || '',
+        phone: pac.telefono              || '',
+        email: pac.correo_electronico    || '',
+      });
+    });
   },
 
   /* ══ Portal Pacientes ══════════════════════════════════════════ */
@@ -3667,6 +3612,15 @@ const adminAppt = {
     if (d2) { d2.className = 'btn btn-outline-secondary'; }
     const fields = ['apptDate','apptName','apptPhone','apptEmail','apptNotes'];
     fields.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    // Clear patient picker
+    const patSearch = document.getElementById('apptPatientSearch');
+    const patId     = document.getElementById('apptPatientId');
+    const patChip   = document.getElementById('apptPatientChip');
+    const patDd     = document.getElementById('apptPatientDropdown');
+    if (patSearch) patSearch.value = '';
+    if (patId)     patId.value     = '';
+    if (patChip)   patChip.classList.add('d-none');
+    if (patDd)     patDd.classList.add('d-none');
     const g = document.getElementById('slotsGrid');
     const l = document.getElementById('slotsLabel');
     const e = document.getElementById('apptError');
@@ -3822,6 +3776,185 @@ const adminAppt = {
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-calendar-check me-1"></i>Guardar Cita';
     }
+  },
+
+  ensureModal() {
+    if (document.getElementById('newApptModal')) return;
+    const m = document.createElement('div');
+    m.innerHTML = `
+    <div class="modal fade" id="newApptModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header text-white" style="background:var(--ak-teal)">
+            <h5 class="modal-title"><i class="fas fa-calendar-plus me-2"></i>Nueva Cita</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <!-- Duración -->
+            <div class="mb-4">
+              <label class="fw-bold mb-2 d-block">Duración:</label>
+              <div class="d-flex gap-2">
+                <button type="button" id="dur1Btn" class="btn btn-ak"
+                  onclick="adminAppt.setDuration(1)">
+                  <i class="fas fa-clock me-1"></i>1 Hora
+                </button>
+                <button type="button" id="dur2Btn" class="btn btn-outline-secondary"
+                  onclick="adminAppt.setDuration(2)">
+                  <i class="fas fa-clock me-1"></i>2 Horas
+                </button>
+              </div>
+            </div>
+
+            <!-- Fecha + Slots -->
+            <div class="row g-3 mb-4">
+              <div class="col-md-5">
+                <label class="fw-bold mb-2 d-block">Fecha:</label>
+                <input type="date" class="form-control" id="apptDate">
+              </div>
+              <div class="col-md-7">
+                <label class="fw-bold mb-2 d-block" id="slotsLabel" style="color:#666">← Selecciona una fecha</label>
+                <div id="slotsGrid" class="d-flex flex-wrap gap-2"></div>
+              </div>
+            </div>
+
+            <!-- Datos del paciente -->
+            <div class="row g-3">
+              <!-- Buscador de paciente registrado -->
+              <div class="col-12">
+                <label class="fw-semibold">Buscar paciente registrado <span class="text-muted fw-normal small ms-1">— opcional, rellena los campos automáticamente</span></label>
+                <div class="position-relative mt-1">
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" class="form-control" id="apptPatientSearch"
+                      placeholder="Escribe nombre o teléfono…" autocomplete="off"
+                      oninput="adminAppt.onSearchInput(this.value)">
+                  </div>
+                  <div id="apptPatientDropdown" class="d-none"
+                    style="position:absolute;top:calc(100% + 2px);left:0;right:0;z-index:1055;max-height:200px;overflow-y:auto;background:#fff;border:1px solid #dee2e6;border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.12)"></div>
+                </div>
+                <input type="hidden" id="apptPatientId">
+              </div>
+              <div id="apptPatientChip" class="col-12 d-none">
+                <div class="d-flex align-items-center gap-2 rounded-2 px-3 py-2"
+                  style="background:#e6f8f7;border:1px solid #00BDB4">
+                  <i class="fas fa-user-check" style="color:#00BDB4;font-size:15px"></i>
+                  <span id="apptPatientChipLabel" class="small fw-semibold" style="flex:1;color:#0f2027"></span>
+                  <button type="button" onclick="adminAppt.clearPatient()"
+                    style="background:none;border:none;color:#dc3545;cursor:pointer;padding:0"
+                    title="Quitar selección"><i class="fas fa-times-circle"></i></button>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="fw-semibold">Nombre *</label>
+                <input type="text" class="form-control mt-1" id="apptName" placeholder="Nombre completo">
+              </div>
+              <div class="col-md-6">
+                <label class="fw-semibold">WhatsApp / Tel *</label>
+                <input type="text" class="form-control mt-1" id="apptPhone" placeholder="(33) 0000-0000">
+              </div>
+              <div class="col-md-6">
+                <label class="fw-semibold">Correo (opcional)</label>
+                <input type="email" class="form-control mt-1" id="apptEmail" placeholder="tu@correo.com">
+              </div>
+              <div class="col-md-6">
+                <label class="fw-semibold">Tipo de tratamiento</label>
+                <select class="form-select mt-1" id="apptService">
+                  <option>Valoración</option>
+                  <option>Fisioterapia Deportiva</option>
+                  <option>Fisioterapia Geriátrica</option>
+                  <option>Fisioterapia Traumatológica</option>
+                  <option>Parálisis Facial</option>
+                  <option>Fisioterapia y Rehabilitación</option>
+                  <option>Otro</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="fw-semibold">Molestia / Dudas</label>
+                <textarea class="form-control mt-1" id="apptNotes" rows="3"
+                  placeholder="Describe la molestia o duda del paciente…"></textarea>
+              </div>
+            </div>
+
+            <div id="apptError" class="alert alert-danger mt-3 d-none"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-ak" id="apptSaveBtn" onclick="adminAppt.submit()">
+              <i class="fas fa-calendar-check me-1"></i>Guardar Cita
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+    document.body.appendChild(m.firstElementChild);
+  },
+
+  open(prefill = {}) {
+    this.ensureModal();
+    this.reset();
+    if (prefill.name)  { const f = document.getElementById('apptName');  if (f) f.value = prefill.name; }
+    if (prefill.phone) { const f = document.getElementById('apptPhone'); if (f) f.value = prefill.phone; }
+    if (prefill.email) { const f = document.getElementById('apptEmail'); if (f) f.value = prefill.email; }
+    new bootstrap.Modal(document.getElementById('newApptModal')).show();
+  },
+
+  _searchTimer: null,
+
+  onSearchInput(val) {
+    clearTimeout(this._searchTimer);
+    const dd = document.getElementById('apptPatientDropdown');
+    if (!val.trim()) { if (dd) dd.classList.add('d-none'); return; }
+    if (dd) {
+      dd.innerHTML = '<div class="px-3 py-2 text-muted small"><i class="fas fa-circle-notch fa-spin me-1"></i>Buscando…</div>';
+      dd.classList.remove('d-none');
+    }
+    this._searchTimer = setTimeout(() => this.doSearch(val.trim()), 320);
+  },
+
+  async doSearch(q) {
+    const dd = document.getElementById('apptPatientDropdown');
+    if (!dd) return;
+    try {
+      const data = await App.get('/patients', { q });
+      const list = (data?.patients || []).slice(0, 8);
+      if (!list.length) {
+        dd.innerHTML = '<div class="px-3 py-2 text-muted small">Sin resultados</div>';
+        return;
+      }
+      dd.innerHTML = list.map(p => `
+        <div class="px-3 py-2" style="cursor:pointer;border-bottom:1px solid #f0f0f0"
+          onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background=''"
+          onmousedown="adminAppt.selectPatient(${p.id},'${esc(p.name)}','${esc(p.phone||'')}','${esc(p.email||'')}')">
+          <div class="fw-semibold small">${esc(p.name)}</div>
+          <div class="text-muted" style="font-size:12px">${esc(p.phone||'')}${p.email ? ' · ' + esc(p.email) : ''}</div>
+        </div>`).join('');
+    } catch {
+      dd.innerHTML = '<div class="px-3 py-2 text-muted small">Error al buscar</div>';
+    }
+  },
+
+  selectPatient(id, name, phone, email) {
+    document.getElementById('apptPatientId').value     = id;
+    document.getElementById('apptPatientSearch').value = '';
+    document.getElementById('apptPatientDropdown')?.classList.add('d-none');
+    const chip  = document.getElementById('apptPatientChip');
+    const label = document.getElementById('apptPatientChipLabel');
+    if (chip)  chip.classList.remove('d-none');
+    if (label) label.textContent = name + (phone ? ' · ' + phone : '');
+    if (name)  { const f = document.getElementById('apptName');  if (f) f.value = name; }
+    if (phone) { const f = document.getElementById('apptPhone'); if (f) f.value = phone; }
+    if (email) { const f = document.getElementById('apptEmail'); if (f) f.value = email; }
+  },
+
+  clearPatient() {
+    document.getElementById('apptPatientId').value     = '';
+    document.getElementById('apptPatientSearch').value = '';
+    document.getElementById('apptPatientChip')?.classList.add('d-none');
+    document.getElementById('apptPatientDropdown')?.classList.add('d-none');
+    ['apptName','apptPhone','apptEmail'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
   },
 };
 
