@@ -284,8 +284,9 @@
     .mob-overlay.open .mob-drawer { transform: translateX(0); }
 
     @media (max-width: 768px) {
+      #appWrap { flex-direction: column; }
       .sidebar { display: none; }
-      .main-content { margin-left: 0; }
+      .main-content { margin-left: 0; width: 100%; }
       .main-topbar { display: none; }
       .mob-topbar { display: flex; }
       .page-body { padding: 20px 16px; }
