@@ -13,6 +13,13 @@ module.exports = async function handler(req, res) {
   try {
     conn = await getConnection();
 
+    // Auto-migrate: add schedule_times column if it doesn't exist yet
+    try {
+      await conn.execute(
+        `ALTER TABLE routine_exercises ADD COLUMN schedule_times VARCHAR(500) NULL AFTER video_url`
+      );
+    } catch(e) { if (e.code !== 'ER_DUP_FIELDNAME') throw e; }
+
     /* GET — listar rutinas de un paciente */
     if (req.method === 'GET') {
       if (!q.patient_id) return res.status(400).json({ success: false, message: 'patient_id requerido' });
@@ -22,7 +29,7 @@ module.exports = async function handler(req, res) {
       );
       for (const r of routines) {
         const [exs] = await conn.execute(
-          'SELECT id, name, description, sets, reps, duration_seconds, video_url, sort_order FROM routine_exercises WHERE routine_id = ? ORDER BY sort_order ASC',
+          'SELECT id, name, description, sets, reps, duration_seconds, video_url, schedule_times, sort_order FROM routine_exercises WHERE routine_id = ? ORDER BY sort_order ASC',
           [r.id]
         );
         r.exercises = exs;
@@ -42,10 +49,11 @@ module.exports = async function handler(req, res) {
           [q.routine_id]
         );
         await conn.execute(
-          `INSERT INTO routine_exercises (routine_id, name, description, sets, reps, duration_seconds, video_url, sort_order)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO routine_exercises (routine_id, name, description, sets, reps, duration_seconds, video_url, schedule_times, sort_order)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [q.routine_id, body.name, body.description || null, body.sets || null,
-           body.reps || null, body.duration_seconds || null, body.video_url || null, maxOrd + 1]
+           body.reps || null, body.duration_seconds || null, body.video_url || null,
+           body.schedule_times || null, maxOrd + 1]
         );
         return res.json({ success: true });
       }

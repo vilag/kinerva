@@ -3509,6 +3509,19 @@ const Views = {
                   <div class="col-md-2">
                     <input class="form-control form-control-sm" placeholder="URL Video" id="exVid-${r.id}">
                   </div>
+                  <div class="col-12">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                      <span class="small text-muted fw-semibold" style="white-space:nowrap"><i class="fas fa-clock me-1"></i>Horario(s):</span>
+                      <div id="exTimeChips-${r.id}" class="d-flex gap-1 flex-wrap"></div>
+                      <div class="d-flex gap-1 align-items-center">
+                        <input type="time" class="form-control form-control-sm" id="exTimeInput-${r.id}" style="width:130px">
+                        <button type="button" class="btn btn-outline-secondary btn-sm px-2" onclick="Views.addTimeChip('${r.id}')">
+                          <i class="fas fa-plus"></i>
+                        </button>
+                      </div>
+                      <span class="text-muted" style="font-size:11px">— opcional, si tiene hora fija</span>
+                    </div>
+                  </div>
                   <div class="col-md-12 mt-1">
                     <button class="btn btn-success btn-sm" onclick="Views.addExercise(${r.id}, ${patientId})">
                       <i class="fas fa-plus me-1"></i>Agregar ejercicio
@@ -3526,6 +3539,16 @@ const Views = {
     else if (ex.sets) meta.push(`${ex.sets} series`);
     if (ex.duration_seconds) meta.push(`${ex.duration_seconds}s`);
 
+    let timesHtml = '';
+    if (ex.schedule_times) {
+      try {
+        const times = JSON.parse(ex.schedule_times);
+        if (times.length) {
+          timesHtml = `<div class="mt-1" style="font-size:11px;color:var(--ak-teal)"><i class="fas fa-clock me-1"></i>${times.join(' · ')}</div>`;
+        }
+      } catch(_) {}
+    }
+
     return `
       <div class="d-flex align-items-start gap-2 mb-2 p-2 bg-light rounded" id="ex-${ex.id}">
         <i class="fas fa-dumbbell text-primary mt-1"></i>
@@ -3533,6 +3556,7 @@ const Views = {
           <span class="fw-semibold small">${esc(ex.name)}</span>
           ${meta.length ? `<span class="badge bg-primary bg-opacity-10 text-primary ms-2 small">${meta.join(' · ')}</span>` : ''}
           ${ex.description ? `<div class="text-muted" style="font-size:12px">${esc(ex.description)}</div>` : ''}
+          ${timesHtml}
           ${ex.video_url ? `<a href="${esc(ex.video_url)}" target="_blank" class="small text-primary"><i class="fas fa-play-circle me-1"></i>Ver video</a>` : ''}
         </div>
         <button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="Views.deleteExercise(${ex.id}, ${routineId}, ${patientId})">
@@ -3570,6 +3594,9 @@ const Views = {
     const name = document.getElementById(`exName-${routineId}`).value.trim();
     if (!name) { showToastGlobal('El nombre del ejercicio es obligatorio', 'warning'); return; }
 
+    const timeChips = Array.from(document.querySelectorAll(`#exTimeChips-${routineId} [data-time]`));
+    const schedule_times = timeChips.map(c => c.dataset.time);
+
     const body = {
       name,
       description:      document.getElementById(`exDesc-${routineId}`).value.trim() || null,
@@ -3577,6 +3604,7 @@ const Views = {
       reps:             parseInt(document.getElementById(`exReps-${routineId}`).value) || null,
       duration_seconds: parseInt(document.getElementById(`exDur-${routineId}`).value)  || null,
       video_url:        document.getElementById(`exVid-${routineId}`).value.trim()    || null,
+      schedule_times:   schedule_times.length ? JSON.stringify(schedule_times) : null,
     };
 
     const r = await App.api('POST', '/patient-routines', body, { action: 'add-exercise', routine_id: routineId });
@@ -3586,6 +3614,21 @@ const Views = {
     } else {
       showToastGlobal('Error al agregar ejercicio', 'danger');
     }
+  },
+
+  addTimeChip(routineId) {
+    const input = document.getElementById(`exTimeInput-${routineId}`);
+    const chips = document.getElementById(`exTimeChips-${routineId}`);
+    const val   = input?.value;
+    if (!val || !chips) return;
+    if (chips.querySelector(`[data-time="${val}"]`)) { input.value = ''; return; }
+    const span = document.createElement('span');
+    span.dataset.time = val;
+    span.className = 'badge d-inline-flex align-items-center gap-1 fw-normal';
+    span.style.cssText = 'background:var(--ak-teal);font-size:12px;padding:3px 8px;border-radius:20px';
+    span.innerHTML = `<i class="fas fa-clock" style="font-size:10px"></i>${val}<button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,.8);cursor:pointer;padding:0;line-height:1;font-size:10px"><i class="fas fa-times"></i></button>`;
+    chips.appendChild(span);
+    input.value = '';
   },
 
   async deleteExercise(exerciseId, routineId, patientId) {
