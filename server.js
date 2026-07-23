@@ -59,18 +59,25 @@ app.get(['/privacidad', '/privacidad/'], (req, res) =>
   res.sendFile(path.join(__dirname, 'privacidad/index.html'))
 );
 
+// ── Cron endpoint (llamado por cron-job.org cada minuto) ───────────
+const sendNotifications = require('./api/cron/exercise-notifications-logic');
+
+app.get('/api/cron/exercise-notifications', async (req, res) => {
+  const token = req.query.token || req.headers['x-cron-token'];
+  const cronToken = process.env.CRON_TOKEN;
+  if (!cronToken || token !== cronToken) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  try {
+    const result = await sendNotifications();
+    res.json({ success: true, ...result });
+  } catch (err) {
+    console.error('[cron]', err.message);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Kinerva → http://localhost:${PORT}`);
-
-  // ── Cron: notificaciones de ejercicio (cada minuto) ──────────────
-  const sendNotifications = require('./api/cron/exercise-notifications-logic');
-  cron.schedule('* * * * *', async () => {
-    try {
-      const result = await sendNotifications();
-      if (result?.sent > 0) console.log(`[cron] notificaciones enviadas: ${result.sent} (${result.time})`);
-    } catch (err) {
-      console.error('[cron] exercise-notifications error:', err.message);
-    }
-  });
 });
