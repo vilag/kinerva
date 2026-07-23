@@ -20,7 +20,7 @@ module.exports = async function handler(req, res) {
     );
     for (const r of routines) {
       const [exercises] = await conn.execute(
-        `SELECT id, name, description, sets, reps, duration_seconds, video_url, sort_order
+        `SELECT id, name, description, sets, reps, duration_seconds, video_url, schedule_times, sort_order
          FROM routine_exercises WHERE routine_id = ? ORDER BY sort_order ASC`,
         [r.id]
       );

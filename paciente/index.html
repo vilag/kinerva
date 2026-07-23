@@ -393,6 +393,7 @@ function init() {
         USER = JSON.parse(raw);
         updateSidebar();
         goTo('inicio');
+        requestNotifPermission();
         return;
       }
     } catch { /* invalid token */ }
@@ -459,6 +460,7 @@ const Pages = {
     const body = document.getElementById('pageBody');
     const data = await apiFetch('GET', '/api/patient/routines');
     const routines = data?.routines || [];
+    scheduleExerciseNotifications(routines);
     const active  = routines.filter(r => r.status === 'activa').length;
     const total   = routines.length;
     const exCount = routines.reduce((s,r) => s + (r.exercises?.length || 0), 0);
@@ -608,6 +610,14 @@ function renderExercise(ex) {
   else if (ex.sets)       parts.push(`${ex.sets} series`);
   if (ex.duration_seconds) parts.push(`${ex.duration_seconds} seg`);
 
+  let timesHtml = '';
+  if (ex.schedule_times) {
+    try {
+      const times = JSON.parse(ex.schedule_times);
+      if (times.length) timesHtml = `<div style="font-size:12px;color:#00BDB4;margin-top:4px"><i class="fas fa-clock me-1"></i>${times.join(' · ')}</div>`;
+    } catch(_) {}
+  }
+
   return `
     <div class="exercise-item">
       <div class="ex-icon"><i class="fas fa-dumbbell"></i></div>
@@ -615,9 +625,52 @@ function renderExercise(ex) {
         <div class="ex-name">${esc(ex.name)}</div>
         ${parts.length ? `<div class="ex-meta">${parts.join(' · ')}</div>` : ''}
         ${ex.description ? `<div class="ex-desc">${esc(ex.description)}</div>` : ''}
+        ${timesHtml}
         ${ex.video_url ? `<a href="${esc(ex.video_url)}" target="_blank" rel="noopener" class="ex-video"><i class="fas fa-play-circle"></i> Ver video</a>` : ''}
       </div>
     </div>`;
+}
+
+/* ── Notificaciones de ejercicio ──────────────────────────── */
+async function requestNotifPermission() {
+  if (!('Notification' in window) || Notification.permission !== 'default') return;
+  try { await Notification.requestPermission(); } catch(_) {}
+}
+
+function scheduleExerciseNotifications(routines) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  const now = Date.now();
+  for (const r of (routines || [])) {
+    const active = (r.status || '').toLowerCase() === 'activa';
+    if (!active) continue;
+    for (const ex of (r.exercises || [])) {
+      if (!ex.schedule_times) continue;
+      let times;
+      try { times = JSON.parse(ex.schedule_times); } catch { continue; }
+      for (const t of times) {
+        const [h, m] = t.split(':').map(Number);
+        const exTime = new Date();
+        exTime.setHours(h, m, 0, 0);
+        const delay = exTime.getTime() - 5 * 60 * 1000 - now;
+        if (delay > 0 && delay < 24 * 60 * 60 * 1000) {
+          setTimeout(async () => {
+            const title = '⏰ Ejercicio en 5 minutos';
+            const opts  = {
+              body: `${ex.name}${r.title ? '  ·  ' + r.title : ''}`,
+              icon: '/icons/icon.svg',
+              badge: '/icons/icon.svg',
+              tag: `ex-${ex.id}-${t}`,
+            };
+            try {
+              const reg = await navigator.serviceWorker?.ready;
+              if (reg?.showNotification) { await reg.showNotification(title, opts); return; }
+            } catch(_) {}
+            try { new Notification(title, opts); } catch(_) {}
+          }, delay);
+        }
+      }
+    }
+  }
 }
 
 init();
