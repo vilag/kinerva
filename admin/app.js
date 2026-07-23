@@ -722,10 +722,6 @@ const Views = {
               <div id="patSaveOk" class="alert alert-success py-1 px-2 mb-2" style="display:none;font-size:12px">Guardado ✓</div>
               <button type="submit" class="btn btn-sm btn-ak w-100"><i class="fas fa-save me-1"></i>Guardar</button>
             </form>
-            <button type="button" class="btn btn-sm w-100 mt-2" id="btnAgendarDesdePatient"
-              style="border:1px solid var(--ak-teal);color:var(--ak-teal);background:transparent">
-              <i class="fas fa-calendar-plus me-1"></i>Agendar cita
-            </button>
           </div>
         </div>
         <div class="ak-card">
@@ -742,6 +738,10 @@ const Views = {
       </div>
 
       <div class="col-12 col-lg-8">
+        <button type="button" class="btn w-100 mb-3 fw-semibold" id="btnAgendarDesdePatient"
+          style="background:var(--ak-teal);color:#fff;border:none;padding:10px;border-radius:8px;font-size:14px">
+          <i class="fas fa-calendar-plus me-2"></i>Agendar cita
+        </button>
         <div class="ak-card mb-3">
           <div class="ak-card-head">
             <h6><i class="fas fa-history me-2" style="color:var(--ak-teal)"></i>Historial (${appointments.length})</h6>
