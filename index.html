@@ -1226,8 +1226,8 @@
     </div>
 
     <!-- ── Modal Android ─────────────────────────────────────── -->
-    <div id="androidGuide" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);align-items:flex-end;justify-content:center;padding:12px" onclick="if(event.target===this)this.style.display='none'">
-      <div style="background:#fff;border-radius:20px;padding:24px;max-width:480px;width:100%;max-height:92dvh;overflow-y:auto;-webkit-overflow-scrolling:touch">
+    <div id="androidGuide" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:24px" onclick="if(event.target===this)this.style.display='block'">
+      <div style="background:#fff;border-radius:20px;padding:24px;max-width:480px;width:100%;margin:auto;position:relative;top:0">
         <div style="text-align:center;margin-bottom:18px">
           <span style="font-size:36px">🤖</span>
           <h3 style="font-size:18px;font-weight:700;color:#1a2533;margin:8px 0 4px">Instalar en Android</h3>
@@ -1277,8 +1277,8 @@
     </div>
 
     <!-- ── Modal iOS ─────────────────────────────────────────── -->
-    <div id="iosGuide" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);align-items:flex-end;justify-content:center;padding:12px" onclick="if(event.target===this)this.style.display='none'">
-      <div style="background:#fff;border-radius:20px;padding:24px;max-width:480px;width:100%;max-height:92dvh;overflow-y:auto;-webkit-overflow-scrolling:touch">
+    <div id="iosGuide" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:24px" onclick="if(event.target===this)this.style.display='block'">
+      <div style="background:#fff;border-radius:20px;padding:24px;max-width:480px;width:100%;margin:auto;position:relative;top:0">
         <div style="text-align:center;margin-bottom:18px">
           <span style="font-size:36px">🍎</span>
           <h3 style="font-size:18px;font-weight:700;color:#1a2533;margin:8px 0 4px">Instalar en iPhone / iPad</h3>
@@ -2042,12 +2042,12 @@
 
     function openAndroidGuide(e) {
       e.preventDefault();
-      document.getElementById('androidGuide').style.display = 'flex';
+      document.getElementById('androidGuide').style.display = 'block';
     }
 
     function openIOSGuide(e) {
       e.preventDefault();
-      document.getElementById('iosGuide').style.display = 'flex';
+      document.getElementById('iosGuide').style.display = 'block';
     }
 
     function doInstallAndroid() {
