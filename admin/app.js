@@ -3549,8 +3549,10 @@ const Views = {
       } catch(_) {}
     }
 
+    const exJson = JSON.stringify(ex).replace(/"/g, '&quot;');
+
     return `
-      <div class="d-flex align-items-start gap-2 mb-2 p-2 bg-light rounded" id="ex-${ex.id}">
+      <div class="d-flex align-items-start gap-2 mb-2 p-2 bg-light rounded" id="ex-${ex.id}" data-ex="${exJson}">
         <i class="fas fa-dumbbell text-primary mt-1"></i>
         <div class="flex-grow-1">
           <span class="fw-semibold small">${esc(ex.name)}</span>
@@ -3559,10 +3561,112 @@ const Views = {
           ${timesHtml}
           ${ex.video_url ? `<a href="${esc(ex.video_url)}" target="_blank" class="small text-primary"><i class="fas fa-play-circle me-1"></i>Ver video</a>` : ''}
         </div>
-        <button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="Views.deleteExercise(${ex.id}, ${routineId}, ${patientId})">
+        <button class="btn btn-sm btn-outline-secondary py-0 px-1 me-1" onclick="Views.editExercise(${ex.id}, ${routineId}, ${patientId})" title="Editar">
+          <i class="fas fa-pen" style="font-size:11px"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="Views.deleteExercise(${ex.id}, ${routineId}, ${patientId})" title="Eliminar">
           <i class="fas fa-times"></i>
         </button>
       </div>`;
+  },
+
+  editExercise(id, routineId, patientId) {
+    const row = document.getElementById(`ex-${id}`);
+    if (!row) return;
+    const ex = JSON.parse(row.dataset.ex || '{}');
+    let times = [];
+    try { times = ex.schedule_times ? JSON.parse(ex.schedule_times) : []; } catch(_) {}
+
+    const chipHtml = times.map(t =>
+      `<span class="badge d-inline-flex align-items-center gap-1 fw-normal" data-time="${t}"
+        style="background:var(--ak-teal);font-size:12px;padding:3px 8px;border-radius:20px">
+        <i class="fas fa-clock" style="font-size:10px"></i>${t}
+        <button type="button" onclick="this.parentElement.remove()"
+          style="background:none;border:none;color:rgba(255,255,255,.8);cursor:pointer;padding:0;line-height:1;font-size:10px">
+          <i class="fas fa-times"></i></button></span>`
+    ).join('');
+
+    row.innerHTML = `
+      <div class="w-100">
+        <div class="row g-2 mb-2">
+          <div class="col-md-3">
+            <input class="form-control form-control-sm" placeholder="Nombre *" id="editExName-${id}" value="${esc(ex.name||'')}">
+          </div>
+          <div class="col-md-4">
+            <input class="form-control form-control-sm" placeholder="Descripción" id="editExDesc-${id}" value="${esc(ex.description||'')}">
+          </div>
+          <div class="col-md-1">
+            <input type="number" class="form-control form-control-sm" placeholder="Series" id="editExSets-${id}" value="${ex.sets||''}" min="1">
+          </div>
+          <div class="col-md-1">
+            <input type="number" class="form-control form-control-sm" placeholder="Reps" id="editExReps-${id}" value="${ex.reps||''}" min="1">
+          </div>
+          <div class="col-md-1">
+            <input type="number" class="form-control form-control-sm" placeholder="Seg" id="editExDur-${id}" value="${ex.duration_seconds||''}" min="1">
+          </div>
+          <div class="col-md-2">
+            <input class="form-control form-control-sm" placeholder="URL Video" id="editExVid-${id}" value="${esc(ex.video_url||'')}">
+          </div>
+          <div class="col-12">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <span class="small text-muted fw-semibold" style="white-space:nowrap"><i class="fas fa-clock me-1"></i>Horario(s):</span>
+              <div id="editExTimeChips-${id}" class="d-flex gap-1 flex-wrap">${chipHtml}</div>
+              <div class="d-flex gap-1 align-items-center">
+                <input type="time" class="form-control form-control-sm" id="editExTimeInput-${id}" style="width:130px">
+                <button type="button" class="btn btn-outline-secondary btn-sm px-2" onclick="Views.addEditTimeChip(${id})">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-ak btn-sm" onclick="Views.saveExercise(${id}, ${routineId}, ${patientId})">
+            <i class="fas fa-save me-1"></i>Guardar
+          </button>
+          <button class="btn btn-outline-secondary btn-sm" onclick="Views.loadRoutineManager(${patientId})">
+            Cancelar
+          </button>
+        </div>
+      </div>`;
+  },
+
+  addEditTimeChip(id) {
+    const input = document.getElementById(`editExTimeInput-${id}`);
+    const chips = document.getElementById(`editExTimeChips-${id}`);
+    const val   = input?.value;
+    if (!val || !chips) return;
+    if (chips.querySelector(`[data-time="${val}"]`)) { input.value = ''; return; }
+    const span = document.createElement('span');
+    span.dataset.time = val;
+    span.className = 'badge d-inline-flex align-items-center gap-1 fw-normal';
+    span.style.cssText = 'background:var(--ak-teal);font-size:12px;padding:3px 8px;border-radius:20px';
+    span.innerHTML = `<i class="fas fa-clock" style="font-size:10px"></i>${val}<button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,.8);cursor:pointer;padding:0;line-height:1;font-size:10px"><i class="fas fa-times"></i></button>`;
+    chips.appendChild(span);
+    input.value = '';
+  },
+
+  async saveExercise(id, routineId, patientId) {
+    const name = document.getElementById(`editExName-${id}`)?.value.trim();
+    if (!name) { showToastGlobal('El nombre es obligatorio', 'warning'); return; }
+    const timeChips = Array.from(document.querySelectorAll(`#editExTimeChips-${id} [data-time]`));
+    const schedule_times = timeChips.map(c => c.dataset.time);
+    const body = {
+      name,
+      description:      document.getElementById(`editExDesc-${id}`)?.value.trim() || null,
+      sets:             parseInt(document.getElementById(`editExSets-${id}`)?.value) || null,
+      reps:             parseInt(document.getElementById(`editExReps-${id}`)?.value) || null,
+      duration_seconds: parseInt(document.getElementById(`editExDur-${id}`)?.value)  || null,
+      video_url:        document.getElementById(`editExVid-${id}`)?.value.trim()    || null,
+      schedule_times:   schedule_times.length ? JSON.stringify(schedule_times) : null,
+    };
+    const r = await App.api('PATCH', '/patient-routines', body, { action: 'exercise', exercise_id: id });
+    if (r?.success) {
+      showToastGlobal('Ejercicio actualizado', 'success');
+      await Views.loadRoutineManager(patientId);
+    } else {
+      showToastGlobal('Error al actualizar', 'danger');
+    }
   },
 
   async createRoutine(patientId) {

@@ -79,10 +79,12 @@ module.exports = async function handler(req, res) {
                sets             = COALESCE(?, sets),
                reps             = COALESCE(?, reps),
                duration_seconds = COALESCE(?, duration_seconds),
-               video_url        = COALESCE(?, video_url)
+               video_url        = COALESCE(?, video_url),
+               schedule_times   = ?
            WHERE id = ?`,
           [body.name || null, body.description || null, body.sets || null,
-           body.reps || null, body.duration_seconds || null, body.video_url || null, q.exercise_id]
+           body.reps || null, body.duration_seconds || null, body.video_url || null,
+           body.schedule_times ?? null, q.exercise_id]
         );
       } else {
         await conn.execute(
