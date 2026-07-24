@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,24 +14,38 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     :root {
-      --teal:    #00BDB4;
+      --teal: #00BDB4;
       --teal-dk: #009A92;
       --teal-lt: #E6F8F7;
       --sidebar: #0f2027;
-      --sb-hov:  #1a3340;
-      --text:    #1a2533;
-      --muted:   #6b7280;
-      --border:  #e5e7eb;
-      --bg:      #f3f7f9;
-      --danger:  #ef4444;
+      --sb-hov: #1a3340;
+      --text: #1a2533;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --bg: #f3f7f9;
+      --danger: #ef4444;
     }
 
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
 
-    #appWrap { display: flex; min-height: 100vh; }
+    #appWrap {
+      display: flex;
+      min-height: 100vh;
+    }
 
     /* ══ SIDEBAR ══════════════════════════════════════════════════ */
     .sidebar {
@@ -40,78 +55,154 @@
       flex-direction: column;
       flex-shrink: 0;
       position: fixed;
-      top: 0; left: 0; bottom: 0;
+      top: 0;
+      left: 0;
+      bottom: 0;
       z-index: 100;
       overflow-y: auto;
     }
 
-    .sb-brand { padding: 22px 20px 16px; border-bottom: 1px solid rgba(255,255,255,.08); }
-    .sb-brand img { width: 115px; filter: brightness(0) invert(1); }
+    .sb-brand {
+      padding: 22px 20px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
+    }
+
+    .sb-brand img {
+      width: 115px;
+      filter: brightness(0) invert(1);
+    }
 
     .sb-user {
       padding: 18px 20px;
       display: flex;
       align-items: center;
       gap: 12px;
-      border-bottom: 1px solid rgba(255,255,255,.08);
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
     }
 
     .sb-avatar {
-      width: 44px; height: 44px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       background: var(--teal);
-      display: flex; align-items: center; justify-content: center;
-      color: #fff; font-size: 18px; font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
       flex-shrink: 0;
     }
 
-    .sb-name  { color: #fff; font-weight: 600; font-size: 14px; }
-    .sb-uname { color: rgba(255,255,255,.45); font-size: 11px; }
+    .sb-name {
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+    }
 
-    .sb-nav { padding: 10px 0; flex: 1; }
+    .sb-uname {
+      color: rgba(255, 255, 255, .45);
+      font-size: 11px;
+    }
+
+    .sb-nav {
+      padding: 10px 0;
+      flex: 1;
+    }
 
     .sb-nav a {
-      display: flex; align-items: center; gap: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
       padding: 12px 20px;
-      color: rgba(255,255,255,.6);
+      color: rgba(255, 255, 255, .6);
       text-decoration: none;
-      font-size: 14px; font-weight: 500;
+      font-size: 14px;
+      font-weight: 500;
       cursor: pointer;
       transition: all .15s;
     }
 
-    .sb-nav a i { width: 18px; text-align: center; }
-    .sb-nav a:hover { background: var(--sb-hov); color: #fff; }
-    .sb-nav a.active { background: var(--teal); color: #fff; }
+    .sb-nav a i {
+      width: 18px;
+      text-align: center;
+    }
 
-    .sb-footer { padding: 14px 20px; border-top: 1px solid rgba(255,255,255,.08); }
+    .sb-nav a:hover {
+      background: var(--sb-hov);
+      color: #fff;
+    }
+
+    .sb-nav a.active {
+      background: var(--teal);
+      color: #fff;
+    }
+
+    .sb-footer {
+      padding: 14px 20px;
+      border-top: 1px solid rgba(255, 255, 255, .08);
+    }
 
     .sb-logout {
-      display: flex; align-items: center; gap: 10px;
-      color: rgba(255,255,255,.45);
-      font-size: 13px; cursor: pointer;
-      background: none; border: none; width: 100%; padding: 6px 0;
-      font-family: inherit; transition: color .15s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: rgba(255, 255, 255, .45);
+      font-size: 13px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      width: 100%;
+      padding: 6px 0;
+      font-family: inherit;
+      transition: color .15s;
     }
-    .sb-logout:hover { color: var(--danger); }
+
+    .sb-logout:hover {
+      color: var(--danger);
+    }
 
     /* ══ MAIN ══════════════════════════════════════════════════════ */
-    .main-content { flex: 1; margin-left: 255px; min-height: 100vh; }
-
-    .main-topbar {
-      background: #fff; border-bottom: 1px solid var(--border);
-      padding: 15px 32px;
-      display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 50;
+    .main-content {
+      flex: 1;
+      margin-left: 255px;
+      min-height: 100vh;
     }
 
-    .main-topbar h2 { font-size: 17px; font-weight: 700; }
+    .main-topbar {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 15px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
 
-    .page-body { padding: 30px 32px; max-width: 860px; }
+    .main-topbar h2 {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .page-body {
+      padding: 30px 32px;
+      max-width: 860px;
+    }
 
     /* ══ COMPONENTS ══════════════════════════════════════════════ */
-    .welcome-greeting { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
-    .welcome-sub { color: var(--muted); font-size: 14px; margin-bottom: 26px; }
+    .welcome-greeting {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .welcome-sub {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 26px;
+    }
 
     .stats-row {
       display: grid;
@@ -121,391 +212,684 @@
     }
 
     .stat-card {
-      background: #fff; border-radius: 14px; padding: 22px;
-      border: 1px solid var(--border); text-align: center;
+      background: #fff;
+      border-radius: 14px;
+      padding: 22px;
+      border: 1px solid var(--border);
+      text-align: center;
     }
 
-    .stat-num   { font-size: 34px; font-weight: 700; color: var(--teal); }
-    .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .stat-num {
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--teal);
+    }
 
-    .section-title { font-size: 15px; font-weight: 700; margin-bottom: 14px; }
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
 
     .routine-card {
-      background: #fff; border-radius: 14px;
-      border: 1px solid var(--border); overflow: hidden; margin-bottom: 14px;
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-bottom: 14px;
     }
 
     .routine-header {
       padding: 16px 18px;
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      cursor: pointer; user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+      user-select: none;
     }
-    .routine-header:hover { background: #fafafa; }
+
+    .routine-header:hover {
+      background: #fafafa;
+    }
 
     .routine-icon {
-      width: 38px; height: 38px; border-radius: 10px;
-      background: var(--teal-lt); display: flex; align-items: center;
-      justify-content: center; color: var(--teal); font-size: 15px; flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--teal-lt);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--teal);
+      font-size: 15px;
+      flex-shrink: 0;
     }
 
-    .routine-name { font-weight: 600; font-size: 14px; }
-    .routine-date { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .routine-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .routine-date {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
 
     .status-badge {
-      font-size: 11px; font-weight: 600;
-      padding: 3px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
-    .s-activa     { background: #d1fae5; color: #065f46; }
-    .s-pausada    { background: #fef3c7; color: #92400e; }
-    .s-completada { background: #e5e7eb; color: #374151; }
 
-    .routine-chevron { color: var(--muted); transition: transform .2s; flex-shrink: 0; }
-    .routine-card.open .routine-chevron { transform: rotate(180deg); }
+    .s-activa {
+      background: #d1fae5;
+      color: #065f46;
+    }
 
-    .routine-body { display: none; padding: 0 18px 18px; border-top: 1px solid var(--border); }
-    .routine-card.open .routine-body { display: block; }
+    .s-pausada {
+      background: #fef3c7;
+      color: #92400e;
+    }
 
-    .routine-desc { color: var(--muted); font-size: 13px; padding: 12px 0 8px; line-height: 1.5; }
+    .s-completada {
+      background: #e5e7eb;
+      color: #374151;
+    }
 
-    .exercises-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+    .routine-chevron {
+      color: var(--muted);
+      transition: transform .2s;
+      flex-shrink: 0;
+    }
+
+    .routine-card.open .routine-chevron {
+      transform: rotate(180deg);
+    }
+
+    .routine-body {
+      display: none;
+      padding: 0 18px 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .routine-card.open .routine-body {
+      display: block;
+    }
+
+    .routine-desc {
+      color: var(--muted);
+      font-size: 13px;
+      padding: 12px 0 8px;
+      line-height: 1.5;
+    }
+
+    .exercises-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
 
     .exercise-item {
-      display: flex; align-items: flex-start; gap: 12px;
-      background: var(--bg); border-radius: 10px; padding: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 12px;
     }
 
     .ex-icon {
-      width: 34px; height: 34px; border-radius: 8px;
-      background: var(--teal-lt); display: flex; align-items: center;
-      justify-content: center; color: var(--teal); font-size: 13px; flex-shrink: 0;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--teal-lt);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--teal);
+      font-size: 13px;
+      flex-shrink: 0;
     }
 
-    .ex-name  { font-weight: 600; font-size: 13px; margin-bottom: 2px; }
-    .ex-meta  { font-size: 12px; color: var(--teal); font-weight: 600; margin-bottom: 3px; }
-    .ex-desc  { font-size: 12px; color: var(--muted); line-height: 1.4; }
+    .ex-name {
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
+
+    .ex-meta {
+      font-size: 12px;
+      color: var(--teal);
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .ex-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
 
     .ex-video {
-      display: inline-flex; align-items: center; gap: 5px;
-      margin-top: 5px; font-size: 12px; color: var(--teal); font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 5px;
+      font-size: 12px;
+      color: var(--teal);
+      font-weight: 600;
       text-decoration: none;
     }
-    .ex-video:hover { text-decoration: underline; }
+
+    .ex-video:hover {
+      text-decoration: underline;
+    }
 
     /* Profile */
     .profile-card {
-      background: #fff; border-radius: 16px; border: 1px solid var(--border);
-      padding: 30px; max-width: 500px;
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 30px;
+      max-width: 500px;
     }
 
-    .profile-top { display: flex; align-items: center; gap: 18px; margin-bottom: 26px; }
+    .profile-top {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 26px;
+    }
 
     .profile-avatar {
-      width: 72px; height: 72px; border-radius: 50%;
-      background: var(--teal); display: flex; align-items: center; justify-content: center;
-      color: #fff; font-size: 26px; font-weight: 700; flex-shrink: 0;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--teal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 26px;
+      font-weight: 700;
+      flex-shrink: 0;
     }
 
-    .profile-pname { font-size: 19px; font-weight: 700; }
-    .profile-uname { color: var(--muted); font-size: 13px; }
+    .profile-pname {
+      font-size: 19px;
+      font-weight: 700;
+    }
 
-    .profile-card .form-group { margin-bottom: 16px; }
+    .profile-uname {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .profile-card .form-group {
+      margin-bottom: 16px;
+    }
 
     .profile-card .form-group label {
-      display: block; font-size: 11px; font-weight: 600;
-      color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 5px;
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      margin-bottom: 5px;
     }
 
     .profile-card .form-group input {
-      width: 100%; padding: 10px 13px; border: 1.5px solid var(--border);
-      border-radius: 10px; font-size: 14px; font-family: inherit; color: var(--text);
-      outline: none; transition: border-color .15s;
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s;
     }
 
-    .profile-card .form-group input:focus { border-color: var(--teal); }
-    .profile-card .form-group input:disabled { background: #f9fafb; color: var(--muted); cursor: not-allowed; }
+    .profile-card .form-group input:focus {
+      border-color: var(--teal);
+    }
+
+    .profile-card .form-group input:disabled {
+      background: #f9fafb;
+      color: var(--muted);
+      cursor: not-allowed;
+    }
 
     .btn-save {
-      background: var(--teal); color: #fff; border: none; border-radius: 10px;
-      padding: 11px 22px; font-size: 14px; font-weight: 600;
-      cursor: pointer; font-family: inherit; transition: background .15s;
+      background: var(--teal);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 11px 22px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .15s;
     }
-    .btn-save:hover { background: var(--teal-dk); }
-    .btn-save:disabled { opacity: .6; cursor: not-allowed; }
+
+    .btn-save:hover {
+      background: var(--teal-dk);
+    }
+
+    .btn-save:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
 
     /* Misc */
-    .empty-state { text-align: center; padding: 56px 24px; color: var(--muted); }
-    .empty-state i { font-size: 44px; color: #ddd; margin-bottom: 14px; display: block; }
-    .empty-state h3 { font-size: 17px; color: var(--text); margin-bottom: 7px; }
-    .empty-state p  { font-size: 13px; line-height: 1.5; }
+    .empty-state {
+      text-align: center;
+      padding: 56px 24px;
+      color: var(--muted);
+    }
 
-    .spinner { text-align: center; padding: 56px 0; color: var(--teal); font-size: 26px; }
+    .empty-state i {
+      font-size: 44px;
+      color: #ddd;
+      margin-bottom: 14px;
+      display: block;
+    }
+
+    .empty-state h3 {
+      font-size: 17px;
+      color: var(--text);
+      margin-bottom: 7px;
+    }
+
+    .empty-state p {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .spinner {
+      text-align: center;
+      padding: 56px 0;
+      color: var(--teal);
+      font-size: 26px;
+    }
 
     .toast {
-      position: fixed; bottom: 24px; right: 24px;
-      padding: 13px 18px; border-radius: 10px;
-      font-size: 13px; font-weight: 600;
-      z-index: 9999; box-shadow: 0 8px 24px rgba(0,0,0,.14);
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 13px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 9999;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .14);
       animation: slideUp .22s ease;
     }
-    .toast-success { background: #d1fae5; color: #065f46; }
-    .toast-error   { background: #fef2f2; color: #dc2626; }
-    @keyframes slideUp { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    .toast-success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .toast-error {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(18px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
 
     .clinic-card {
-      background: var(--teal); border-radius: 14px;
-      padding: 18px 22px; color: #fff; margin-top: 26px;
+      background: var(--teal);
+      border-radius: 14px;
+      padding: 18px 22px;
+      color: #fff;
+      margin-top: 26px;
     }
-    .clinic-card h3 { font-size: 14px; margin-bottom: 9px; opacity: .85; }
-    .clinic-row { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 500; margin-bottom: 5px; }
-    .clinic-row a { color: #fff; text-decoration: none; }
-    .clinic-row a:hover { text-decoration: underline; }
+
+    .clinic-card h3 {
+      font-size: 14px;
+      margin-bottom: 9px;
+      opacity: .85;
+    }
+
+    .clinic-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+
+    .clinic-row a {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .clinic-row a:hover {
+      text-decoration: underline;
+    }
 
     /* Mobile */
     .mob-topbar {
-      display: none; background: var(--sidebar);
-      padding: 13px 18px; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 100;
-    }
-    .mob-topbar img { width: 95px; filter: brightness(0) invert(1); }
-    .mob-menu-btn  { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; }
-    .mob-overlay {
-      display: none; position: fixed; inset: 0; z-index: 200;
-      background: rgba(0,0,0,.55);
-    }
-    .mob-overlay.open { display: block; }
-    .mob-drawer {
-      width: 260px; max-width: 82vw; height: 100%;
+      display: none;
       background: var(--sidebar);
-      display: flex; flex-direction: column; overflow-y: auto;
-      transform: translateX(-100%);
-      transition: transform .26s cubic-bezier(.4,0,.2,1);
-      box-shadow: 4px 0 24px rgba(0,0,0,.35);
+      padding: 13px 18px;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
-    .mob-overlay.open .mob-drawer { transform: translateX(0); }
+
+    .mob-topbar img {
+      width: 95px;
+      filter: brightness(0) invert(1);
+    }
+
+    .mob-menu-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .mob-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0, 0, 0, .55);
+    }
+
+    .mob-overlay.open {
+      display: block;
+    }
+
+    .mob-drawer {
+      width: 260px;
+      max-width: 82vw;
+      height: 100%;
+      background: var(--sidebar);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      transform: translateX(-100%);
+      transition: transform .26s cubic-bezier(.4, 0, .2, 1);
+      box-shadow: 4px 0 24px rgba(0, 0, 0, .35);
+    }
+
+    .mob-overlay.open .mob-drawer {
+      transform: translateX(0);
+    }
 
     @media (max-width: 768px) {
-      #appWrap { flex-direction: column; }
-      .sidebar { display: none; }
-      .main-content { margin-left: 0; width: 100%; }
-      .main-topbar { display: none; }
-      .mob-topbar { display: flex; }
-      .page-body { padding: 20px 16px; }
+      #appWrap {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .main-content {
+        margin-left: 0;
+        width: 100%;
+      }
+
+      .main-topbar {
+        display: none;
+      }
+
+      .mob-topbar {
+        display: flex;
+      }
+
+      .page-body {
+        padding: 20px 16px;
+      }
     }
   </style>
 </head>
+
 <body>
 
-<div id="appWrap">
+  <div id="appWrap">
 
-  <!-- Mobile topbar -->
-  <div class="mob-topbar">
-    <img src="/logos/KINERVANE.png" alt="Kinerva">
-    <button class="mob-menu-btn" onclick="openMobNav()"><i class="fas fa-bars"></i></button>
-  </div>
+    <!-- Mobile topbar -->
+    <div class="mob-topbar">
+      <img src="/logos/KINERVANE.png" alt="Kinerva">
+      <button class="mob-menu-btn" onclick="openMobNav()"><i class="fas fa-bars"></i></button>
+    </div>
 
-  <!-- Mobile drawer overlay -->
-  <div class="mob-overlay" id="mobOverlay" onclick="if(event.target===this)closeMobNav()">
-    <div class="mob-drawer" onclick="event.stopPropagation()" id="mobDrawer"></div>
-  </div>
+    <!-- Mobile drawer overlay -->
+    <div class="mob-overlay" id="mobOverlay" onclick="if(event.target===this)closeMobNav()">
+      <div class="mob-drawer" onclick="event.stopPropagation()" id="mobDrawer"></div>
+    </div>
 
-  <!-- Desktop sidebar -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sb-brand"><img src="/logos/KINERVANE.png" alt="Kinerva"></div>
-    <div class="sb-user">
-      <div class="sb-avatar" id="sbInitials">?</div>
-      <div>
-        <div class="sb-name"  id="sbName">—</div>
-        <div class="sb-uname" id="sbUsername">—</div>
+    <!-- Desktop sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sb-brand"><img src="/logos/KINERVANE.png" alt="Kinerva"></div>
+      <div class="sb-user">
+        <div class="sb-avatar" id="sbInitials">?</div>
+        <div>
+          <div class="sb-name" id="sbName">—</div>
+          <div class="sb-uname" id="sbUsername">—</div>
+        </div>
+      </div>
+      <nav class="sb-nav" id="sbNav">
+        <a data-page="inicio" onclick="goTo('inicio')"><i class="fas fa-home"></i> Inicio</a>
+        <a data-page="perfil" onclick="goTo('perfil')"><i class="fas fa-user-circle"></i> Mi Perfil</a>
+        <a data-page="rutinas" onclick="goTo('rutinas')"><i class="fas fa-dumbbell"></i> Mis Rutinas</a>
+      </nav>
+      <div class="sb-footer">
+        <button class="sb-logout" onclick="signOut()">
+          <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <div class="main-content">
+      <div class="main-topbar">
+        <h2 id="topbarTitle">Inicio</h2>
+      </div>
+      <div class="page-body" id="pageBody">
+        <div class="spinner"><i class="fas fa-circle-notch fa-spin"></i></div>
       </div>
     </div>
-    <nav class="sb-nav" id="sbNav">
-      <a data-page="inicio"  onclick="goTo('inicio')"><i class="fas fa-home"></i> Inicio</a>
-      <a data-page="perfil"  onclick="goTo('perfil')"><i class="fas fa-user-circle"></i> Mi Perfil</a>
-      <a data-page="rutinas" onclick="goTo('rutinas')"><i class="fas fa-dumbbell"></i> Mis Rutinas</a>
-    </nav>
-    <div class="sb-footer">
-      <button class="sb-logout" onclick="signOut()">
-        <i class="fas fa-sign-out-alt"></i> Cerrar sesión
-      </button>
-    </div>
-  </aside>
 
-  <!-- Main content -->
-  <div class="main-content">
-    <div class="main-topbar">
-      <h2 id="topbarTitle">Inicio</h2>
-    </div>
-    <div class="page-body" id="pageBody">
-      <div class="spinner"><i class="fas fa-circle-notch fa-spin"></i></div>
-    </div>
   </div>
 
-</div>
+  <script>
+    'use strict';
 
-<script>
-'use strict';
+    let TOKEN = null;
+    let USER = null;
 
-let TOKEN = null;
-let USER  = null;
-
-/* ── Utils ─────────────────────────────────────────────────── */
-function esc(v) {
-  if (v == null) return '';
-  return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function showToast(msg, type = 'success') {
-  const t = document.createElement('div');
-  t.className = `toast toast-${type}`;
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 3500);
-}
-
-async function apiFetch(method, url, body) {
-  const r = await fetch(url, {
-    method,
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${TOKEN}` },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  return r.json();
-}
-
-function fmtDate(d) {
-  if (!d) return '—';
-  const s = String(d).slice(0,10);
-  const [y,m,day] = s.split('-');
-  return `${day}/${m}/${y}`;
-}
-
-function initials(name) {
-  if (!name) return '?';
-  return name.trim().split(' ').slice(0,2).map(w => w[0]?.toUpperCase() || '').join('');
-}
-
-/* ── Web Push ───────────────────────────────────────────────── */
-const VAPID_PUBLIC_KEY = 'BMNCvn8Wwqi58gd5Wrv8cjztwrJiC0WucfM1pFyLQfkipkD7y-HuuKox1m8dlfZeaHBrkmZ2IhkiuY1wAcV5aXg';
-
-function urlBase64ToUint8Array(b64) {
-  const pad = '='.repeat((4 - b64.length % 4) % 4);
-  const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
-  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
-}
-
-async function subscribeToPush() {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-  if (Notification.permission !== 'granted') return;
-  try {
-    const reg = await navigator.serviceWorker.ready;
-    let sub = await reg.pushManager.getSubscription();
-    if (!sub) {
-      sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-      });
+    /* ── Utils ─────────────────────────────────────────────────── */
+    function esc(v) {
+      if (v == null) return '';
+      return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
-    const p256dh = btoa(String.fromCharCode(...new Uint8Array(sub.getKey('p256dh'))));
-    const auth   = btoa(String.fromCharCode(...new Uint8Array(sub.getKey('auth'))));
-    await apiFetch('POST', '/api/patient/push-subscribe', {
-      endpoint: sub.endpoint,
-      keys: { p256dh, auth },
-    });
-  } catch(e) {
-    console.warn('[push] subscribe failed:', e);
-  }
-}
 
-/* ── Session ────────────────────────────────────────────────── */
-function init() {
-  TOKEN = localStorage.getItem('k_patient_token');
-  const raw = localStorage.getItem('k_patient_user');
-  if (TOKEN && raw) {
-    try {
-      const payload = JSON.parse(atob(TOKEN.split('.')[1]));
-      if (payload.exp * 1000 > Date.now()) {
-        USER = JSON.parse(raw);
-        updateSidebar();
-        goTo('inicio');
-        return;
+    function showToast(msg, type = 'success') {
+      const t = document.createElement('div');
+      t.className = `toast toast-${type}`;
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 3500);
+    }
+
+    async function apiFetch(method, url, body) {
+      const r = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${TOKEN}` },
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      return r.json();
+    }
+
+    function fmtDate(d) {
+      if (!d) return '—';
+      const s = String(d).slice(0, 10);
+      const [y, m, day] = s.split('-');
+      return `${day}/${m}/${y}`;
+    }
+
+    function initials(name) {
+      if (!name) return '?';
+      return name.trim().split(' ').slice(0, 2).map(w => w[0]?.toUpperCase() || '').join('');
+    }
+
+    /* ── Web Push ───────────────────────────────────────────────── */
+    const VAPID_PUBLIC_KEY = 'BMNCvn8Wwqi58gd5Wrv8cjztwrJiC0WucfM1pFyLQfkipkD7y-HuuKox1m8dlfZeaHBrkmZ2IhkiuY1wAcV5aXg';
+
+    function urlBase64ToUint8Array(b64) {
+      const pad = '='.repeat((4 - b64.length % 4) % 4);
+      const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+      return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+    }
+
+    async function subscribeToPush() {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+      if (Notification.permission !== 'granted') return;
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        let sub = await reg.pushManager.getSubscription();
+        if (!sub) {
+          sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+          });
+        }
+        const p256dh = btoa(String.fromCharCode(...new Uint8Array(sub.getKey('p256dh'))));
+        const auth = btoa(String.fromCharCode(...new Uint8Array(sub.getKey('auth'))));
+        await apiFetch('POST', '/api/patient/push-subscribe', {
+          endpoint: sub.endpoint,
+          keys: { p256dh, auth },
+        });
+      } catch (e) {
+        console.warn('[push] subscribe failed:', e);
       }
-    } catch { /* invalid token */ }
-  }
-  // No valid session → redirect to login
-  localStorage.removeItem('k_patient_token');
-  localStorage.removeItem('k_patient_user');
-  window.location.href = '/portal';
-}
+    }
 
-function signOut() {
-  TOKEN = null; USER = null;
-  localStorage.removeItem('k_patient_token');
-  localStorage.removeItem('k_patient_user');
-  window.location.href = '/portal';
-}
+    /* ── Session ────────────────────────────────────────────────── */
+    function init() {
+      TOKEN = localStorage.getItem('k_patient_token');
+      const raw = localStorage.getItem('k_patient_user');
+      if (TOKEN && raw) {
+        try {
+          const payload = JSON.parse(atob(TOKEN.split('.')[1]));
+          if (payload.exp * 1000 > Date.now()) {
+            USER = JSON.parse(raw);
+            updateSidebar();
+            goTo('inicio');
+            return;
+          }
+        } catch { /* invalid token */ }
+      }
+      // No valid session → redirect to login
+      localStorage.removeItem('k_patient_token');
+      localStorage.removeItem('k_patient_user');
+      window.location.href = '/portal';
+    }
 
-/* ── Sidebar ────────────────────────────────────────────────── */
-function updateSidebar() {
-  if (!USER) return;
-  document.getElementById('sbInitials').textContent = initials(USER.name);
-  document.getElementById('sbName').textContent     = USER.name     || '—';
-  document.getElementById('sbUsername').textContent = '@' + (USER.username || '—');
-  syncMobDrawer();
-}
+    function signOut() {
+      TOKEN = null; USER = null;
+      localStorage.removeItem('k_patient_token');
+      localStorage.removeItem('k_patient_user');
+      window.location.href = '/portal';
+    }
 
-function syncMobDrawer() {
-  document.getElementById('mobDrawer').innerHTML =
-    document.getElementById('sidebar').innerHTML;
-  document.querySelectorAll('#mobDrawer [data-page]').forEach(a => {
-    const pg = a.dataset.page;
-    a.onclick = () => { goTo(pg); closeMobNav(); };
-  });
-  const logoutBtn = document.querySelector('#mobDrawer .sb-logout');
-  if (logoutBtn) logoutBtn.onclick = signOut;
-}
+    /* ── Sidebar ────────────────────────────────────────────────── */
+    function updateSidebar() {
+      if (!USER) return;
+      document.getElementById('sbInitials').textContent = initials(USER.name);
+      document.getElementById('sbName').textContent = USER.name || '—';
+      document.getElementById('sbUsername').textContent = '@' + (USER.username || '—');
+      syncMobDrawer();
+    }
 
-function openMobNav() {
-  syncMobDrawer();
-  document.getElementById('mobOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeMobNav() {
-  document.getElementById('mobOverlay').classList.remove('open');
-  document.body.style.overflow = '';
-}
+    function syncMobDrawer() {
+      document.getElementById('mobDrawer').innerHTML =
+        document.getElementById('sidebar').innerHTML;
+      document.querySelectorAll('#mobDrawer [data-page]').forEach(a => {
+        const pg = a.dataset.page;
+        a.onclick = () => { goTo(pg); closeMobNav(); };
+      });
+      const logoutBtn = document.querySelector('#mobDrawer .sb-logout');
+      if (logoutBtn) logoutBtn.onclick = signOut;
+    }
 
-/* ── Navigation ─────────────────────────────────────────────── */
-function goTo(page) {
-  document.querySelectorAll('#sbNav a').forEach(a =>
-    a.classList.toggle('active', a.dataset.page === page)
-  );
-  const titles = { inicio: 'Inicio', perfil: 'Mi Perfil', rutinas: 'Mis Rutinas' };
-  document.getElementById('topbarTitle').textContent = titles[page] || '';
-  document.getElementById('pageBody').innerHTML =
-    '<div class="spinner"><i class="fas fa-circle-notch fa-spin"></i></div>';
-  Pages[page]?.();
-}
+    function openMobNav() {
+      syncMobDrawer();
+      document.getElementById('mobOverlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMobNav() {
+      document.getElementById('mobOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
 
-/* ══════════ PAGES ═══════════════════════════════════════════ */
-const Pages = {
+    /* ── Navigation ─────────────────────────────────────────────── */
+    function goTo(page) {
+      document.querySelectorAll('#sbNav a').forEach(a =>
+        a.classList.toggle('active', a.dataset.page === page)
+      );
+      const titles = { inicio: 'Inicio', perfil: 'Mi Perfil', rutinas: 'Mis Rutinas' };
+      document.getElementById('topbarTitle').textContent = titles[page] || '';
+      document.getElementById('pageBody').innerHTML =
+        '<div class="spinner"><i class="fas fa-circle-notch fa-spin"></i></div>';
+      Pages[page]?.();
+    }
 
-  async inicio() {
-    const body = document.getElementById('pageBody');
-    const data = await apiFetch('GET', '/api/patient/routines');
-    const routines = data?.routines || [];
-    scheduleExerciseNotifications(routines);
-    const active  = routines.filter(r => r.status === 'activa').length;
-    const total   = routines.length;
-    const exCount = routines.reduce((s,r) => s + (r.exercises?.length || 0), 0);
-    const first   = (USER.name || 'Paciente').split(' ')[0];
+    /* ══════════ PAGES ═══════════════════════════════════════════ */
+    const Pages = {
 
-    const notifPerm   = ('Notification' in window) ? Notification.permission : 'unsupported';
-    const notifBanner = notifPerm === 'granted' ? '' : `
+      async inicio() {
+        const body = document.getElementById('pageBody');
+        const data = await apiFetch('GET', '/api/patient/routines');
+        const routines = data?.routines || [];
+        scheduleExerciseNotifications(routines);
+        const active = routines.filter(r => r.status === 'activa').length;
+        const total = routines.length;
+        const exCount = routines.reduce((s, r) => s + (r.exercises?.length || 0), 0);
+        const first = (USER.name || 'Paciente').split(' ')[0];
+
+        const notifPerm = ('Notification' in window) ? Notification.permission : 'unsupported';
+        const notifBanner = notifPerm === 'granted' ? '' : `
       <div id="notifBanner" style="display:flex;align-items:center;gap:12px;background:#f0fffe;border:1px solid #00BDB4;border-radius:10px;padding:12px 16px;margin-bottom:18px;flex-wrap:wrap">
         <i class="fas fa-bell" style="color:#00BDB4;font-size:18px;flex-shrink:0"></i>
         <span style="font-size:13px;color:#1a2533;flex:1;min-width:180px">
           ${notifPerm === 'denied'
             ? '<strong>Notificaciones bloqueadas.</strong> Ve a Configuración del navegador → Permisos del sitio → Notificaciones y permite este sitio.'
-            : 'Activa las notificaciones para recibir recordatorios <strong>5 minutos antes</strong> de cada ejercicio, aunque tengas la app cerrada.'}
+            : 'Activa las notificaciones para recibir notificaciones.'}
         </span>
         ${notifPerm !== 'denied' ? `
         <button onclick="enableNotifications()"
@@ -516,7 +900,7 @@ const Pages = {
           style="background:none;border:none;color:#aaa;cursor:pointer;font-size:18px;padding:0;line-height:1;flex-shrink:0">✕</button>
       </div>`;
 
-    body.innerHTML = `
+        body.innerHTML = `
       ${notifBanner}
       <p class="welcome-greeting">Hola, ${esc(first)} 👋</p>
       <p class="welcome-sub">Bienvenido a tu portal de salud Kinerva</p>
@@ -543,14 +927,14 @@ const Pages = {
         <div class="clinic-row"><i class="fas fa-envelope"></i><a href="mailto:contacto@kinervafisioterapia.com">contacto@kinervafisioterapia.com</a></div>
         <div class="clinic-row"><i class="fas fa-clock"></i> Lun–Vie 8:00–22:00 · Sáb 9:00–14:00</div>
       </div>`;
-  },
+      },
 
-  async perfil() {
-    const body = document.getElementById('pageBody');
-    const data = await apiFetch('GET', '/api/patient/me');
-    const u = data?.user || USER;
+      async perfil() {
+        const body = document.getElementById('pageBody');
+        const data = await apiFetch('GET', '/api/patient/me');
+        const u = data?.user || USER;
 
-    body.innerHTML = `
+        body.innerHTML = `
       <div class="profile-card">
         <div class="profile-top">
           <div class="profile-avatar">${initials(u.name)}</div>
@@ -580,60 +964,60 @@ const Pages = {
       </div>
       <p style="color:var(--muted);font-size:12px;margin-top:14px">Paciente desde ${fmtDate(u.created_at)}</p>`;
 
-    document.getElementById('profileForm').addEventListener('submit', async e => {
-      e.preventDefault();
-      const f = e.target;
-      const btn = document.getElementById('saveBtn');
-      btn.disabled = true; btn.textContent = 'Guardando…';
-      const r = await apiFetch('PATCH', '/api/patient/me', {
-        name:       f.name.value.trim()  || null,
-        phone:      f.phone.value.trim() || null,
-        birth_date: f.birth_date.value   || null,
-      });
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-save"></i> Guardar cambios';
-      if (r?.success) {
-        USER = r.user;
-        localStorage.setItem('k_patient_user', JSON.stringify(USER));
-        updateSidebar();
-        showToast('Perfil actualizado');
-      } else {
-        showToast(r?.message || 'Error al guardar', 'error');
-      }
-    });
-  },
+        document.getElementById('profileForm').addEventListener('submit', async e => {
+          e.preventDefault();
+          const f = e.target;
+          const btn = document.getElementById('saveBtn');
+          btn.disabled = true; btn.textContent = 'Guardando…';
+          const r = await apiFetch('PATCH', '/api/patient/me', {
+            name: f.name.value.trim() || null,
+            phone: f.phone.value.trim() || null,
+            birth_date: f.birth_date.value || null,
+          });
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-save"></i> Guardar cambios';
+          if (r?.success) {
+            USER = r.user;
+            localStorage.setItem('k_patient_user', JSON.stringify(USER));
+            updateSidebar();
+            showToast('Perfil actualizado');
+          } else {
+            showToast(r?.message || 'Error al guardar', 'error');
+          }
+        });
+      },
 
-  async rutinas() {
-    const body = document.getElementById('pageBody');
-    const data = await apiFetch('GET', '/api/patient/routines');
-    const routines = data?.routines || [];
+      async rutinas() {
+        const body = document.getElementById('pageBody');
+        const data = await apiFetch('GET', '/api/patient/routines');
+        const routines = data?.routines || [];
 
-    if (!routines.length) {
-      body.innerHTML = `
+        if (!routines.length) {
+          body.innerHTML = `
         <div class="empty-state">
           <i class="fas fa-dumbbell"></i>
           <h3>Sin rutinas asignadas</h3>
           <p>Tu fisioterapeuta te asignará rutinas personalizadas. Contáctanos si tienes preguntas.</p>
         </div>`;
-      return;
-    }
+          return;
+        }
 
-    body.innerHTML = `
+        body.innerHTML = `
       <p class="section-title">${routines.length} rutina${routines.length !== 1 ? 's' : ''} asignada${routines.length !== 1 ? 's' : ''}</p>
       ${routines.map(r => renderRoutineCard(r)).join('')}`;
-  },
-};
+      },
+    };
 
-/* ── Render helpers ─────────────────────────────────────────── */
-function renderRoutineCard(r, open = false) {
-  const sMap = {
-    activa:     ['Activa',     's-activa'],
-    pausada:    ['Pausada',    's-pausada'],
-    completada: ['Completada', 's-completada'],
-  };
-  const [label, cls] = sMap[r.status] || ['Activa', 's-activa'];
+    /* ── Render helpers ─────────────────────────────────────────── */
+    function renderRoutineCard(r, open = false) {
+      const sMap = {
+        activa: ['Activa', 's-activa'],
+        pausada: ['Pausada', 's-pausada'],
+        completada: ['Completada', 's-completada'],
+      };
+      const [label, cls] = sMap[r.status] || ['Activa', 's-activa'];
 
-  return `
+      return `
     <div class="routine-card${open ? ' open' : ''}">
       <div class="routine-header" onclick="this.parentElement.classList.toggle('open')">
         <div class="routine-icon"><i class="fas fa-clipboard-list"></i></div>
@@ -648,28 +1032,28 @@ function renderRoutineCard(r, open = false) {
         ${r.description ? `<p class="routine-desc">${esc(r.description)}</p>` : ''}
         <div class="exercises-list">
           ${(r.exercises || []).length
-            ? r.exercises.map(renderExercise).join('')
-            : '<p style="color:var(--muted);font-size:13px;margin-top:8px">Sin ejercicios aún.</p>'}
+          ? r.exercises.map(renderExercise).join('')
+          : '<p style="color:var(--muted);font-size:13px;margin-top:8px">Sin ejercicios aún.</p>'}
         </div>
       </div>
     </div>`;
-}
+    }
 
-function renderExercise(ex) {
-  const parts = [];
-  if (ex.sets && ex.reps) parts.push(`${ex.sets} series × ${ex.reps} repeticiones`);
-  else if (ex.sets)       parts.push(`${ex.sets} series`);
-  if (ex.duration_seconds) parts.push(`${ex.duration_seconds} seg`);
+    function renderExercise(ex) {
+      const parts = [];
+      if (ex.sets && ex.reps) parts.push(`${ex.sets} series × ${ex.reps} repeticiones`);
+      else if (ex.sets) parts.push(`${ex.sets} series`);
+      if (ex.duration_seconds) parts.push(`${ex.duration_seconds} seg`);
 
-  let timesHtml = '';
-  if (ex.schedule_times) {
-    try {
-      const times = JSON.parse(ex.schedule_times);
-      if (times.length) timesHtml = `<div style="font-size:12px;color:#00BDB4;margin-top:4px"><i class="fas fa-clock me-1"></i>${times.join(' · ')}</div>`;
-    } catch(_) {}
-  }
+      let timesHtml = '';
+      if (ex.schedule_times) {
+        try {
+          const times = JSON.parse(ex.schedule_times);
+          if (times.length) timesHtml = `<div style="font-size:12px;color:#00BDB4;margin-top:4px"><i class="fas fa-clock me-1"></i>${times.join(' · ')}</div>`;
+        } catch (_) { }
+      }
 
-  return `
+      return `
     <div class="exercise-item">
       <div class="ex-icon"><i class="fas fa-dumbbell"></i></div>
       <div>
@@ -680,78 +1064,79 @@ function renderExercise(ex) {
         ${ex.video_url ? `<a href="${esc(ex.video_url)}" target="_blank" rel="noopener" class="ex-video"><i class="fas fa-play-circle"></i> Ver video</a>` : ''}
       </div>
     </div>`;
-}
+    }
 
-/* ── Notificaciones de ejercicio ──────────────────────────── */
-async function enableNotifications() {
-  const banner = document.getElementById('notifBanner');
-  if (!('Notification' in window)) {
-    if (banner) banner.innerHTML = `<span style="font-size:13px;color:#666"><i class="fas fa-info-circle me-1"></i>Tu navegador no soporta notificaciones. Instala la app desde Safari para activarlas.</span>`;
-    return;
-  }
-  let perm = Notification.permission;
-  if (perm === 'default') {
-    perm = await Notification.requestPermission();
-  }
-  if (perm === 'granted') {
-    if (banner) banner.style.display = 'none';
-    subscribeToPush();
-    // Mostrar confirmación breve
-    const body = document.getElementById('pageBody');
-    const toast = document.createElement('div');
-    toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#00BDB4;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.2)';
-    toast.textContent = '🔔 Notificaciones activadas';
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-  } else if (perm === 'denied') {
-    if (banner) banner.innerHTML = `
+    /* ── Notificaciones de ejercicio ──────────────────────────── */
+    async function enableNotifications() {
+      const banner = document.getElementById('notifBanner');
+      if (!('Notification' in window)) {
+        if (banner) banner.innerHTML = `<span style="font-size:13px;color:#666"><i class="fas fa-info-circle me-1"></i>Tu navegador no soporta notificaciones. Instala la app desde Safari para activarlas.</span>`;
+        return;
+      }
+      let perm = Notification.permission;
+      if (perm === 'default') {
+        perm = await Notification.requestPermission();
+      }
+      if (perm === 'granted') {
+        if (banner) banner.style.display = 'none';
+        subscribeToPush();
+        // Mostrar confirmación breve
+        const body = document.getElementById('pageBody');
+        const toast = document.createElement('div');
+        toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#00BDB4;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.2)';
+        toast.textContent = '🔔 Notificaciones activadas';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+      } else if (perm === 'denied') {
+        if (banner) banner.innerHTML = `
       <i class="fas fa-bell-slash" style="color:#dc3545"></i>
       <span style="font-size:13px;flex:1">Notificaciones bloqueadas. Para activarlas ve a <strong>Configuración del navegador → Permisos del sitio → Notificaciones</strong> y permite este sitio.</span>
       <button onclick="document.getElementById('notifBanner').style.display='none'" style="background:none;border:none;color:#999;cursor:pointer;font-size:16px;padding:0">✕</button>`;
-  }
-}
+      }
+    }
 
-function scheduleExerciseNotifications(routines) {
-  if (!('Notification' in window) || Notification.permission !== 'granted') return;
-  const now = Date.now();
-  for (const r of (routines || [])) {
-    const active = (r.status || '').toLowerCase() === 'activa';
-    if (!active) continue;
-    for (const ex of (r.exercises || [])) {
-      if (!ex.schedule_times) continue;
-      let times;
-      try { times = JSON.parse(ex.schedule_times); } catch { continue; }
-      for (const t of times) {
-        const [h, m] = t.split(':').map(Number);
-        const exTime = new Date();
-        exTime.setHours(h, m, 0, 0);
-        const delay = exTime.getTime() - 5 * 60 * 1000 - now;
-        if (delay > 0 && delay < 24 * 60 * 60 * 1000) {
-          setTimeout(async () => {
-            const title = '⏰ Ejercicio en 5 minutos';
-            const opts  = {
-              body: `${ex.name}${r.title ? '  ·  ' + r.title : ''}`,
-              icon: '/icons/icon.svg',
-              badge: '/icons/icon.svg',
-              tag: `ex-${ex.id}-${t}`,
-            };
-            try {
-              const reg = await navigator.serviceWorker?.ready;
-              if (reg?.showNotification) { await reg.showNotification(title, opts); return; }
-            } catch(_) {}
-            try { new Notification(title, opts); } catch(_) {}
-          }, delay);
+    function scheduleExerciseNotifications(routines) {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+      const now = Date.now();
+      for (const r of (routines || [])) {
+        const active = (r.status || '').toLowerCase() === 'activa';
+        if (!active) continue;
+        for (const ex of (r.exercises || [])) {
+          if (!ex.schedule_times) continue;
+          let times;
+          try { times = JSON.parse(ex.schedule_times); } catch { continue; }
+          for (const t of times) {
+            const [h, m] = t.split(':').map(Number);
+            const exTime = new Date();
+            exTime.setHours(h, m, 0, 0);
+            const delay = exTime.getTime() - 5 * 60 * 1000 - now;
+            if (delay > 0 && delay < 24 * 60 * 60 * 1000) {
+              setTimeout(async () => {
+                const title = '⏰ Ejercicio en 5 minutos';
+                const opts = {
+                  body: `${ex.name}${r.title ? '  ·  ' + r.title : ''}`,
+                  icon: '/icons/icon.svg',
+                  badge: '/icons/icon.svg',
+                  tag: `ex-${ex.id}-${t}`,
+                };
+                try {
+                  const reg = await navigator.serviceWorker?.ready;
+                  if (reg?.showNotification) { await reg.showNotification(title, opts); return; }
+                } catch (_) { }
+                try { new Notification(title, opts); } catch (_) { }
+              }, delay);
+            }
+          }
         }
       }
     }
-  }
-}
 
-init();
+    init();
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').catch(() => {});
-}
-</script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => { });
+    }
+  </script>
 </body>
+
 </html>
