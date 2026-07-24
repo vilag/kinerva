@@ -29,6 +29,7 @@ const routes = {
   '/api/patient/me':              './api/patient/me',
   '/api/patient/routines':        './api/patient/routines',
   '/api/patient/push-subscribe':  './api/patient/push-subscribe',
+  '/api/patient/push-test':       './api/patient/push-test',
 };
 
 for (const [route, file] of Object.entries(routes)) {
