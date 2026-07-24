@@ -426,7 +426,6 @@ function init() {
         USER = JSON.parse(raw);
         updateSidebar();
         goTo('inicio');
-        requestNotifPermission();
         return;
       }
     } catch { /* invalid token */ }
@@ -499,7 +498,26 @@ const Pages = {
     const exCount = routines.reduce((s,r) => s + (r.exercises?.length || 0), 0);
     const first   = (USER.name || 'Paciente').split(' ')[0];
 
+    const notifPerm   = ('Notification' in window) ? Notification.permission : 'unsupported';
+    const notifBanner = notifPerm === 'granted' ? '' : `
+      <div id="notifBanner" style="display:flex;align-items:center;gap:12px;background:#f0fffe;border:1px solid #00BDB4;border-radius:10px;padding:12px 16px;margin-bottom:18px;flex-wrap:wrap">
+        <i class="fas fa-bell" style="color:#00BDB4;font-size:18px;flex-shrink:0"></i>
+        <span style="font-size:13px;color:#1a2533;flex:1;min-width:180px">
+          ${notifPerm === 'denied'
+            ? '<strong>Notificaciones bloqueadas.</strong> Ve a Configuración del navegador → Permisos del sitio → Notificaciones y permite este sitio.'
+            : 'Activa las notificaciones para recibir recordatorios <strong>5 minutos antes</strong> de cada ejercicio, aunque tengas la app cerrada.'}
+        </span>
+        ${notifPerm !== 'denied' ? `
+        <button onclick="enableNotifications()"
+          style="background:#00BDB4;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">
+          <i class="fas fa-bell me-1"></i>Activar notificaciones
+        </button>` : ''}
+        <button onclick="document.getElementById('notifBanner').style.display='none'"
+          style="background:none;border:none;color:#aaa;cursor:pointer;font-size:18px;padding:0;line-height:1;flex-shrink:0">✕</button>
+      </div>`;
+
     body.innerHTML = `
+      ${notifBanner}
       <p class="welcome-greeting">Hola, ${esc(first)} 👋</p>
       <p class="welcome-sub">Bienvenido a tu portal de salud Kinerva</p>
 
@@ -665,13 +683,31 @@ function renderExercise(ex) {
 }
 
 /* ── Notificaciones de ejercicio ──────────────────────────── */
-async function requestNotifPermission() {
-  if (!('Notification' in window)) return;
-  if (Notification.permission === 'default') {
-    try { await Notification.requestPermission(); } catch(_) {}
+async function enableNotifications() {
+  const banner = document.getElementById('notifBanner');
+  if (!('Notification' in window)) {
+    if (banner) banner.innerHTML = `<span style="font-size:13px;color:#666"><i class="fas fa-info-circle me-1"></i>Tu navegador no soporta notificaciones. Instala la app desde Safari para activarlas.</span>`;
+    return;
   }
-  if (Notification.permission === 'granted') {
-    subscribeToPush(); // registra en servidor para push en background
+  let perm = Notification.permission;
+  if (perm === 'default') {
+    perm = await Notification.requestPermission();
+  }
+  if (perm === 'granted') {
+    if (banner) banner.style.display = 'none';
+    subscribeToPush();
+    // Mostrar confirmación breve
+    const body = document.getElementById('pageBody');
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#00BDB4;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.2)';
+    toast.textContent = '🔔 Notificaciones activadas';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  } else if (perm === 'denied') {
+    if (banner) banner.innerHTML = `
+      <i class="fas fa-bell-slash" style="color:#dc3545"></i>
+      <span style="font-size:13px;flex:1">Notificaciones bloqueadas. Para activarlas ve a <strong>Configuración del navegador → Permisos del sitio → Notificaciones</strong> y permite este sitio.</span>
+      <button onclick="document.getElementById('notifBanner').style.display='none'" style="background:none;border:none;color:#999;cursor:pointer;font-size:16px;padding:0">✕</button>`;
   }
 }
 
