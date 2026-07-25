@@ -292,7 +292,7 @@
         } else if (d.type === 'therapist') {
           localStorage.setItem('k_fisio_token', d.token);
           localStorage.setItem('k_fisio_user', JSON.stringify(d.user));
-          window.location.replace('/fisio');
+          window.location.replace('/admin');
 
         } else if (d.type === 'patient') {
           localStorage.setItem('k_patient_token', d.token);
@@ -312,7 +312,7 @@
     (function checkExisting() {
       const checks = [
         { key: 'kinerva_token', url: '/admin' },
-        { key: 'k_fisio_token', url: '/fisio' },
+        { key: 'k_fisio_token', url: '/admin' },
         { key: 'k_patient_token', url: '/paciente' },
       ];
       for (const { key, url } of checks) {

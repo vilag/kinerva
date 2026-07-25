@@ -52,6 +52,9 @@ function showToastGlobal(msg, type = 'info') {
 const App = {
   token: localStorage.getItem('kinerva_token'),
   user:  localStorage.getItem('kinerva_user'),
+  therapistToken: localStorage.getItem('k_fisio_token'),
+  therapistUser: (() => { try { return JSON.parse(localStorage.getItem('k_fisio_user') || 'null'); } catch { return null; } })(),
+  role: null,
   // per-view filter state
   apptFilters:   {},
   patientSearch: '',
@@ -87,6 +90,30 @@ const App = {
   put:  (path, body) => App.api('PUT',   path, body),
   patch:(path, body) => App.api('PATCH', path, body),
 
+  async therapistApi(method, path, body) {
+    const opts = {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(App.therapistToken ? { Authorization: `Bearer ${App.therapistToken}` } : {}),
+      },
+    };
+    if (body) opts.body = JSON.stringify(body);
+    try {
+      const res  = await fetch('/api/therapist' + path, opts);
+      if (res.status === 401) { App.logout(); return null; }
+      const text = await res.text();
+      try { return JSON.parse(text); }
+      catch { console.error('Therapist API non-JSON:', text.slice(0, 120)); return null; }
+    } catch (e) {
+      console.error('Therapist API error', e);
+      return null;
+    }
+  },
+  fisioGet:  (path)       => App.therapistApi('GET',  path, null),
+  fisioPut:  (path, body) => App.therapistApi('PUT',  path, body),
+  fisioPost: (path, body) => App.therapistApi('POST', path, body),
+
   /* ── Auth helpers ────────────────────────────────────────── */
   setAuth(token, username) {
     App.token = token;
@@ -96,28 +123,56 @@ const App = {
   },
 
   logout() {
-    App.token = null;
-    App.user  = null;
-    localStorage.removeItem('kinerva_token');
-    localStorage.removeItem('kinerva_user');
+    if (App.role === 'therapist') {
+      App.therapistToken = null;
+      App.therapistUser  = null;
+      localStorage.removeItem('k_fisio_token');
+      localStorage.removeItem('k_fisio_user');
+    } else {
+      App.token = null;
+      App.user  = null;
+      localStorage.removeItem('kinerva_token');
+      localStorage.removeItem('kinerva_user');
+    }
+    App.role = null;
     window.location.href = '/portal';
   },
 
   isValid() {
-    if (!App.token) return false;
-    try {
-      const payload = JSON.parse(atob(App.token.split('.')[1]));
-      return payload.exp * 1000 > Date.now();
-    } catch { return false; }
+    if (App.token) {
+      try {
+        const p = JSON.parse(atob(App.token.split('.')[1]));
+        if (p.exp * 1000 > Date.now()) { App.role = 'admin'; return true; }
+      } catch { /* invalid */ }
+    }
+    if (App.therapistToken) {
+      try {
+        const p = JSON.parse(atob(App.therapistToken.split('.')[1]));
+        if (p.exp * 1000 > Date.now()) { App.role = 'therapist'; return true; }
+      } catch { /* invalid */ }
+    }
+    return false;
   },
 
   /* ── Navigation ──────────────────────────────────────────── */
   go(hash) { window.location.hash = hash; },
 
   route() {
-    const raw  = window.location.hash.slice(1) || 'dashboard';
+    const raw  = window.location.hash.slice(1) || (App.role === 'therapist' ? 'mi-perfil' : 'dashboard');
     const parts = raw.split('/');
     const page  = parts[0];
+
+    // Fisioterapeuta: solo puede acceder a su perfil
+    if (App.role === 'therapist') {
+      if (page !== 'mi-perfil') { App.go('mi-perfil'); return; }
+      document.querySelectorAll('.ak-nav a').forEach(a =>
+        a.classList.toggle('active', a.getAttribute('href')?.slice(1) === 'mi-perfil'));
+      const content = document.getElementById('pageContent');
+      document.getElementById('pageTitle').textContent = 'Mi Perfil';
+      content.innerHTML = spin();
+      Views.miPerfil(content);
+      return;
+    }
 
     // Update sidebar active state
     document.querySelectorAll('.ak-nav a').forEach(a => {
@@ -195,10 +250,18 @@ const App = {
   showPanel() {
     document.getElementById('authScreen').style.display = 'none';
     document.getElementById('adminPanel').style.display = '';
-    document.getElementById('userLabel').textContent = App.user || '';
     document.getElementById('topDate').textContent =
       new Date().toLocaleDateString('es-MX', { weekday:'long', day:'numeric', month:'long' });
     document.getElementById('logoutBtn').onclick = e => { e.preventDefault(); App.logout(); };
+
+    if (App.role === 'therapist') {
+      const name = App.therapistUser?.name || App.therapistUser?.username || '';
+      document.getElementById('userLabel').textContent = name;
+      document.querySelector('.ak-nav').innerHTML =
+        '<a href="#mi-perfil"><i class="fas fa-user-circle"></i> Mi Perfil</a>';
+    } else {
+      document.getElementById('userLabel').textContent = App.user || '';
+    }
 
     // Sidebar SPA links
     document.querySelectorAll('.ak-nav a').forEach(a => {
@@ -217,7 +280,10 @@ const App = {
       App.showPanel();
     } else {
       App.token = null;
+      App.therapistToken = null;
+      App.role = null;
       localStorage.removeItem('kinerva_token');
+      localStorage.removeItem('k_fisio_token');
       try {
         const data = await fetch('/api/admin/auth').then(r => r.json());
         if (!data.hasAdmins) {
@@ -4072,6 +4138,216 @@ const Views = {
     } else {
       showToastGlobal('Error al eliminar', 'danger');
     }
+  },
+
+  /* ══ Mi Perfil (Fisioterapeuta) ══════════════════════════════════════ */
+  async miPerfil(content) {
+    const data = await App.fisioGet('/me');
+    if (!data?.success) {
+      content.innerHTML = '<div class="alert alert-danger m-3">Error al cargar perfil. Por favor recarga la página.</div>';
+      return;
+    }
+    const u = data.user;
+    App.therapistUser = { ...App.therapistUser, ...u };
+    localStorage.setItem('k_fisio_user', JSON.stringify(App.therapistUser));
+    document.getElementById('userLabel').textContent = u.name || u.username;
+
+    function initials(name) {
+      return (name || '?').split(' ').slice(0, 2).map(w => w[0]?.toUpperCase() || '').join('');
+    }
+
+    const avatarHtml = u.photo_path
+      ? `<img src="${esc(u.photo_path)}?t=${Date.now()}" style="width:88px;height:88px;border-radius:50%;object-fit:cover;border:3px solid var(--ak-teal)" alt="Foto">`
+      : `<div style="width:88px;height:88px;border-radius:50%;background:var(--ak-teal);color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;border:3px solid var(--ak-teal)">${initials(u.name)}</div>`;
+
+    content.innerHTML = `
+      <input type="file" id="fisioPhotoInput" accept="image/jpeg,image/png,image/webp" style="display:none">
+
+      <div class="ak-card mb-3">
+        <div class="ak-card-body d-flex align-items-center gap-4 flex-wrap" style="padding:24px">
+          <div id="fisioAvatarWrap" style="position:relative;flex-shrink:0">
+            ${avatarHtml}
+            <button onclick="document.getElementById('fisioPhotoInput').click()"
+              style="position:absolute;bottom:2px;right:2px;width:28px;height:28px;border-radius:50%;background:var(--ak-teal);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.2);font-size:11px"
+              title="Cambiar foto"><i class="fas fa-camera"></i></button>
+          </div>
+          <div>
+            <h4 class="mb-1 fw-bold">${esc(u.name)}</h4>
+            ${u.specialty ? `<div style="color:var(--ak-teal);font-size:13px;font-weight:600">${esc(u.specialty)}</div>` : ''}
+            <div class="text-muted" style="font-size:13px">@${esc(u.username)}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ak-card mb-3">
+        <div class="ak-card-head"><h6><i class="fas fa-user-edit me-2" style="color:var(--ak-teal)"></i>Información de perfil</h6></div>
+        <div class="ak-card-body" style="padding:24px">
+          <div id="profileAlert"></div>
+          <form id="fisioProfileForm">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-semibold" style="font-size:12px;text-transform:uppercase;letter-spacing:.4px">Nombre completo</label>
+                <input type="text" name="name" class="form-control" value="${esc(u.name)}" maxlength="150" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold" style="font-size:12px;text-transform:uppercase;letter-spacing:.4px">Correo electrónico</label>
+                <input type="email" name="email" class="form-control" value="${esc(u.email || '')}" maxlength="120">
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold" style="font-size:12px;text-transform:uppercase;letter-spacing:.4px">Teléfono</label>
+                <input type="tel" name="phone" class="form-control" value="${esc(u.phone || '')}" maxlength="30">
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold" style="font-size:12px;text-transform:uppercase;letter-spacing:.4px">Especialidad</label>
+                <input type="text" name="specialty" class="form-control" value="${esc(u.specialty || '')}" maxlength="120" placeholder="Ej. Fisioterapia deportiva, Neurológica…">
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold" style="font-size:12px;text-transform:uppercase;letter-spacing:.4px">Acerca de ti / Biografía</label>
+                <textarea name="bio" class="form-control" rows="4" maxlength="1000" placeholder="Describe tu experiencia, certificaciones, enfoque de tratamiento…">${esc(u.bio || '')}</textarea>
+              </div>
+            </div>
+            <div class="d-flex justify-content-end mt-3">
+              <button type="submit" class="btn btn-ak" id="fisioProfileSaveBtn">
+                <i class="fas fa-save me-1"></i>Guardar cambios
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="ak-card mb-3">
+        <div class="ak-card-head"><h6><i class="fas fa-lock me-2" style="color:var(--ak-teal)"></i>Cambiar contraseña</h6></div>
+        <div class="ak-card-body" style="padding:24px">
+          <div id="passAlert"></div>
+          <form id="fisioPassForm">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-semibold" style="font-size:12px;text-transform:uppercase;letter-spacing:.4px">Contraseña actual</label>
+                <input type="password" name="currentPassword" class="form-control" maxlength="128" autocomplete="current-password">
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold" style="font-size:12px;text-transform:uppercase;letter-spacing:.4px">Nueva contraseña</label>
+                <input type="password" name="newPassword" class="form-control" maxlength="128" autocomplete="new-password"
+                  oninput="Views.checkPassStrength(this.value, 'fisioPassReq')">
+                <div id="fisioPassReq" class="form-text mt-1">Mín. 8 · 1 mayúscula · 1 número · 1 especial</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold" style="font-size:12px;text-transform:uppercase;letter-spacing:.4px">Confirmar nueva contraseña</label>
+                <input type="password" name="confirmPassword" class="form-control" maxlength="128" autocomplete="new-password">
+              </div>
+            </div>
+            <div class="d-flex justify-content-end mt-3">
+              <button type="submit" class="btn btn-ak" id="fisioPassSaveBtn">
+                <i class="fas fa-key me-1"></i>Actualizar contraseña
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>`;
+
+    // Photo upload
+    document.getElementById('fisioPhotoInput').addEventListener('change', async function() {
+      const file = this.files[0];
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) { showToastGlobal('La imagen no puede superar 2 MB', 'warning'); return; }
+      const reader = new FileReader();
+      reader.onload = async e => {
+        const res = await App.fisioPost('/photo', { image: e.target.result });
+        if (res?.success) {
+          App.therapistUser = { ...App.therapistUser, photo_path: res.photo_path };
+          localStorage.setItem('k_fisio_user', JSON.stringify(App.therapistUser));
+          const wrap = document.getElementById('fisioAvatarWrap');
+          if (wrap) {
+            const btn = wrap.querySelector('button');
+            wrap.innerHTML = `<img src="${esc(res.photo_path)}?t=${Date.now()}" style="width:88px;height:88px;border-radius:50%;object-fit:cover;border:3px solid var(--ak-teal)" alt="Foto">`;
+            if (btn) wrap.appendChild(btn);
+          }
+          showToastGlobal('Foto actualizada', 'success');
+        } else {
+          showToastGlobal(res?.error || 'Error al subir foto', 'danger');
+        }
+      };
+      reader.readAsDataURL(file);
+      this.value = '';
+    });
+
+    // Save profile
+    document.getElementById('fisioProfileForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn   = document.getElementById('fisioProfileSaveBtn');
+      const alertEl = document.getElementById('profileAlert');
+      const fd    = new FormData(e.target);
+      alertEl.innerHTML = '';
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
+      const res = await App.fisioPut('/me', {
+        name:      fd.get('name'),
+        email:     fd.get('email'),
+        phone:     fd.get('phone'),
+        specialty: fd.get('specialty'),
+        bio:       fd.get('bio'),
+      });
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar cambios';
+      if (res?.success) {
+        App.therapistUser = { ...App.therapistUser, ...res.user };
+        localStorage.setItem('k_fisio_user', JSON.stringify(App.therapistUser));
+        document.getElementById('userLabel').textContent = res.user.name;
+        showToastGlobal('Perfil actualizado correctamente', 'success');
+      } else {
+        alertEl.innerHTML = `<div class="alert alert-danger">${esc(res?.error || 'Error al guardar')}</div>`;
+      }
+    });
+
+    // Change password
+    document.getElementById('fisioPassForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn   = document.getElementById('fisioPassSaveBtn');
+      const alertEl = document.getElementById('passAlert');
+      const fd    = new FormData(e.target);
+      const np    = fd.get('newPassword');
+      const cp2   = fd.get('confirmPassword');
+      alertEl.innerHTML = '';
+      if (!fd.get('currentPassword') || !np) {
+        alertEl.innerHTML = '<div class="alert alert-danger">Completa todos los campos de contraseña.</div>';
+        return;
+      }
+      if (np !== cp2) {
+        alertEl.innerHTML = '<div class="alert alert-danger">Las contraseñas nuevas no coinciden.</div>';
+        return;
+      }
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Actualizando…';
+      const res = await App.fisioPut('/me', {
+        name:            App.therapistUser?.name || '',
+        currentPassword: fd.get('currentPassword'),
+        newPassword:     np,
+      });
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-key me-1"></i>Actualizar contraseña';
+      if (res?.success) {
+        e.target.reset();
+        const req = document.getElementById('fisioPassReq');
+        if (req) { req.textContent = 'Mín. 8 · 1 mayúscula · 1 número · 1 especial'; req.style.color = ''; }
+        showToastGlobal('Contraseña actualizada correctamente', 'success');
+      } else {
+        alertEl.innerHTML = `<div class="alert alert-danger">${esc(res?.error || 'Error al actualizar')}</div>`;
+      }
+    });
+  },
+
+  checkPassStrength(val, reqId) {
+    const el = document.getElementById(reqId);
+    if (!el) return;
+    if (!val) { el.textContent = 'Mín. 8 · 1 mayúscula · 1 número · 1 especial'; el.style.color = ''; return; }
+    const ok = val.length >= 8 && /[A-Z]/.test(val) && /[0-9]/.test(val) && /[^A-Za-z0-9]/.test(val);
+    const issues = [];
+    if (val.length < 8)            issues.push('8 caracteres');
+    if (!/[A-Z]/.test(val))        issues.push('1 mayúscula');
+    if (!/[0-9]/.test(val))        issues.push('1 número');
+    if (!/[^A-Za-z0-9]/.test(val)) issues.push('1 especial');
+    el.textContent = ok ? '✓ Contraseña segura' : 'Falta: ' + issues.join(' · ');
+    el.style.color = ok ? 'var(--ak-teal)' : '#dc3545';
   },
 
 };
