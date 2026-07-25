@@ -611,7 +611,7 @@
     }
     localStorage.removeItem('k_fisio_token');
     localStorage.removeItem('k_fisio_user');
-    document.getElementById('loginScreen').style.display = 'flex';
+    window.location.replace('/portal');
   }
 
   init();

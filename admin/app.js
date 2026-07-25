@@ -281,11 +281,8 @@ function bindSetup() {
     const msg = document.getElementById('setupMsg');
     if (res.success) {
       msg.className = 'alert alert-success py-2 px-3';
-      msg.innerHTML = '✓ Administrador creado. <a href="#" id="goLogin">Iniciar sesión →</a>';
+      msg.innerHTML = '✓ Administrador creado. <a href="/portal">Iniciar sesión →</a>';
       msg.style.display = '';
-      document.getElementById('goLogin')?.addEventListener('click', e => {
-        e.preventDefault(); App.showAuth('login');
-      });
     } else {
       msg.className = 'alert alert-danger py-2 px-3';
       msg.textContent = res.message;

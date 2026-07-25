@@ -30,6 +30,7 @@ const routes = {
   '/api/therapist/me':          './api/therapist/me',
   '/api/therapist/photo':       './api/therapist/photo',
   '/api/prospects':             './api/prospects',
+  '/api/auth/login':            './api/auth/login',
   '/api/auth/patient':          './api/auth/patient',
   '/api/patient/me':              './api/patient/me',
   '/api/patient/routines':        './api/patient/routines',

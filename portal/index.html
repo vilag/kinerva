@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal | Kinerva Fisioterapia</title>
+  <title>Acceso | Kinerva Fisioterapia</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#00BDB4">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -46,7 +46,7 @@
     .login-logo {
       display: block;
       width: 130px;
-      margin: 0 auto 20px;
+      margin: 0 auto 10px;
       filter: brightness(0) saturate(100%) invert(55%) sepia(82%) saturate(400%) hue-rotate(145deg) brightness(95%);
     }
 
@@ -54,37 +54,16 @@
       text-align: center;
       font-size: 20px;
       font-weight: 700;
-      margin-bottom: 24px;
+      margin-bottom: 6px;
       color: var(--text);
     }
 
-    .role-tabs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 24px;
-    }
-
-    .role-tab {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      padding: 14px 10px;
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      background: #fff;
-      color: var(--muted);
+    .login-subtitle {
+      text-align: center;
       font-size: 13px;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      transition: all .15s;
+      color: var(--muted);
+      margin-bottom: 28px;
     }
-
-    .role-tab i { font-size: 22px; }
-    .role-tab:hover { border-color: var(--teal); color: var(--teal); }
-    .role-tab.active { border-color: var(--teal); background: var(--teal-lt); color: var(--teal); }
 
     .form-group { margin-bottom: 16px; }
 
@@ -100,18 +79,19 @@
 
     .input-wrap { position: relative; }
 
-    .input-wrap i {
+    .input-wrap .input-icon {
       position: absolute;
       left: 13px;
       top: 50%;
       transform: translateY(-50%);
       color: var(--muted);
       font-size: 14px;
+      pointer-events: none;
     }
 
     .form-group input {
       width: 100%;
-      padding: 11px 14px 11px 38px;
+      padding: 11px 42px 11px 38px;
       border: 1.5px solid var(--border);
       border-radius: 10px;
       font-size: 14px;
@@ -122,6 +102,19 @@
     }
 
     .form-group input:focus { border-color: var(--teal); }
+
+    .toggle-pass {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 4px;
+      font-size: 14px;
+    }
 
     .btn-login {
       width: 100%;
@@ -138,12 +131,25 @@
       margin-top: 4px;
     }
 
-    .btn-login:hover { background: var(--teal-dk); }
+    .btn-login:hover    { background: var(--teal-dk); }
     .btn-login:disabled { opacity: .6; cursor: not-allowed; }
 
     .login-error {
       background: #fef2f2;
       color: #dc2626;
+      border: 1px solid #fca5a5;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      margin-bottom: 14px;
+      display: none;
+      text-align: center;
+    }
+
+    .login-lockout {
+      background: #fffbeb;
+      color: #92400e;
+      border: 1px solid #fcd34d;
       border-radius: 8px;
       padding: 10px 14px;
       font-size: 13px;
@@ -161,34 +167,30 @@
 
 <div class="login-card">
   <img src="/logos/KINERVANE.png" class="login-logo" alt="Kinerva">
-  <h1>Portal de Acceso</h1>
+  <h1>Iniciar sesión</h1>
+  <p class="login-subtitle">Administradores · Fisioterapeutas · Pacientes</p>
 
-  <div class="role-tabs">
-    <button class="role-tab active" data-role="paciente" onclick="selectRole('paciente')">
-      <i class="fas fa-user-injured"></i>
-      Paciente
-    </button>
-    <button class="role-tab" data-role="admin" onclick="selectRole('admin')">
-      <i class="fas fa-user-shield"></i>
-      Administrador
-    </button>
-  </div>
+  <div id="loginError"   class="login-error"></div>
+  <div id="loginLockout" class="login-lockout"><i class="fas fa-lock me-1"></i> <span id="lockoutMsg"></span></div>
 
-  <div id="loginError" class="login-error"></div>
-
-  <form id="loginForm" onsubmit="handleLogin(event)">
+  <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
     <div class="form-group">
       <label>Usuario</label>
       <div class="input-wrap">
-        <i class="fas fa-user"></i>
-        <input type="text" id="loginUser" placeholder="Tu usuario" required autocomplete="username">
+        <i class="fas fa-user input-icon"></i>
+        <input type="text" id="loginUser" placeholder="Tu usuario"
+               required autocomplete="username" maxlength="60">
       </div>
     </div>
     <div class="form-group">
       <label>Contraseña</label>
       <div class="input-wrap">
-        <i class="fas fa-lock"></i>
-        <input type="password" id="loginPass" placeholder="••••••••" required autocomplete="current-password">
+        <i class="fas fa-lock input-icon"></i>
+        <input type="password" id="loginPass" placeholder="••••••••"
+               required autocomplete="current-password" maxlength="128">
+        <button type="button" class="toggle-pass" onclick="togglePass()">
+          <i class="fas fa-eye" id="eyeIcon"></i>
+        </button>
       </div>
     </div>
     <button type="submit" class="btn-login" id="loginBtn">
@@ -200,94 +202,109 @@
 <script>
 'use strict';
 
-let ROLE = 'paciente';
-
-function selectRole(role) {
-  ROLE = role;
-  document.querySelectorAll('.role-tab').forEach(b =>
-    b.classList.toggle('active', b.dataset.role === role)
-  );
-  clearError();
-}
-
-function clearError() {
-  const el = document.getElementById('loginError');
-  el.style.display = 'none';
-  el.textContent = '';
+function togglePass() {
+  const inp  = document.getElementById('loginPass');
+  const icon = document.getElementById('eyeIcon');
+  const show = inp.type === 'password';
+  inp.type   = show ? 'text' : 'password';
+  icon.className = `fas fa-eye${show ? '-slash' : ''}`;
 }
 
 function showError(msg) {
+  document.getElementById('loginLockout').style.display = 'none';
   const el = document.getElementById('loginError');
   el.textContent = msg;
   el.style.display = 'block';
 }
 
+function showLockout(msg) {
+  document.getElementById('loginError').style.display = 'none';
+  document.getElementById('lockoutMsg').textContent = msg;
+  document.getElementById('loginLockout').style.display = 'block';
+}
+
+function clearMessages() {
+  document.getElementById('loginError').style.display   = 'none';
+  document.getElementById('loginLockout').style.display = 'none';
+}
+
 async function handleLogin(e) {
   e.preventDefault();
-  clearError();
+  clearMessages();
+
   const username = document.getElementById('loginUser').value.trim();
   const password = document.getElementById('loginPass').value;
-  const btn = document.getElementById('loginBtn');
+  const btn      = document.getElementById('loginBtn');
 
   if (!username || !password) { showError('Completa usuario y contraseña.'); return; }
 
   btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Entrando…';
+  btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Verificando…';
 
   try {
-    if (ROLE === 'admin') {
-      const r = await fetch('/api/admin/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'login', username, password }),
-      });
-      const d = await r.json();
-      if (!d.success) { showError(d.message || 'Credenciales incorrectas.'); return; }
+    const r = await fetch('/api/auth/login', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ username, password }),
+    });
+    const d = await r.json();
+
+    if (!d.success) {
+      if (r.status === 429) {
+        showLockout(d.error || 'Cuenta bloqueada temporalmente.');
+      } else {
+        showError(d.error || 'Credenciales incorrectas.');
+      }
+      return;
+    }
+
+    // Guardar token según tipo y redirigir
+    if (d.type === 'admin') {
       localStorage.setItem('kinerva_token', d.token);
-      localStorage.setItem('kinerva_user',  d.username || username);
-      window.location.href = '/admin';
-    } else {
-      const r = await fetch('/api/auth/patient', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
-      const d = await r.json();
-      if (!d.success) { showError(d.message || 'Credenciales incorrectas.'); return; }
+      localStorage.setItem('kinerva_user',  d.user.username);
+      window.location.replace('/admin');
+
+    } else if (d.type === 'therapist') {
+      localStorage.setItem('k_fisio_token', d.token);
+      localStorage.setItem('k_fisio_user',  JSON.stringify(d.user));
+      window.location.replace('/fisio');
+
+    } else if (d.type === 'patient') {
       localStorage.setItem('k_patient_token', d.token);
       localStorage.setItem('k_patient_user',  JSON.stringify(d.user));
-      window.location.href = '/paciente';
+      window.location.replace('/paciente');
     }
+
   } catch {
-    showError('Error de red. Intenta de nuevo.');
+    showError('Error de conexión. Intenta de nuevo.');
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar sesión';
   }
 }
 
-// Si ya tiene sesión activa, redirigir directamente
+// Si ya hay sesión válida, redirigir directamente
 (function checkExisting() {
-  const adminToken = localStorage.getItem('kinerva_token');
-  if (adminToken) {
+  const checks = [
+    { key: 'kinerva_token',   url: '/admin'    },
+    { key: 'k_fisio_token',   url: '/fisio'    },
+    { key: 'k_patient_token', url: '/paciente' },
+  ];
+  for (const { key, url } of checks) {
+    const t = localStorage.getItem(key);
+    if (!t) continue;
     try {
-      const p = JSON.parse(atob(adminToken.split('.')[1]));
-      if (p.exp * 1000 > Date.now()) { window.location.href = '/admin'; return; }
-    } catch { localStorage.removeItem('kinerva_token'); }
-  }
-  const patToken = localStorage.getItem('k_patient_token');
-  if (patToken) {
-    try {
-      const p = JSON.parse(atob(patToken.split('.')[1]));
-      if (p.exp * 1000 > Date.now()) { window.location.href = '/paciente'; return; }
-    } catch { localStorage.removeItem('k_patient_token'); localStorage.removeItem('k_patient_user'); }
+      const p = JSON.parse(atob(t.split('.')[1]));
+      if (p.exp * 1000 > Date.now()) { window.location.replace(url); return; }
+    } catch { /* ignore */ }
+    localStorage.removeItem(key);
   }
 })();
 </script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
-    }
-  </script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
+</script>
 </body>
 </html>
