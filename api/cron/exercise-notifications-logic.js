@@ -1,7 +1,6 @@
 const { getConnection } = require('../_db');
 const webpush = require('web-push');
 
-// Llamado una sola vez al iniciar el servidor
 if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails(
     'mailto:contacto@kinervafisioterapia.com',
@@ -11,7 +10,9 @@ if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
 }
 
 module.exports = async function sendExerciseNotifications() {
-  if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) return;
+  if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
+    return { sent: 0, error: 'VAPID keys no configuradas' };
+  }
 
   let conn;
   try {
@@ -22,7 +23,7 @@ module.exports = async function sendExerciseNotifications() {
     mxNow.setMinutes(mxNow.getMinutes() + 5);
     const target = `${String(mxNow.getHours()).padStart(2,'0')}:${String(mxNow.getMinutes()).padStart(2,'0')}`;
 
-    // Ejercicios con ese horario en rutinas activas
+    // Ejercicios con ese horario en rutinas activas, agrupados por el paciente dueño de la rutina
     const [exercises] = await conn.execute(
       `SELECT re.id, re.name, r.patient_id, r.title AS routine_title
        FROM routine_exercises re
@@ -35,25 +36,33 @@ module.exports = async function sendExerciseNotifications() {
 
     if (!exercises.length) return { sent: 0, time: target };
 
-    // Agrupar por paciente
+    // Agrupar ejercicios por patient_id (string para consistencia con Object.keys)
     const byPatient = {};
     for (const ex of exercises) {
-      (byPatient[ex.patient_id] = byPatient[ex.patient_id] || []).push(ex);
+      const pid = String(ex.patient_id);
+      if (!byPatient[pid]) byPatient[pid] = [];
+      byPatient[pid].push(ex);
     }
 
-    // Suscripciones push de esos pacientes
-    const ids = Object.keys(byPatient);
-    const ph  = ids.map(() => '?').join(',');
+    // Buscar suscripciones SOLO de los pacientes que tienen ejercicio en este horario
+    const patientIds = Object.keys(byPatient); // IDs de los pacientes con ejercicio ahora
+    const ph = patientIds.map(() => '?').join(',');
     const [subs] = await conn.execute(
-      `SELECT patient_id, endpoint, p256dh, auth FROM push_subscriptions WHERE patient_id IN (${ph})`,
-      ids
+      `SELECT patient_id, endpoint, p256dh, auth
+       FROM push_subscriptions
+       WHERE patient_id IN (${ph})`,
+      patientIds
     );
 
     let sent = 0;
     const expired = [];
+    const notified = new Set();
 
     for (const sub of subs) {
-      for (const ex of (byPatient[sub.patient_id] || [])) {
+      const pid = String(sub.patient_id);
+      const exercises = byPatient[pid] || []; // solo ejercicios de ESTE paciente
+
+      for (const ex of exercises) {
         const payload = JSON.stringify({
           title: '⏰ Ejercicio en 5 minutos',
           body:  `${ex.name}  ·  ${ex.routine_title}`,
@@ -66,18 +75,24 @@ module.exports = async function sendExerciseNotifications() {
             payload
           );
           sent++;
+          notified.add(pid);
         } catch (err) {
           if (err.statusCode === 410 || err.statusCode === 404) expired.push(sub.endpoint);
         }
       }
     }
 
-    // Limpiar suscripciones caducadas
     for (const ep of expired) {
       await conn.execute('DELETE FROM push_subscriptions WHERE endpoint = ?', [ep]);
     }
 
-    return { sent, time: target, expired: expired.length };
+    return {
+      sent,
+      time: target,
+      patients_with_exercise: patientIds.length,
+      patients_notified: notified.size,
+      expired: expired.length,
+    };
   } finally {
     if (conn) await conn.end();
   }
