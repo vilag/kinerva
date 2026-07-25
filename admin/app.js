@@ -3324,6 +3324,9 @@ const Views = {
                       <button class="btn btn-sm btn-outline-secondary" onclick="Views.openEditPatient(${u.id}, '${esc(u.name)}', '${esc(u.username)}')" title="Editar acceso">
                         <i class="fas fa-pen"></i>
                       </button>
+                      <button class="btn btn-sm btn-outline-success" onclick="Views.testPushNotification(${u.id}, '${esc(u.name)}', this)" title="Probar notificación">
+                        <i class="fas fa-bell"></i>
+                      </button>
                       <button class="btn btn-sm btn-outline-danger" onclick="Views.deletePatient(${u.id}, '${esc(u.name)}')" title="Eliminar">
                         <i class="fas fa-trash"></i>
                       </button>
@@ -3361,6 +3364,33 @@ const Views = {
     } else {
       errEl.textContent = r?.message || 'Error al crear el paciente.';
       errEl.classList.remove('d-none');
+    }
+  },
+
+  async testPushNotification(patient_id, patient_name, btn) {
+    const orig = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+    try {
+      const r = await App.api('POST', '/push-test', { patient_id, patient_name });
+      if (r?.success) {
+        showToastGlobal(`Notificación enviada a ${patient_name}`, 'success');
+        btn.innerHTML = '<i class="fas fa-check"></i>';
+        btn.classList.replace('btn-outline-success', 'btn-success');
+        setTimeout(() => {
+          btn.innerHTML = orig;
+          btn.classList.replace('btn-success', 'btn-outline-success');
+          btn.disabled = false;
+        }, 3000);
+      } else {
+        showToastGlobal(r?.error || 'Error al enviar notificación', 'danger');
+        btn.innerHTML = orig;
+        btn.disabled = false;
+      }
+    } catch {
+      showToastGlobal('Error de conexión', 'danger');
+      btn.innerHTML = orig;
+      btn.disabled = false;
     }
   },
 
