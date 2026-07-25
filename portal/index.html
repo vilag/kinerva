@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,15 +14,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     :root {
-      --teal:    #00BDB4;
+      --teal: #00BDB4;
       --teal-dk: #009A92;
       --teal-lt: #E6F8F7;
-      --text:    #1a2533;
-      --muted:   #6b7280;
-      --border:  #e5e7eb;
+      --text: #1a2533;
+      --muted: #6b7280;
+      --border: #e5e7eb;
     }
 
     body {
@@ -40,7 +47,7 @@
       padding: 44px 40px;
       width: 100%;
       max-width: 420px;
-      box-shadow: 0 24px 64px rgba(0,0,0,.3);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, .3);
     }
 
     .login-logo {
@@ -65,7 +72,9 @@
       margin-bottom: 28px;
     }
 
-    .form-group { margin-bottom: 16px; }
+    .form-group {
+      margin-bottom: 16px;
+    }
 
     .form-group label {
       display: block;
@@ -77,7 +86,9 @@
       margin-bottom: 6px;
     }
 
-    .input-wrap { position: relative; }
+    .input-wrap {
+      position: relative;
+    }
 
     .input-wrap .input-icon {
       position: absolute;
@@ -101,7 +112,9 @@
       transition: border-color .15s;
     }
 
-    .form-group input:focus { border-color: var(--teal); }
+    .form-group input:focus {
+      border-color: var(--teal);
+    }
 
     .toggle-pass {
       position: absolute;
@@ -131,8 +144,14 @@
       margin-top: 4px;
     }
 
-    .btn-login:hover    { background: var(--teal-dk); }
-    .btn-login:disabled { opacity: .6; cursor: not-allowed; }
+    .btn-login:hover {
+      background: var(--teal-dk);
+    }
+
+    .btn-login:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
 
     .login-error {
       background: #fef2f2;
@@ -159,152 +178,159 @@
     }
 
     @media (max-width: 480px) {
-      .login-card { padding: 34px 22px; }
+      .login-card {
+        padding: 34px 22px;
+      }
     }
   </style>
 </head>
+
 <body>
 
-<div class="login-card">
-  <img src="/logos/KINERVANE.png" class="login-logo" alt="Kinerva">
-  <h1>Iniciar sesión</h1>
-  <p class="login-subtitle">Administradores · Fisioterapeutas · Pacientes</p>
+  <div class="login-card">
+    <img src="/logos/KINERVANE.png" class="login-logo" alt="Kinerva">
+    <h1>Iniciar sesión</h1>
+    <!-- <p class="login-subtitle">Administradores · Fisioterapeutas · Pacientes</p> -->
 
-  <div id="loginError"   class="login-error"></div>
-  <div id="loginLockout" class="login-lockout"><i class="fas fa-lock me-1"></i> <span id="lockoutMsg"></span></div>
+    <div id="loginError" class="login-error"></div>
+    <div id="loginLockout" class="login-lockout"><i class="fas fa-lock me-1"></i> <span id="lockoutMsg"></span></div>
 
-  <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
-    <div class="form-group">
-      <label>Usuario</label>
-      <div class="input-wrap">
-        <i class="fas fa-user input-icon"></i>
-        <input type="text" id="loginUser" placeholder="Tu usuario"
-               required autocomplete="username" maxlength="60">
+    <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
+      <div class="form-group">
+        <label>Usuario</label>
+        <div class="input-wrap">
+          <i class="fas fa-user input-icon"></i>
+          <input type="text" id="loginUser" placeholder="Tu usuario" required autocomplete="username" maxlength="60">
+        </div>
       </div>
-    </div>
-    <div class="form-group">
-      <label>Contraseña</label>
-      <div class="input-wrap">
-        <i class="fas fa-lock input-icon"></i>
-        <input type="password" id="loginPass" placeholder="••••••••"
-               required autocomplete="current-password" maxlength="128">
-        <button type="button" class="toggle-pass" onclick="togglePass()">
-          <i class="fas fa-eye" id="eyeIcon"></i>
-        </button>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <div class="input-wrap">
+          <i class="fas fa-lock input-icon"></i>
+          <input type="password" id="loginPass" placeholder="••••••••" required autocomplete="current-password"
+            maxlength="128">
+          <button type="button" class="toggle-pass" onclick="togglePass()">
+            <i class="fas fa-eye" id="eyeIcon"></i>
+          </button>
+        </div>
       </div>
-    </div>
-    <button type="submit" class="btn-login" id="loginBtn">
-      <i class="fas fa-sign-in-alt"></i> Iniciar sesión
-    </button>
-  </form>
-</div>
+      <button type="submit" class="btn-login" id="loginBtn">
+        <i class="fas fa-sign-in-alt"></i> Iniciar sesión
+      </button>
+    </form>
+    <p style="text-align:center;margin-top:20px;font-size:12px;color:var(--muted)">
+      Al iniciar sesión aceptas nuestro
+      <a href="/privacidad" target="_blank" style="color:var(--teal);text-decoration:none;font-weight:600">Aviso de Privacidad</a>
+    </p>
+  </div>
 
-<script>
-'use strict';
+  <script>
+    'use strict';
 
-function togglePass() {
-  const inp  = document.getElementById('loginPass');
-  const icon = document.getElementById('eyeIcon');
-  const show = inp.type === 'password';
-  inp.type   = show ? 'text' : 'password';
-  icon.className = `fas fa-eye${show ? '-slash' : ''}`;
-}
+    function togglePass() {
+      const inp = document.getElementById('loginPass');
+      const icon = document.getElementById('eyeIcon');
+      const show = inp.type === 'password';
+      inp.type = show ? 'text' : 'password';
+      icon.className = `fas fa-eye${show ? '-slash' : ''}`;
+    }
 
-function showError(msg) {
-  document.getElementById('loginLockout').style.display = 'none';
-  const el = document.getElementById('loginError');
-  el.textContent = msg;
-  el.style.display = 'block';
-}
+    function showError(msg) {
+      document.getElementById('loginLockout').style.display = 'none';
+      const el = document.getElementById('loginError');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
 
-function showLockout(msg) {
-  document.getElementById('loginError').style.display = 'none';
-  document.getElementById('lockoutMsg').textContent = msg;
-  document.getElementById('loginLockout').style.display = 'block';
-}
+    function showLockout(msg) {
+      document.getElementById('loginError').style.display = 'none';
+      document.getElementById('lockoutMsg').textContent = msg;
+      document.getElementById('loginLockout').style.display = 'block';
+    }
 
-function clearMessages() {
-  document.getElementById('loginError').style.display   = 'none';
-  document.getElementById('loginLockout').style.display = 'none';
-}
+    function clearMessages() {
+      document.getElementById('loginError').style.display = 'none';
+      document.getElementById('loginLockout').style.display = 'none';
+    }
 
-async function handleLogin(e) {
-  e.preventDefault();
-  clearMessages();
+    async function handleLogin(e) {
+      e.preventDefault();
+      clearMessages();
 
-  const username = document.getElementById('loginUser').value.trim();
-  const password = document.getElementById('loginPass').value;
-  const btn      = document.getElementById('loginBtn');
+      const username = document.getElementById('loginUser').value.trim();
+      const password = document.getElementById('loginPass').value;
+      const btn = document.getElementById('loginBtn');
 
-  if (!username || !password) { showError('Completa usuario y contraseña.'); return; }
+      if (!username || !password) { showError('Completa usuario y contraseña.'); return; }
 
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Verificando…';
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Verificando…';
 
-  try {
-    const r = await fetch('/api/auth/login', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ username, password }),
-    });
-    const d = await r.json();
+      try {
+        const r = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
+        const d = await r.json();
 
-    if (!d.success) {
-      if (r.status === 429) {
-        showLockout(d.error || 'Cuenta bloqueada temporalmente.');
-      } else {
-        showError(d.error || 'Credenciales incorrectas.');
+        if (!d.success) {
+          if (r.status === 429) {
+            showLockout(d.error || 'Cuenta bloqueada temporalmente.');
+          } else {
+            showError(d.error || 'Credenciales incorrectas.');
+          }
+          return;
+        }
+
+        // Guardar token según tipo y redirigir
+        if (d.type === 'admin') {
+          localStorage.setItem('kinerva_token', d.token);
+          localStorage.setItem('kinerva_user', d.user.username);
+          window.location.replace('/admin');
+
+        } else if (d.type === 'therapist') {
+          localStorage.setItem('k_fisio_token', d.token);
+          localStorage.setItem('k_fisio_user', JSON.stringify(d.user));
+          window.location.replace('/fisio');
+
+        } else if (d.type === 'patient') {
+          localStorage.setItem('k_patient_token', d.token);
+          localStorage.setItem('k_patient_user', JSON.stringify(d.user));
+          window.location.replace('/paciente');
+        }
+
+      } catch {
+        showError('Error de conexión. Intenta de nuevo.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar sesión';
       }
-      return;
     }
 
-    // Guardar token según tipo y redirigir
-    if (d.type === 'admin') {
-      localStorage.setItem('kinerva_token', d.token);
-      localStorage.setItem('kinerva_user',  d.user.username);
-      window.location.replace('/admin');
-
-    } else if (d.type === 'therapist') {
-      localStorage.setItem('k_fisio_token', d.token);
-      localStorage.setItem('k_fisio_user',  JSON.stringify(d.user));
-      window.location.replace('/fisio');
-
-    } else if (d.type === 'patient') {
-      localStorage.setItem('k_patient_token', d.token);
-      localStorage.setItem('k_patient_user',  JSON.stringify(d.user));
-      window.location.replace('/paciente');
+    // Si ya hay sesión válida, redirigir directamente
+    (function checkExisting() {
+      const checks = [
+        { key: 'kinerva_token', url: '/admin' },
+        { key: 'k_fisio_token', url: '/fisio' },
+        { key: 'k_patient_token', url: '/paciente' },
+      ];
+      for (const { key, url } of checks) {
+        const t = localStorage.getItem(key);
+        if (!t) continue;
+        try {
+          const p = JSON.parse(atob(t.split('.')[1]));
+          if (p.exp * 1000 > Date.now()) { window.location.replace(url); return; }
+        } catch { /* ignore */ }
+        localStorage.removeItem(key);
+      }
+    })();
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => { });
     }
-
-  } catch {
-    showError('Error de conexión. Intenta de nuevo.');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar sesión';
-  }
-}
-
-// Si ya hay sesión válida, redirigir directamente
-(function checkExisting() {
-  const checks = [
-    { key: 'kinerva_token',   url: '/admin'    },
-    { key: 'k_fisio_token',   url: '/fisio'    },
-    { key: 'k_patient_token', url: '/paciente' },
-  ];
-  for (const { key, url } of checks) {
-    const t = localStorage.getItem(key);
-    if (!t) continue;
-    try {
-      const p = JSON.parse(atob(t.split('.')[1]));
-      if (p.exp * 1000 > Date.now()) { window.location.replace(url); return; }
-    } catch { /* ignore */ }
-    localStorage.removeItem(key);
-  }
-})();
-</script>
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
-  }
-</script>
+  </script>
 </body>
+
 </html>
