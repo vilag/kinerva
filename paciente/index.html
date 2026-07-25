@@ -889,16 +889,7 @@
 
         const notifPerm = ('Notification' in window) ? Notification.permission : 'unsupported';
         const notifBanner = notifPerm === 'granted'
-          ? `<div id="notifBanner" style="display:flex;align-items:center;gap:10px;background:#f0fffe;border:1px solid #00BDB4;border-radius:10px;padding:10px 14px;margin-bottom:18px;flex-wrap:wrap">
-          <i class="fas fa-bell" style="color:#00BDB4;font-size:16px"></i>
-          <span style="font-size:13px;color:#1a2533;flex:1">Notificaciones activas</span>
-          <button onclick="testNotification(this)"
-            style="background:none;border:1px solid #00BDB4;color:#00BDB4;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">
-            Probar ahora
-          </button>
-          <button onclick="document.getElementById('notifBanner').style.display='none'"
-            style="background:none;border:none;color:#aaa;cursor:pointer;font-size:18px;padding:0;line-height:1">✕</button>
-        </div>`
+          ? ''
           : `<div id="notifBanner" style="display:flex;align-items:center;gap:12px;background:#f0fffe;border:1px solid #00BDB4;border-radius:10px;padding:12px 16px;margin-bottom:18px;flex-wrap:wrap">
         <i class="fas fa-bell" style="color:#00BDB4;font-size:18px;flex-shrink:0"></i>
         <span style="font-size:13px;color:#1a2533;flex:1;min-width:180px">
