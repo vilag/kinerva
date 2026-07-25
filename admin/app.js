@@ -169,6 +169,10 @@ const App = {
         title.textContent = 'Pacientes del Portal';
         Views.portalPacientes(content);
         break;
+      case 'fisioterapeutas':
+        title.textContent = 'Fisioterapeutas';
+        Views.fisioterapeutas(content);
+        break;
       default:
         title.textContent = 'Dashboard';
         Views.dashboard(content);
@@ -3777,6 +3781,300 @@ const Views = {
     await App.api('DELETE', '/patient-routines', null, { action: 'exercise', exercise_id: exerciseId });
     await Views.loadRoutineManager(patientId);
     showToastGlobal('Ejercicio eliminado', 'success');
+  },
+
+  /* ══ Fisioterapeutas ════════════════════════════════════════════ */
+  async fisioterapeutas(content) {
+    // Modal crear fisioterapeuta (Bootstrap requiere que esté en <body>)
+    if (!document.getElementById('createTherapistModal')) {
+      const m = document.createElement('div');
+      m.innerHTML = `
+        <div class="modal fade" id="createTherapistModal" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-user-md me-2" style="color:var(--ak-teal)"></i>Nuevo Fisioterapeuta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <div id="createTherapistError" class="alert alert-danger d-none"></div>
+                <div class="mb-2">
+                  <label class="form-label" style="font-size:12px;font-weight:600">Nombre completo <span class="text-danger">*</span></label>
+                  <input type="text" id="ctName" class="form-control form-control-sm" placeholder="Nombre Apellido" maxlength="150">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label" style="font-size:12px;font-weight:600">Usuario <span class="text-danger">*</span></label>
+                  <input type="text" id="ctUsername" class="form-control form-control-sm" placeholder="usuario.apellido" maxlength="60">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label" style="font-size:12px;font-weight:600">Correo electrónico</label>
+                  <input type="email" id="ctEmail" class="form-control form-control-sm" maxlength="120">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label" style="font-size:12px;font-weight:600">Especialidad</label>
+                  <input type="text" id="ctSpecialty" class="form-control form-control-sm" placeholder="Ej. Deportiva, Neurológica…" maxlength="120">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label" style="font-size:12px;font-weight:600">Contraseña <span class="text-danger">*</span></label>
+                  <input type="password" id="ctPassword" class="form-control form-control-sm" maxlength="128" autocomplete="new-password">
+                  <div class="form-text" style="font-size:11px">Mín. 8 caracteres · 1 mayúscula · 1 número · 1 carácter especial</div>
+                </div>
+                <div class="mb-0">
+                  <label class="form-label" style="font-size:12px;font-weight:600">Confirmar contraseña <span class="text-danger">*</span></label>
+                  <input type="password" id="ctPassword2" class="form-control form-control-sm" maxlength="128" autocomplete="new-password">
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-sm btn-ak" id="ctSaveBtn" onclick="Views.createTherapist()">
+                  <i class="fas fa-save me-1"></i>Crear fisioterapeuta
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal fade" id="editTherapistModal" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-user-edit me-2" style="color:var(--ak-teal)"></i>Editar Fisioterapeuta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <input type="hidden" id="etId">
+                <div id="editTherapistError" class="alert alert-danger d-none"></div>
+                <div class="mb-2">
+                  <label class="form-label" style="font-size:12px;font-weight:600">Nombre completo</label>
+                  <input type="text" id="etName" class="form-control form-control-sm" maxlength="150">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label" style="font-size:12px;font-weight:600">Usuario</label>
+                  <input type="text" id="etUsername" class="form-control form-control-sm" maxlength="60">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label" style="font-size:12px;font-weight:600">Correo</label>
+                  <input type="email" id="etEmail" class="form-control form-control-sm" maxlength="120">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label" style="font-size:12px;font-weight:600">Teléfono</label>
+                  <input type="text" id="etPhone" class="form-control form-control-sm" maxlength="30">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label" style="font-size:12px;font-weight:600">Especialidad</label>
+                  <input type="text" id="etSpecialty" class="form-control form-control-sm" maxlength="120">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label" style="font-size:12px;font-weight:600">Estado</label>
+                  <select id="etActive" class="form-select form-select-sm">
+                    <option value="1">Activo</option>
+                    <option value="0">Inactivo</option>
+                  </select>
+                </div>
+                <hr class="my-2">
+                <div class="mb-2">
+                  <label class="form-label" style="font-size:12px;font-weight:600">Nueva contraseña <span class="text-muted">(dejar vacío para no cambiar)</span></label>
+                  <input type="password" id="etPassword" class="form-control form-control-sm" maxlength="128" autocomplete="new-password">
+                  <div class="form-text" style="font-size:11px">Si cambias la contraseña: mín. 8 · 1 mayúscula · 1 número · 1 especial</div>
+                </div>
+              </div>
+              <div class="modal-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-sm btn-outline-warning" id="etUnlockBtn" onclick="Views.unlockTherapist()" style="display:none">
+                  <i class="fas fa-lock-open me-1"></i>Desbloquear cuenta
+                </button>
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                  <button type="button" class="btn btn-sm btn-ak" id="etSaveBtn" onclick="Views.saveTherapist()">
+                    <i class="fas fa-save me-1"></i>Guardar cambios
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      document.body.appendChild(m.firstElementChild);
+      document.body.appendChild(m.firstElementChild);
+    }
+
+    content.innerHTML = spin();
+    const data = await App.get('/therapists');
+    if (!data?.success) {
+      content.innerHTML = '<div class="alert alert-danger m-3">Error al cargar fisioterapeutas.</div>';
+      return;
+    }
+    const list = data.therapists || [];
+
+    content.innerHTML = `
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="text-muted">${list.length} fisioterapeuta${list.length !== 1 ? 's' : ''} registrado${list.length !== 1 ? 's' : ''}</span>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createTherapistModal"
+          onclick="['ctName','ctUsername','ctEmail','ctSpecialty','ctPassword','ctPassword2'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});document.getElementById('createTherapistError')?.classList.add('d-none')">
+          <i class="fas fa-user-plus me-1"></i>Nuevo Fisioterapeuta
+        </button>
+      </div>
+
+      ${list.length === 0 ? `
+        <div class="text-center py-5 text-muted">
+          <i class="fas fa-user-md fa-3x mb-3 d-block" style="color:#dee2e6"></i>
+          <h5>Sin fisioterapeutas registrados</h5>
+          <p class="small">Usa el botón "Nuevo Fisioterapeuta" para crear el primer acceso.</p>
+        </div>` : `
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Fisioterapeuta</th>
+                <th>Usuario</th>
+                <th>Especialidad</th>
+                <th>Estado</th>
+                <th>Último acceso</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${list.map(t => `
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      ${t.photo_path
+                        ? `<img src="${esc(t.photo_path)}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--ak-teal)">`
+                        : `<div style="width:36px;height:36px;border-radius:50%;background:var(--ak-teal);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0">
+                            ${(t.name||'?').split(' ').slice(0,2).map(w=>w[0]?.toUpperCase()||'').join('')}
+                          </div>`}
+                      <div>
+                        <div class="fw-semibold">${esc(t.name || '—')}</div>
+                        ${t.email ? `<div class="small text-muted">${esc(t.email)}</div>` : ''}
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="text-muted small">@${esc(t.username)}</span></td>
+                  <td class="small">${esc(t.specialty || '—')}</td>
+                  <td>
+                    ${t.locked_until && new Date(t.locked_until) > new Date()
+                      ? `<span class="badge bg-warning text-dark"><i class="fas fa-lock me-1"></i>Bloqueado</span>`
+                      : t.is_active
+                        ? `<span class="badge bg-success">Activo</span>`
+                        : `<span class="badge bg-secondary">Inactivo</span>`}
+                  </td>
+                  <td class="small text-muted">${t.last_login ? fmtDate(t.last_login) : 'Nunca'}</td>
+                  <td>
+                    <div class="d-flex gap-1">
+                      <button class="btn btn-sm btn-outline-secondary"
+                        onclick="Views.openEditTherapist(${t.id},'${esc(t.name)}','${esc(t.username)}','${esc(t.email||'')}','${esc(t.phone||'')}','${esc(t.specialty||'')}',${t.is_active},${t.locked_until && new Date(t.locked_until)>new Date()?1:0})"
+                        title="Editar">
+                        <i class="fas fa-pen"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger" onclick="Views.deleteTherapist(${t.id},'${esc(t.name)}')" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>`}`;
+  },
+
+  async createTherapist() {
+    const name  = document.getElementById('ctName').value.trim();
+    const uname = document.getElementById('ctUsername').value.trim();
+    const email = document.getElementById('ctEmail').value.trim();
+    const spec  = document.getElementById('ctSpecialty').value.trim();
+    const pass  = document.getElementById('ctPassword').value;
+    const pass2 = document.getElementById('ctPassword2').value;
+    const errEl = document.getElementById('createTherapistError');
+    errEl.classList.add('d-none');
+
+    if (!name || !uname || !pass) { errEl.textContent = 'Nombre, usuario y contraseña son obligatorios.'; errEl.classList.remove('d-none'); return; }
+    if (pass !== pass2)            { errEl.textContent = 'Las contraseñas no coinciden.'; errEl.classList.remove('d-none'); return; }
+
+    const btn = document.getElementById('ctSaveBtn');
+    btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Creando…';
+
+    const r = await App.api('POST', '/therapists', { name, username: uname, email: email || undefined, specialty: spec || undefined, password: pass });
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-save me-1"></i>Crear fisioterapeuta';
+
+    if (r?.success) {
+      bootstrap.Modal.getInstance(document.getElementById('createTherapistModal'))?.hide();
+      showToastGlobal(`Fisioterapeuta "${name}" creado correctamente`, 'success');
+      Views.fisioterapeutas(document.getElementById('pageContent'));
+    } else {
+      errEl.textContent = r?.error || 'Error al crear el fisioterapeuta.';
+      errEl.classList.remove('d-none');
+    }
+  },
+
+  openEditTherapist(id, name, username, email, phone, specialty, isActive, isLocked) {
+    document.getElementById('etId').value       = id;
+    document.getElementById('etName').value     = name;
+    document.getElementById('etUsername').value = username;
+    document.getElementById('etEmail').value    = email;
+    document.getElementById('etPhone').value    = phone;
+    document.getElementById('etSpecialty').value= specialty;
+    document.getElementById('etActive').value   = isActive ? '1' : '0';
+    document.getElementById('etPassword').value = '';
+    document.getElementById('editTherapistError')?.classList.add('d-none');
+
+    const unlockBtn = document.getElementById('etUnlockBtn');
+    if (unlockBtn) unlockBtn.style.display = isLocked ? '' : 'none';
+
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('editTherapistModal')).show();
+  },
+
+  async saveTherapist() {
+    const id       = document.getElementById('etId').value;
+    const name     = document.getElementById('etName').value.trim();
+    const username = document.getElementById('etUsername').value.trim();
+    const email    = document.getElementById('etEmail').value.trim();
+    const phone    = document.getElementById('etPhone').value.trim();
+    const specialty= document.getElementById('etSpecialty').value.trim();
+    const isActive = document.getElementById('etActive').value === '1';
+    const password = document.getElementById('etPassword').value;
+    const errEl    = document.getElementById('editTherapistError');
+    errEl.classList.add('d-none');
+
+    if (!name || !username) { errEl.textContent = 'Nombre y usuario son obligatorios.'; errEl.classList.remove('d-none'); return; }
+
+    const btn = document.getElementById('etSaveBtn');
+    btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Guardando…';
+
+    const body = { name, username, email: email || undefined, phone: phone || undefined, specialty: specialty || undefined, is_active: isActive };
+    if (password) body.password = password;
+
+    const r = await App.api('PATCH', '/therapists', body, { id });
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar cambios';
+
+    if (r?.success) {
+      bootstrap.Modal.getInstance(document.getElementById('editTherapistModal'))?.hide();
+      showToastGlobal('Fisioterapeuta actualizado', 'success');
+      Views.fisioterapeutas(document.getElementById('pageContent'));
+    } else {
+      errEl.textContent = r?.error || 'Error al guardar.';
+      errEl.classList.remove('d-none');
+    }
+  },
+
+  async unlockTherapist() {
+    const id   = document.getElementById('etId').value;
+    const name = document.getElementById('etName').value;
+    const r    = await App.api('PATCH', '/therapists', { name, username: document.getElementById('etUsername').value, unlock: true }, { id });
+    if (r?.success) {
+      document.getElementById('etUnlockBtn').style.display = 'none';
+      showToastGlobal('Cuenta desbloqueada', 'success');
+    } else {
+      showToastGlobal('Error al desbloquear', 'danger');
+    }
+  },
+
+  async deleteTherapist(id, name) {
+    if (!confirm(`¿Eliminar al fisioterapeuta "${name}"? Esta acción no se puede deshacer.`)) return;
+    const r = await App.api('DELETE', '/therapists', null, { id });
+    if (r?.success) {
+      showToastGlobal('Fisioterapeuta eliminado', 'success');
+      Views.fisioterapeutas(document.getElementById('pageContent'));
+    } else {
+      showToastGlobal('Error al eliminar', 'danger');
+    }
   },
 
 };

@@ -25,6 +25,10 @@ const routes = {
   '/api/admin/patient-users':   './api/admin/patient-users',
   '/api/admin/patient-routines':'./api/admin/patient-routines',
   '/api/admin/push-test':       './api/admin/push-test',
+  '/api/admin/therapists':      './api/admin/therapists',
+  '/api/auth/therapist-login':  './api/auth/therapist-login',
+  '/api/therapist/me':          './api/therapist/me',
+  '/api/therapist/photo':       './api/therapist/photo',
   '/api/prospects':             './api/prospects',
   '/api/auth/patient':          './api/auth/patient',
   '/api/patient/me':              './api/patient/me',
@@ -55,6 +59,10 @@ app.get(['/portal', '/portal/'], (req, res) =>
 
 app.get(['/paciente', '/paciente/'], (req, res) =>
   res.sendFile(path.join(__dirname, 'paciente/index.html'))
+);
+
+app.get(['/fisio', '/fisio/'], (req, res) =>
+  res.sendFile(path.join(__dirname, 'fisio/index.html'))
 );
 
 app.get(['/privacidad', '/privacidad/'], (req, res) =>
