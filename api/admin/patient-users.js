@@ -15,10 +15,24 @@ module.exports = async function handler(req, res) {
 
     /* GET — lista de pacientes del portal */
     if (req.method === 'GET') {
+      // Crear tabla si no existe para que el JOIN no falle antes del primer subscribe
+      await conn.execute(`
+        CREATE TABLE IF NOT EXISTS push_subscriptions (
+          id         INT AUTO_INCREMENT PRIMARY KEY,
+          patient_id INT NOT NULL,
+          endpoint   VARCHAR(600) NOT NULL,
+          p256dh     VARCHAR(300) NOT NULL,
+          auth       VARCHAR(100) NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE KEY uk_endpoint (endpoint(255))
+        )
+      `);
+
       const [users] = await conn.execute(
         `SELECT pu.id, pu.username, pu.name, pu.phone, pu.birth_date,
                 pu.created_at, pu.last_login,
-                COUNT(r.id) AS routine_count
+                COUNT(DISTINCT r.id) AS routine_count,
+                EXISTS(SELECT 1 FROM push_subscriptions ps WHERE ps.patient_id = pu.id) AS push_active
          FROM patient_users pu
          LEFT JOIN routines r ON r.patient_id = pu.id
          GROUP BY pu.id

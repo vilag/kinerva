@@ -3295,6 +3295,7 @@ const Views = {
                 <th>Usuario</th>
                 <th>Teléfono</th>
                 <th>Rutinas</th>
+                <th>Notificaciones</th>
                 <th>Último acceso</th>
                 <th>Alta</th>
                 <th></th>
@@ -3314,6 +3315,9 @@ const Views = {
                   <td><span class="text-muted small">@${esc(u.username)}</span></td>
                   <td>${u.phone ? `<a href="tel:${esc(u.phone)}">${esc(u.phone)}</a>` : '<span class="text-muted">—</span>'}</td>
                   <td><span class="badge bg-primary rounded-pill">${u.routine_count}</span></td>
+                  <td>${u.push_active
+                    ? '<span style="color:#198754;font-size:13px" title="Notificaciones activadas"><i class="fas fa-bell"></i> Activas</span>'
+                    : '<span style="color:#adb5bd;font-size:13px" title="Sin notificaciones"><i class="fas fa-bell-slash"></i> Sin activar</span>'}</td>
                   <td class="small text-muted">${u.last_login ? fmtDate(u.last_login) : 'Nunca'}</td>
                   <td class="small text-muted">${fmtDate(u.created_at)}</td>
                   <td>
