@@ -1,4 +1,4 @@
-const CACHE    = 'kinerva-v2';
+const CACHE    = 'kinerva-v3';
 const ORIGIN   = self.location.origin;
 const SHELL    = [
   '/portal',
@@ -34,14 +34,15 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
-  // Only handle GET from same origin
-  if (e.request.method !== 'GET') return;
-  if (url.origin !== ORIGIN) return;
+  // Non-GET and cross-origin: always pass through to network
+  if (e.request.method !== 'GET' || url.origin !== ORIGIN) return;
 
-  // Never cache API calls or admin panel
+  // API calls and admin panel: pass through explicitly (never cache, avoid SW interference)
   const path = url.pathname;
-  if (path.startsWith('/api/'))    return;
-  if (path.startsWith('/admin'))   return;
+  if (path.startsWith('/api/') || path.startsWith('/admin')) {
+    e.respondWith(fetch(e.request));
+    return;
+  }
 
   // Network-first for HTML pages (always fresh content)
   if (e.request.mode === 'navigate' || path.endsWith('.html') || path === '/portal' || path === '/paciente' || path === '/privacidad') {
