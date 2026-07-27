@@ -1,10 +1,10 @@
 const { getConnection }  = require('../_db');
-const { verifyAdmin }    = require('../_adminAuth');
+const { verifyStaff }    = require('../_staffAuth');
 
 module.exports = async function (req, res) {
   res.setHeader('Content-Type', 'application/json');
 
-  if (!verifyAdmin(req)) return res.status(401).json({ error: 'No autorizado' });
+  if (!verifyStaff(req)) return res.status(401).json({ error: 'No autorizado' });
 
   let conn;
   try {

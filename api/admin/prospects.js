@@ -1,5 +1,5 @@
 const { getConnection } = require('../_db');
-const { verifyAdmin }   = require('../_adminAuth');
+const { verifyStaff }   = require('../_staffAuth');
 
 const VALID_STATUS = ['nuevo', 'contactado', 'convertido', 'descartado'];
 
@@ -9,7 +9,7 @@ module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  if (!verifyAdmin(req)) return res.status(401).json({ error: 'No autorizado' });
+  if (!verifyStaff(req)) return res.status(401).json({ error: 'No autorizado' });
 
   let conn;
   try {

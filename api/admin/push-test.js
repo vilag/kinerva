@@ -1,12 +1,12 @@
 const { getConnection } = require('../_db');
-const { verifyAdmin }   = require('../_adminAuth');
+const { verifyStaff }   = require('../_staffAuth');
 const webpush = require('web-push');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const admin = verifyAdmin(req);
-  if (!admin) return res.status(401).json({ error: 'No autorizado' });
+  const staff = verifyStaff(req);
+  if (!staff) return res.status(401).json({ error: 'No autorizado' });
 
   const { patient_id, patient_name } = req.body || {};
   if (!patient_id) return res.status(400).json({ error: 'patient_id requerido' });

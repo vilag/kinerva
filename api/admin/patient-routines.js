@@ -1,12 +1,12 @@
 const { getConnection } = require('../_db');
-const { verifyAdmin }   = require('../_adminAuth');
+const { verifyStaff }   = require('../_staffAuth');
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (!verifyAdmin(req)) return res.status(401).json({ success: false, message: 'No autorizado' });
+  if (!verifyStaff(req)) return res.status(401).json({ success: false, message: 'No autorizado' });
 
   const q = req.query || {};
   let conn;

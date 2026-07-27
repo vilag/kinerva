@@ -66,11 +66,12 @@ const App = {
     let url = '/api/admin' + path;
     if (query && Object.keys(query).length)
       url += '?' + new URLSearchParams(query);
+    const token = App.role === 'therapist' ? App.therapistToken : App.token;
     const opts = {
       method,
       headers: {
         'Content-Type': 'application/json',
-        ...(App.token ? { Authorization: `Bearer ${App.token}` } : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     };
     if (body) opts.body = JSON.stringify(body);
@@ -158,21 +159,12 @@ const App = {
   go(hash) { window.location.hash = hash; },
 
   route() {
-    const raw  = window.location.hash.slice(1) || (App.role === 'therapist' ? 'mi-perfil' : 'dashboard');
+    const raw  = window.location.hash.slice(1) || 'dashboard';
     const parts = raw.split('/');
     const page  = parts[0];
 
-    // Fisioterapeuta: solo puede acceder a su perfil
-    if (App.role === 'therapist') {
-      if (page !== 'mi-perfil') { App.go('mi-perfil'); return; }
-      document.querySelectorAll('.ak-nav a').forEach(a =>
-        a.classList.toggle('active', a.getAttribute('href')?.slice(1) === 'mi-perfil'));
-      const content = document.getElementById('pageContent');
-      document.getElementById('pageTitle').textContent = 'Mi Perfil';
-      content.innerHTML = spin();
-      Views.miPerfil(content);
-      return;
-    }
+    // mi-perfil es exclusivo para fisioterapeutas
+    if (page === 'mi-perfil' && App.role !== 'therapist') { App.go('dashboard'); return; }
 
     // Update sidebar active state
     document.querySelectorAll('.ak-nav a').forEach(a => {
@@ -186,6 +178,10 @@ const App = {
     content.innerHTML = spin();
 
     switch (page) {
+      case 'mi-perfil':
+        title.textContent = 'Mi Perfil';
+        Views.miPerfil(content);
+        break;
       case 'dashboard':
         title.textContent = 'Dashboard';
         Views.dashboard(content);
@@ -257,8 +253,21 @@ const App = {
     if (App.role === 'therapist') {
       const name = App.therapistUser?.name || App.therapistUser?.username || '';
       document.getElementById('userLabel').textContent = name;
-      document.querySelector('.ak-nav').innerHTML =
-        '<a href="#mi-perfil"><i class="fas fa-user-circle"></i> Mi Perfil</a>';
+      // Ocultar secciones exclusivas del admin
+      document.querySelectorAll('.ak-nav .admin-only').forEach(el => el.style.display = 'none');
+      // Agregar "Mi Perfil" al final del nav (una sola vez)
+      const nav = document.querySelector('.ak-nav');
+      if (!nav.querySelector('.fisio-profile-link')) {
+        const sep = document.createElement('span');
+        sep.className = 'ak-nav-sep fisio-profile-sep';
+        sep.textContent = 'Mi cuenta';
+        nav.appendChild(sep);
+        const link = document.createElement('a');
+        link.className = 'fisio-profile-link';
+        link.href = '#mi-perfil';
+        link.innerHTML = '<i class="fas fa-user-circle"></i> Mi Perfil';
+        nav.appendChild(link);
+      }
     } else {
       document.getElementById('userLabel').textContent = App.user || '';
     }
@@ -528,7 +537,7 @@ const Views = {
       ${appointments.length === 0
         ? '<div class="ak-card-body text-center text-muted py-5"><i class="fas fa-search fa-2x d-block mb-3" style="opacity:.25"></i>Sin citas para estos filtros</div>'
         : `<div class="table-responsive"><table class="ak-tbl">
-            <thead><tr><th>Fecha</th><th>Hora</th><th>Paciente</th><th>Tel.</th><th>Servicio</th><th>Molestia / Duda</th><th>Dur.</th><th>Estado</th><th>Acción</th></tr></thead>
+            <thead><tr><th>Fecha</th><th>Hora</th><th>Paciente</th><th>Tel.</th><th>Servicio</th><th>Molestia / Duda</th><th>Dur.</th><th>Estado</th><th>Fisio</th><th>Acción</th></tr></thead>
             <tbody>${appointments.map(a=>`
               <tr data-id="${a.id}">
                 <td>${fmtDate(a.date)}</td>
@@ -539,6 +548,7 @@ const Views = {
                 <td style="max-width:200px">${a.notes ? `<span style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;color:#555" title="${esc(a.notes)}">${esc(a.notes)}</span>` : '<span style="color:#bbb;font-size:12px">—</span>'}</td>
                 <td>${a.duration}h</td>
                 <td class="st-cell">${statusBadge(a.status)}</td>
+                <td style="font-size:12px;white-space:nowrap">${a.therapist_name ? esc(a.therapist_name.split(' ')[0]) : '<span style="color:#bbb">—</span>'}</td>
                 <td>
                   <div class="d-flex gap-1">
                     <select class="form-select form-select-sm st-sel" style="width:126px;font-size:12px">
