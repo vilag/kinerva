@@ -23,14 +23,16 @@ module.exports = async function sendExerciseNotifications() {
     mxNow.setMinutes(mxNow.getMinutes() + 5);
     const target = `${String(mxNow.getHours()).padStart(2,'0')}:${String(mxNow.getMinutes()).padStart(2,'0')}`;
 
-    // Ejercicios con ese horario en rutinas activas, agrupados por el paciente dueño de la rutina
+    // Ejercicios con ese horario en rutinas activas dentro del rango de fechas
     const [exercises] = await conn.execute(
       `SELECT re.id, re.name, r.patient_id, r.title AS routine_title
        FROM routine_exercises re
        JOIN routines r ON r.id = re.routine_id
        WHERE r.status = 'activa'
          AND re.schedule_times IS NOT NULL
-         AND JSON_CONTAINS(re.schedule_times, JSON_QUOTE(?))`,
+         AND JSON_CONTAINS(re.schedule_times, JSON_QUOTE(?))
+         AND (r.start_date IS NULL OR r.start_date <= CURDATE())
+         AND (r.end_date   IS NULL OR r.end_date   >= CURDATE())`,
       [target]
     );
 

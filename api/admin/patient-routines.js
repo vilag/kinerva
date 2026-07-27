@@ -13,18 +13,24 @@ module.exports = async function handler(req, res) {
   try {
     conn = await getConnection();
 
-    // Auto-migrate: add schedule_times column if it doesn't exist yet
+    // Auto-migrate: add missing columns if they don't exist yet
     try {
       await conn.execute(
         `ALTER TABLE routine_exercises ADD COLUMN schedule_times VARCHAR(500) NULL AFTER video_url`
       );
+    } catch(e) { if (e.code !== 'ER_DUP_FIELDNAME') throw e; }
+    try {
+      await conn.execute(`ALTER TABLE routines ADD COLUMN start_date DATE NULL`);
+    } catch(e) { if (e.code !== 'ER_DUP_FIELDNAME') throw e; }
+    try {
+      await conn.execute(`ALTER TABLE routines ADD COLUMN end_date DATE NULL`);
     } catch(e) { if (e.code !== 'ER_DUP_FIELDNAME') throw e; }
 
     /* GET — listar rutinas de un paciente */
     if (req.method === 'GET') {
       if (!q.patient_id) return res.status(400).json({ success: false, message: 'patient_id requerido' });
       const [routines] = await conn.execute(
-        'SELECT id, title, description, status, created_at FROM routines WHERE patient_id = ? ORDER BY created_at DESC',
+        'SELECT id, title, description, status, start_date, end_date, created_at FROM routines WHERE patient_id = ? ORDER BY created_at DESC',
         [q.patient_id]
       );
       for (const r of routines) {
@@ -62,8 +68,9 @@ module.exports = async function handler(req, res) {
       if (!q.patient_id || !body.title)
         return res.status(400).json({ success: false, message: 'patient_id y title requeridos' });
       const [result] = await conn.execute(
-        'INSERT INTO routines (patient_id, title, description) VALUES (?, ?, ?)',
-        [q.patient_id, body.title, body.description || null]
+        'INSERT INTO routines (patient_id, title, description, start_date, end_date) VALUES (?, ?, ?, ?, ?)',
+        [q.patient_id, body.title, body.description || null,
+         body.start_date || null, body.end_date || null]
       );
       return res.json({ success: true, routine_id: result.insertId });
     }
@@ -87,10 +94,17 @@ module.exports = async function handler(req, res) {
            body.schedule_times ?? null, q.exercise_id]
         );
       } else {
-        await conn.execute(
-          'UPDATE routines SET title = COALESCE(?,title), description = COALESCE(?,description), status = COALESCE(?,status) WHERE id = ?',
-          [body.title || null, body.description || null, body.status || null, q.routine_id]
-        );
+        // Construir SET dinámico para no pisar campos no enviados
+        const sets = [];
+        const vals = [];
+        if (body.title       !== undefined) { sets.push('title = ?');       vals.push(body.title || null); }
+        if (body.description !== undefined) { sets.push('description = ?'); vals.push(body.description || null); }
+        if (body.status      !== undefined) { sets.push('status = ?');      vals.push(body.status || null); }
+        if ('start_date' in body) { sets.push('start_date = ?'); vals.push(body.start_date || null); }
+        if ('end_date'   in body) { sets.push('end_date = ?');   vals.push(body.end_date   || null); }
+        if (sets.length === 0) return res.json({ success: true });
+        vals.push(q.routine_id);
+        await conn.execute(`UPDATE routines SET ${sets.join(', ')} WHERE id = ?`, vals);
       }
       return res.json({ success: true });
     }

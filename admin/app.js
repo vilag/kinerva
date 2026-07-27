@@ -3540,17 +3540,26 @@ const Views = {
         <div class="card-body">
           <h6 class="fw-bold mb-3"><i class="fas fa-plus-circle text-primary me-2"></i>Nueva Rutina</h6>
           <div class="row g-2">
-            <div class="col-md-5">
+            <div class="col-md-4">
               <input class="form-control form-control-sm" id="newRoutineTitle" placeholder="Título de la rutina *">
             </div>
-            <div class="col-md-5">
+            <div class="col-md-3">
               <input class="form-control form-control-sm" id="newRoutineDesc" placeholder="Descripción (opcional)">
             </div>
-            <div class="col-md-2">
+            <div class="col-6 col-md-2">
+              <input type="date" class="form-control form-control-sm" id="newRoutineStart" title="Fecha inicio (opcional)">
+            </div>
+            <div class="col-6 col-md-2">
+              <input type="date" class="form-control form-control-sm" id="newRoutineEnd" title="Fecha fin (opcional)">
+            </div>
+            <div class="col-12 col-md-1">
               <button class="btn btn-primary btn-sm w-100" onclick="Views.createRoutine(${patientId})">
                 <i class="fas fa-save me-1"></i>Crear
               </button>
             </div>
+          </div>
+          <div class="mt-1" style="font-size:11px;color:#6c757d">
+            <i class="fas fa-info-circle me-1"></i>Fecha inicio / fin — las notificaciones solo se envían dentro de ese rango. Dejar en blanco para sin límite.
           </div>
         </div>
       </div>
@@ -3562,13 +3571,25 @@ const Views = {
         </div>` :
         routines.map(r => `
           <div class="card mb-3" id="routine-${r.id}">
-            <div class="card-header d-flex align-items-center justify-content-between gap-2 py-2">
+            <div class="card-header d-flex align-items-center justify-content-between gap-2 py-2 flex-wrap">
               <div class="d-flex align-items-center gap-2 flex-grow-1">
                 <i class="fas fa-clipboard-list text-primary"></i>
                 <strong>${esc(r.title)}</strong>
                 ${r.description ? `<small class="text-muted">— ${esc(r.description)}</small>` : ''}
               </div>
-              <div class="d-flex align-items-center gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+                <div class="d-flex align-items-center gap-1" title="Rango de fechas en que se envían notificaciones">
+                  <i class="fas fa-calendar-alt text-muted" style="font-size:12px"></i>
+                  <input type="date" class="form-control form-control-sm" id="rStartDate-${r.id}"
+                    value="${r.start_date ? String(r.start_date).slice(0,10) : ''}"
+                    style="width:138px;font-size:12px"
+                    onchange="Views.updateRoutineDates(${r.id}, ${patientId})">
+                  <span class="text-muted" style="font-size:11px">→</span>
+                  <input type="date" class="form-control form-control-sm" id="rEndDate-${r.id}"
+                    value="${r.end_date ? String(r.end_date).slice(0,10) : ''}"
+                    style="width:138px;font-size:12px"
+                    onchange="Views.updateRoutineDates(${r.id}, ${patientId})">
+                </div>
                 <select class="form-select form-select-sm" style="width:130px"
                   onchange="Views.updateRoutineStatus(${r.id}, this.value, ${patientId})">
                   ${['activa','pausada','completada'].map(s =>
@@ -3777,8 +3798,14 @@ const Views = {
   async createRoutine(patientId) {
     const title = document.getElementById('newRoutineTitle').value.trim();
     const desc  = document.getElementById('newRoutineDesc').value.trim();
+    const start = document.getElementById('newRoutineStart')?.value || null;
+    const end   = document.getElementById('newRoutineEnd')?.value   || null;
     if (!title) { showToastGlobal('El título es obligatorio', 'warning'); return; }
-    const r = await App.api('POST', '/patient-routines', { title, description: desc || null }, { patient_id: patientId });
+    if (start && end && start > end) {
+      showToastGlobal('La fecha de inicio no puede ser posterior a la fecha fin', 'warning'); return;
+    }
+    const body = { title, description: desc || null, start_date: start, end_date: end };
+    const r = await App.api('POST', '/patient-routines', body, { patient_id: patientId });
     if (r?.success) {
       showToastGlobal('Rutina creada', 'success');
       await Views.loadRoutineManager(patientId);
@@ -3790,6 +3817,19 @@ const Views = {
   async updateRoutineStatus(routineId, status, patientId) {
     await App.api('PATCH', '/patient-routines', { status }, { routine_id: routineId });
     showToastGlobal('Estado actualizado', 'success');
+  },
+
+  async updateRoutineDates(routineId, patientId) {
+    const start = document.getElementById(`rStartDate-${routineId}`)?.value || null;
+    const end   = document.getElementById(`rEndDate-${routineId}`)?.value   || null;
+    if (start && end && start > end) {
+      showToastGlobal('La fecha de inicio no puede ser posterior a la fecha fin', 'warning');
+      return;
+    }
+    const r = await App.api('PATCH', '/patient-routines',
+      { start_date: start, end_date: end }, { routine_id: routineId });
+    if (r?.success) showToastGlobal('Fechas de rutina actualizadas', 'success');
+    else showToastGlobal('Error al guardar fechas', 'danger');
   },
 
   async deleteRoutine(routineId, patientId) {
